@@ -1,0 +1,316 @@
+data/second_dot_18.txt: # Same as before, different IF
+data/second_dot_19.txt: # Same as before, A/P at 45DEG
+data/second_dot_20.txt: # Slightly diff IF
+data/second_dot_21.txt: # Isolated reference cable
+data/second_dot_22.txt: # First dot of the day!
+data/second_dot_22.txt: # No comment
+data/second_dot_22.txt: # No comment
+data/second_dot_23.txt: # Laser defocussed a bit
+data/second_dot_24.txt: # Same as before, AP at 0 DEG
+data/second_dot_24.txt: # Cancelled previous, reverted to old noise calc
+data/second_dot_24.txt: # Cancelled previous, reverted to old noise calc
+data/second_dot_25.txt: # Same as before (and 23) but with AP at 45DEG
+data/second_dot_25.txt: data/second_dot_25.txt: # APat45DEG, same as 23
+data/second_dot_26.txt: # No RF power on sample
+data/second_dot_27.txt: # Same as before, slightly less laser light
+data/second_dot_28.txt: # AP0DEG, exactly same light intensity on diode as 27
+data/second_dot_29.txt: # Normal scan, AP 45 DEG, RF on, 100uA photocurrent, 17dBm
+data/second_dot_30.txt: data/second_dot_30.txt: # Same as 29 but lower frequency
+data/second_dot_30.txt: # Same as 29, lower frequency range, lower IF (1.1 vs 1.5 GHz)
+data/second_dot_30.txt: # First measurement of the day, everything was realligned
+data/second_dot_30.txt: # First measurement of the day, everything was realligned
+data/second_dot_31.txt: # Exactly the same, IF shifted down 50MHz
+data/second_dot_32.txt: # Reverted to old IF
+data/second_dot_33.txt: # Upped the IF 50MCy
+data/second_dot_34.txt: # Same as before, different noise calculation
+data/second_dot_35.txt: # Exactly the same as the before, but no excitation!
+data/second_dot_36.txt: data/second_dot_36.txt: # Excitation returned, AP at 0DEG
+data/second_dot_37.txt: # Normal measurement, IF shifted down 1MHz, new method of peak calculation
+data/second_dot_37.txt: # Same as before, updated the peak function a bit
+data/second_dot_38.txt: # Same as before, IF shifted 1MHz up
+data/second_dot_39.txt: # Next day, all the same but no laser light
+data/second_dot_40.txt: # Light turned on, about 75uA
+data/time_sweep_1.txt: # Not sweeping frequency, single f multiple measurements
+data/second_dot_41.txt: # New peak calculation method
+data/second_dot_41.txt: # Same as before
+data/second_dot_42.txt: # Adjusted MONA software to do VBW avging
+data/second_dot_42.txt: # test
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_42.txt: # 
+data/second_dot_43.txt: # Same as before, diff software
+data/second_dot_44.txt: # VBW avging enabled, 16 VBW
+data/second_dot_45.txt: # High magnetic field, old software
+data/second_dot_46.txt: # Exactly the same at 45, but much weaker magnets
+data/second_dot_47.txt: # Same as before, small reallignment
+data/second_dot_48.txt: # Reverted to stronger B
+data/second_dot_49.txt: # Weaker magnets
+data/second_dot_50.txt: # No magnets present
+data/third_dot_1.txt: # This is a new, blank sample with no signs of oxidation
+data/third_dot_1.txt: # Accidently not powered on the amps
+data/third_dot_2.txt: # Repetition of yesterdays last meas
+data/third_dot_3.txt: # Same as before, beam has drifted and I have corrected for this
+data/third_dot_3.txt: # Forgot to power on the amps
+data/third_dot_4.txt: # Now sweeping second LO
+data/fourth_dot_1.txt: # Looking at the smaller dot
+data/fifth_dot_1.txt: # Actually not on dot, but next to it
+data/fourth_dot_2.txt: # Magnets are displaced
+data/fourth_dot_2.txt: # Nothing appeared, very strange
+data/fourth_dot_2.txt: # Beam not on sample
+data/third_dot_5.txt: # Standard meas
+data/third_dot_5.txt: # Standard meas
+data/third_dot_6.txt: # Excitation is now parallel to the bias field
+data/third_dot_7.txt: # Same as before 3dB less power
+data/third_dot_8.txt: # Increased the power with 3dB
+data/third_dot_9.txt: # 3dB more power, now at 20dBm
+data/third_dot_9.txt: # Same as earlier index, but now with 3dB less power
+data/third_dot_9.txt: # 3dB lower power
+data/third_dot_10.txt: # Had to replace the laser diode
+data/third_dot_11.txt: # Same as before, but shifted about 10um
+data/third_dot_12.txt: # At the edge
+data/third_dot_12.txt: # Try try and try again
+default_results.txt: # Excitation parallel to the bias field, long scan
+data/third_dot_13.txt: # Excitation parallel to the bias field, long scan (copy of the above)
+data/third_dot_14.txt: # Excitation perpendicular to the bias field, long scan
+data/third_dot_15.txt: # PLL's are functioning, mixer in range
+data/third_dot_15.txt: # See above
+data/third_dot_16.txt: # Single mixer, low frequency
+data/third_dot_17.txt: # Same as above, zero offset
+data/third_dot_18.txt: # Excitation is now parallel to the bias field
+data/third_dot_18.txt: # Excitation is now parallel to the bias field
+data/third_dot_19.txt: # Polarizer in full transmission
+data/third_dot_20.txt: # Polarizer in half-transmission
+data/third_dot_21.txt: # Same as above
+data/third_dot_22.txt: # Fast scan, better alignment
+data/third_dot_23.txt: # No light is present
+data/third_dot_24.txt: # Sample was not connected, now it is
+data/third_dot_25.txt: # Beam next to sample
+data/third_dot_25.txt: # 
+data/third_dot_25.txt: # 
+data/third_dot_26.txt: # Switching on the amplifiers is a usefull thing
+data/third_dot_27.txt: # Lights off
+data/third_dot_28.txt: # Power off
+data/third_dot_29.txt: Nothing perticular
+data/third_dot_29.txt: 
+data/third_dot_30.txt: 
+data/third_dot_31.txt: Amplifiers are driving up to their limits
+data/third_dot_32.txt: All should be well
+standard_output.txt: 
+standard_output.txt: 
+data/third_dot_33.txt: uW amps removed from audio path!
+data/third_dot_34.txt: Magnets are removed
+data/third_dot_34.txt: Same
+data/third_dot_35.txt: A high strength magnet has been placed around the sample, around 300mT bias, excitation is perp to this
+data/third_dot_36.txt: Idem
+data/third_dot_36.txt: 
+data/third_dot_36.txt: Magnets removed
+data/third_dot_37.txt: Magnets removed
+data/third_dot_38.txt: 
+data/third_dot_39.txt: 
+data/third_dot_40.txt: 
+data/third_dot_41.txt: 3dB more power
+data/third_dot_42.txt: Big magnet back in place
+data/third_dot_43.txt: Pol in full trans
+data/third_dot_43.txt: 
+data/third_dot_44.txt: default power level
+data/third_dot_44.txt: Double the power
+data/third_dot_45.txt: Not probing the sample, pol full open
+data/third_dot_46.txt: Beam on ground plane, pol full open
+data/third_dot_47.txt: Pol at half transmission, power magnets in place
+data/third_dot_47.txt: 
+data/third_dot_48.txt: Weak magnets in place
+data/third_dot_49.txt: Pol in full trans
+data/third_dot_50.txt: Lights out
+data/third_dot_51.txt: Beam not on sample
+data/third_dot_52.txt: Beam is placed between 75um and 20um sample, pol full open
+data/third_dot_53.txt: Same as 52, but shifted 1MHz up
+data/third_dot_54.txt: Sleep function is implemented
+data/third_dot_55.txt: Beam is probing the groundplane
+data/third_dot_56.txt: Same as before, 2MHz steps
+data/third_dot_57.txt: About twice as much light
+data/third_dot_58.txt: Power 3dB lower
+data/third_dot_59.txt: Way off sample and on ground plane
+data/third_dot_60.txt: Refocussed
+data/third_dot_61.txt: Arc lamp removed
+data/third_dot_62.txt: Standard measurement
+data/third_dot_63.txt: Pol at full trans
+data/third_dot_64.txt: MM connected to laser
+data/third_dot_65.txt: Pol at half tranmission, normal meas
+data/third_dot_66.txt: Pol full trans, nothing else changed
+data/third_dot_67.txt: Disconnected MM\
+standard_output.txt: sdfgdgf
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+standard_output.txt: 
+data/dot_1.txt: Fd
+data/dot_2.txt: Analyzer rotated over 45deg
+data/dot_3.txt: No analyzer present
+data/dot_4.txt: Analyzator reinserted
+data/dot_5.txt: Little power on sample (0dBm)
+data/dot_6.txt: Power to 16dBm, light off
+data/dot_7.txt: Light on, power on, analyzer at 45deg, light next to sample but on stripline
+data/dot_8.txt: Small frequency steps
+data/dot_9.txt: Somewhat larger steps
+data/dot_10.txt: dot_9 crashed
+data/dot_10.txt: 
+data/dot_11.txt: 
+HPtoHP.txt: 
+HPtoHP.txt: HP set at -60dBm
+HPtoHP.txt: after crash
+HPtoHP.txt: Crash
+HPtoHP.txt: 
+HPtoHP.txt: Larger steps to speed up to prcoess
+HPtoHP_2.txt: Backwards, large steps
+HPtoHP_2.txt: 
+HPtoHP_2.txt: 
+HPtoHP_2.txt: 
+HPtoHP_2.txt: 
+HPtoHP_wFilter.txt: 5500MHz high pass filter has been inserted
+HittitetoHP.txt: Hittite generates 10dBm to mixer, HP -60dBm
+HittitetoHP.txt: 
+HittitetoHP.txt: 
+HittitetoHP.txt: 
+HittitetoHP_2.txt: -70dBm from HP Unit
+HittitetoHP_3.txt: -100dBm from HP, with preamp
+HittitetoHP_4.txt: Much less bandwidth
+HittitetoHP_5.txt: Smaller steps this time
+HittitetoHP_6.txt: -140dBm input on preamp, all amps on
+HittitetoHP_7.txt: Same as before, do these peaks exist?
+HittitetoHP_7.txt: 
+HittitetoHP_8.txt: Fine mazed sweep
+HittitetoHP_8.txt: 
+HittitetoHP_8.txt: 
+HittitetoHP_8.txt: 
+HPtoHP_3.txt: Same as the above (Hittite to HP)
+HPtoHP_3.txt: 
+HPtoHP_3.txt: 
+HPtoHP_4.txt: 
+HPtoHP_5.txt: 
+HPtoHP_6.txt: Increased the power with 10dB
+HPtoHP_7.txt: Mixer correctly powered
+HPtoHP_8.txt: 
+HPtoHP_9.txt: 
+HPtoHP_10.txt: -Professor Kay, the inventor of the sonic glasses, heads the Department of Electrical Engineering, University of Canterbury, Christchurch, New Zealand.
+HPtoHP_10.txt: -70dBm from generator, preamp inserted
+HPtoHP_11.txt: -70dBm from generator, no preamp
+HPtoHP_11.txt: High res
+HittitetoHP_9.txt: 7kHz offset, not 10kHz, Hittite driving the mixer, -70dBm from HP
+HittitetoHP_10.txt: Hittite SG was not responding in previous measurement
+HittitetoHP_11.txt: 
+HittitetoHP_11.txt: 
+HittitetoHP_12.txt: As the above finer mazed steps, 6kHz offset
+HittitetoHP_13.txt: 10kHz offset
+HittitetoHP_14.txt: -120dBm, all amps on
+HittitetoHP_14.txt: 
+HittitetoHP_15.txt: Disconnected RF cable
+HittitetoHP_16.txt: HP Unit is not outputting
+HittitetoHP_17.txt: 
+HittitetoHP_18.txt: Audio high pass
+HittitetoHP_19.txt: Hittite power output disabled
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_19.txt: 
+HittitetoHP_20.txt: HP is LO, Hittite is not connected to signal chain
+HPtoHP_12.txt: Not connected low level HP
+HPtoHP_13.txt: Mixer powered on
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HPtoHP_13.txt: 
+HittitetoHP_22.txt: Hittite as LO, HP as RF (-100dBm), no preamp, full postamp
+HittitetoHP_23.txt: 20dB att inserted
+HittitetoHP_24.txt: Full monty
+HittitetoHP_25.txt: Extended sweep
+HittitetoHP_26.txt: Peakfind is corrected
+o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: o.txt: HittitetoHP_27.txt: HittitetoHP_28.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: p.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: q.txt: HittitetoHP_20.txt: HittitetoHP_29.txt: HittitetoHP_29.txt: HittitetoHP_30.txt: HittitetoHP_31.txt: HittitetoHP_32.txt: HittitetoHP_32.txt: HittitetoHP_32.txt: HittitetoHP_33.txt: HittitetoHP_34.txt: HPtoHP_14.txt: On driving at 7dBm, other at -110dBm but not connected
+HPtoHP_15.txt: Now connected
+HPtoHP_16.txt: Inserted preamp
+HPtoHP_16.txt: Fine mazed
+tmp.txt: 
+HPtoHP_16.txt: Cont
+HPtoHP_16.txt: Cont of prev
+HPtoHP_16.txt: 
+HPtoHP_17.txt: HP output power has been disabled
+HPtoHP_18.txt: Cleaned up peak detection routine
+HPtoHP_19.txt: In previous meas, power regulator failed
+HPtoHP_20.txt: Power from HP enabled, -140dBm signal
+HPtoHP_21.txt: Exactly the same as the above
+HPtoHP_22.txt: 
+HPtoHP_22.txt: 22kHz offset
+HPtoHP_23.txt: +7dBm on sample, all other normal
+HPtoHP_24.txt: Output power disabled
+HPtoHP_25.txt: -140dBm signal at preamp, cables switched
+HPtoHP_26.txt: Same as before
+HPtoHP_27.txt: Cables switched and repaired
+HPtoHP_28.txt: Photodiode connected, low level signal generator terminated into 20dB att
+HPtoHP_29.txt: Low level generator output disabled, rest remained the same
+HPtoHP_30.txt: Signal gen to lab, sample connected, +7dBm
+HPtoHP_31.txt: Sample connected, +7dBm, light on photodiode (not on sample), 100uA photocurrent
+HPtoHP_32.txt: Cont of prev
+data/dot_12.txt: HP for excitation
+data/dot_12.txt: Cont
+data/dot_13.txt: Realligned optics
+data/dot_14.txt: Disabled second audio amp
+data/dot_15.txt: Now second HP is listening again, not in the two previous meas
+data/dot_16.txt: 
+data/dot_17.txt: FMR peak?
+data/dot_18.txt: Magnets removed
+data/dot_19.txt: Magnets are placed back, 2MHz steps
+data/dot_19.txt: 
+data/dot_20.txt: Backward, 18kHz offset
+data/dot_21.txt: Excitation rotated over 90degrees
+data/dot_22.txt: Everything is back to normal, def meas
+data/dot_23.txt: Excitation power increased by 3dB
+data/dot_24.txt: Extended sweep range
+data/dot_24.txt: 
+data/dot_25.txt: Electromagnet at 1amp
+data/dot_26.txt: 1.5Amp through EM
+standard_output.txt: 1.25A
+data/dot_27.txt: 1.25A EM
+data/dot_28.txt: Exactly the same as the above
+data/dot_29.txt: small correction to software
+data/dot_29.txt: 
+data/dot_30.txt: Magnet power sweep, f[MHz] = I[mA]
+data/dot_31.txt: Backwards, as previous
+data/dot_31.txt: 
+data/dot_31.txt: 
+data/dot_31.txt: 
+standard_output.txt: 
+standard_output.txt: 
+data/dot_32.txt: 4500 MHz, current sweep
+data/dot_32.txt: \
+data/dot_32.txt: 
+data/dot_32.txt: 
+data/dot_32.txt: 
+data/dot_32.txt: 
+data/dot_32.txt: 
+data/dot_32.txt: 
+standard_output.txt: 
+data/dot_32.txt: Current sweep, 4.5GHz

@@ -1,0 +1,153 @@
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1129.340403	3562.682052	2607022.174289
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1012.211532	2914.469304	2663869.927832
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1079.831452	2487.669553	2471180.186587
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1067.916222	2048.342881	2397743.490513
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1104.228774	3220.292401	2569662.892996
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1046.964393	3078.617101	2475788.372082
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1109.538585	3267.792814	2146979.295784
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1121.050298	3374.389750	2388532.532641
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1224.868022	3504.235348	2799172.953245
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1156.118763	4527.505310	2436652.341716
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1265.261775	4608.321207	2472771.413888
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1302.463435	3638.111504	2918043.310145
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1101.333779	3207.444116	2891382.102118
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1122.008184	3634.105420	2273498.992454
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1155.456685	3841.399213	2445026.201258
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1166.340343	3821.963185	2959208.426564
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1387.235508	5605.836273	2554876.237169
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1184.656729	2990.482780	2610831.275706
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1187.176306	3359.240196	2995431.128794
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1086.814471	3814.980316	3212451.231707
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1198.665619	2657.811313	2637768.135241
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1059.140453	3063.619356	2714162.061238
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1258.962604	3460.406412	3009426.403776
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1111.860160	3958.396221	2756459.152026
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1111.403229	3511.888511	1652483.975326
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1393.349948	3664.179981	2005716.437458
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1252.166697	4892.355834	3343192.494569
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1100.272918	3002.539507	2515985.841364
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1273.622393	3732.763294	2168479.163458
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1225.596212	4750.566445	2340116.516086
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1349.872756	6166.899944	2335119.577812
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1241.693037	3798.821748	2423801.795487
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1164.649999	3216.709974	2642373.033616
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1110.174857	3374.390615	2976588.553090
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1203.194794	4031.341990	2626831.609661
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	987.392160	4620.267229	2612911.445580
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1211.654765	4899.531219	2971736.376532
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1347.449635	5650.558215	2963915.523386
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1201.728455	3842.375722	2504002.871326
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1064.459578	3176.377963	2535710.557772
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1134.102162	3192.348664	2867151.583390
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1181.818135	4746.423902	2621357.408729
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1204.701322	3585.122118	2226713.872869
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1105.528351	3843.291449	2861110.850542
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1414.160409	5700.004596	2952384.760919
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1106.456572	4879.917981	2493304.002477
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1203.915337	3873.491886	2514547.577743
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1184.005102	5105.374419	3019618.848473
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1029.265556	3101.282539	2692079.151528
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1438.663192	5401.024129	2459632.851904
+# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
+# Frequency [MHz]	avg noise	std noise	peak value
+10000.000000	1183.311305	3642.621664	2910286.054250

@@ -1,0 +1,24 @@
+second_dot_10.txt	# Analyzer pol at 45DEG
+second_dot_11.txt	# Both magnets, an/pol 45DEG, not looking at sample, but only at stripline
+second_dot_12.txt	# Normal sweep, single magnet5.0	24905.3633134	9987.305	139786.778764	9481.934	146692.562508	10543.95	210933.262672
+second_dot_13.txt	# Both magnets in place, all should be fine5.0	13263.3802317	9996.094	598680.007137	9468.75	135718.50301	10491.21	59711.1045751
+second_dot_14.txt	# Some as dot_13, extende freq range5.5	21607.6464002	9971.191	186332.100537	9452.637	165957.669646	10480.96	134509.793781
+second_dot_15.txt	# Same as before, different IF
+second_dot_16.txt	# Same as before but with reallignment
+second_dot_17.txt	# Same as before, A/P 0DEG
+second_dot_18.txt	# Same as before, different IF
+second_dot_19.txt	# Same as before, A/P at 45DEG
+second_dot_2.txt	# Fine mazed sweep, both magnets in place
+second_dot_20.txt	# Slightly diff IF
+second_dot_21.txt	# Isolated reference cable
+second_dot_22.txt	# No comment
+second_dot_23.txt	# Laser defocussed a bit
+second_dot_24.txt	# Cancelled previous, reverted to old noise calc
+second_dot_25.txt	# APat45DEG, same as 23
+second_dot_3.txt	# Fine mazed sweep, one magnet has been removed
+second_dot_4.txt	# This is using continuous laser light, no modulation
+second_dot_5.txt	# One magnet, fine mazed, "low frequency"
+second_dot_6.txt	# Two magnets are now in place, low frequency, laptop crashed, data incomplete
+second_dot_7.txt	# Two magnets in place, analyzer polarizer at 45DEG
+second_dot_8.txt	# Two magnets, now with analyzer and polarizer angle at zero degrees
+second_dot_9.txt	# Two magnets, now with analyzer and polarizer angle at zero degrees
