@@ -37,10 +37,10 @@ typedef struct
     dac_tx_struct buffer;
 } DAC_struct;
 
-// Initializes the DAC8564 and the necessary structs, returns 0 on success
+// Initializes the LTC1859 and the necessary structs, returns 0 on success
 int initDAC(int SYNCpin, int address, DAC_struct *DAC);
 
-// Frees a DAC struct
+// Frees a ADC struct
 int freeDAC(DAC_struct *DAC);
 
 // Sets the voltage (value in [V]) of DAC channel (0..3).
