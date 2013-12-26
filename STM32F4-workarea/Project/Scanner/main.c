@@ -8,6 +8,8 @@
 #include <string.h>
 
 #include "init.h"
+#include "adc.h"
+#include "dac.h"
 
 #define MAX_STRLEN 64
 volatile char received_string[MAX_STRLEN];

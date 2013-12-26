@@ -98,16 +98,31 @@ void init_SPI1(void){
 	// enable clock for used IO pins
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
-	/* Configure the chip select pin
-	   in this case we will use PE7 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-	GPIOE->BSRRL |= GPIO_Pin_7; // set PE7 high
+	GPIOE->BSRRL |= GPIO_Pin_3; // set PE3 high (disables LIS302DL)
+
+    // PA1 as output (CONVST)
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	GPIOE->BSRRH |= GPIO_Pin_1; // set PA1 low
+
+    // PA3 as input (~BUSY)
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	// enable peripheral clock
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -138,11 +153,14 @@ void init_SPI2(void){
 	// enable clock for used IO pins
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-	/* configure pins used by SPI2
-	 * PB10 = SCK
-     */
+/*
+ * PB11 ~SYNC
+ * PB13 SCLK
+ * PB14 MISO
+ * PB15 MOSI
+*/
 
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
@@ -150,38 +168,18 @@ void init_SPI2(void){
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	// connect SPI2 pins to SPI alternate function
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
 
-	// enable clock for used IO pins
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-    /*
-	 * PC2 = MISO
-	 * PC3 = MOSI
-	 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOC, &GPIO_InitStruct);
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-	// connect SPI2 pins to SPI alternate function
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource3, GPIO_AF_SPI2);
-	GPIO_PinAFConfig(GPIOC, GPIO_PinSource2, GPIO_AF_SPI2);
-
-	// enable clock for used IO pins
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-
-	/* Configure the chip select pin
-	   in this case we will use PE8 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-	GPIOE->BSRRL |= GPIO_Pin_7; // set PE7 high
+    GPIOB->BSRRL |= GPIO_Pin_11; // PB11 high
 
 	// enable peripheral clock
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
