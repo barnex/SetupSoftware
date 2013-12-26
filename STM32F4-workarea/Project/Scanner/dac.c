@@ -1,30 +1,20 @@
 #include "dac.h"
 
-struct dac_tx_struct
-{
-    // Most significant byte
-    unsigned int powerDown  :1;
-    unsigned int channel    :2;
-    unsigned int zero       :1;
-    unsigned int command    :2; 
-    unsigned int address    :2;
-       
-    unsigned int value      :16;
-} dac_tx_struct;
-
 void setDAC(char channel, uint16_t value)
 {
     // Bring PB11 low
     GPIOB->BSRRH |= GPIO_Pin_11;
 
-    dac_tx_struct.powerDown = 0;
-    dac_tx_struct.zero      = 0;
-    dac_tx_struct.address   = 0;
-    dac_tx_struct.channel   = channel;
-    dac_tx_struct.command   = 1; // Load value and update DAC
-    dac_tx_stuct.value      = value;
+    dac_tx_struct dac;
 
-    uint8_t *buffer = (uint8_t *)(&dac_tx_struct);
+    dac.powerDown = 0;
+    dac.zero      = 0;
+    dac.address   = 0;
+    dac.channel   = channel;
+    dac.command   = 1; // Load value and update DAC
+    dac.value      = value;
+
+    uint8_t *buffer = (uint8_t *)(&dac);
     for(int i = 0; i < 4; i++ )
     {
         SPI2->DR = buffer[i];
