@@ -17,7 +17,7 @@ MCU = cortex-m4
 MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -std=c99 -g
 STM32_INCLUDES = -I../../Libraries/CMSIS/Device/ST/STM32F4xx/Include/ \
 	-I../../Libraries/CMSIS/Include/ \
-	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/
+	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/ -I./
 
 OPTIMIZE       = -O
 
@@ -26,6 +26,7 @@ AFLAGS	= $(MCFLAGS)
 #-mapcs-float use float regs. small increase in code size
 
 SRC = main.c \
+    *.c \
 	stm32f4xx_it.c \
 	system_stm32f4xx.c \
 	../../Libraries/STM32F4xx_StdPeriph_Driver/src/misc.c \
