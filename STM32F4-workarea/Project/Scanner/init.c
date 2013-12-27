@@ -70,7 +70,7 @@ void init_USART1(uint32_t baudrate){
 	USART_Cmd(USART1, ENABLE);
 }
 
-void init_SPI1(void){
+void init_ADC(void){
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	SPI_InitTypeDef SPI_InitStruct;
@@ -145,7 +145,7 @@ void init_SPI1(void){
 }
 
 // this function initializes the SPI2 peripheral
-void init_SPI2(void){
+void init_DAC(void){
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	SPI_InitTypeDef SPI_InitStruct;

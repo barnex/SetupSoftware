@@ -24,7 +24,7 @@ void init_USART1(uint32_t baudrate);
  * PA3 = ~BUSY (in)
  * PE7 = HIGH (required to disable LIS302DL)
  */
-void init_SPI1(void);
+void init_ADC(void);
 
 /*
  * PB11 ~SYNC
@@ -32,7 +32,7 @@ void init_SPI1(void);
  * PB14 MISO
  * PB15 MOSI
 */
-void init_SPI2(void);
+void init_DAC(void);
 
 
 void init_LEDs();

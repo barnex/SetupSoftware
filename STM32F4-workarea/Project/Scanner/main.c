@@ -35,6 +35,8 @@ int main()
 {
 	init_LEDs();
 	init_USART1(115200);
+    init_ADC();
+    init_DAC();
     state = 0;
 	//RCC_ClocksTypeDef myClocks;
 	//RCC_GetClocksFreq(&myClocks);
@@ -42,28 +44,39 @@ int main()
 
 	while(1)
 	{
-        switch(state)
+        if( state == 0 )
         {
-            case 0: GPIOD->BSRRL = 0xF000;
-		            Delay(1000000L);
-		            GPIOD->BSRRH = 0xF000;
-                    break;
-            case 1: GPIOD->BSRRL = 0x1000;
-		            Delay(1000000L);
-                    GPIOD->BSRRH = 0x1000;
-                    GPIOD->BSRRL = 0x2000;
-		            Delay(1000000L);
-                    GPIOD->BSRRH = 0x2000;
-                    GPIOD->BSRRL = 0x4000;
-		            Delay(1000000L);
-                    GPIOD->BSRRH = 0x4000;
-                    GPIOD->BSRRL = 0x8000;
-		            Delay(1000000L);
-                    GPIOD->BSRRH = 0x8000;
-                    break;
-            default: break;
+            GPIOD->BSRRL = 0xF000;
+            uint16_t buffer[8];
+            readChannels( buffer );
+            char outstr[64];
+            memset(outstr, 0, 64);
+            sprintf(outstr, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\r\n",
+                buffer[0], buffer[1], buffer[2], buffer[3],
+                buffer[4], buffer[5], buffer[6], buffer[7]);
+            USART_puts(USART1, outstr);
+            state = 1;
+            GPIOD->BSRRH = 0xF000;
         }
-		Delay(1000000L);
+        else if( state == 1 )
+        {
+            GPIOD->BSRRL = 0x1000;
+            GPIOD->BSRRH = 0x8000;
+            Delay(1000000L);
+            GPIOD->BSRRL = 0x2000;
+            GPIOD->BSRRH = 0x1000;
+            Delay(1000000L);
+            GPIOD->BSRRL = 0x4000;
+            GPIOD->BSRRH = 0x2000;
+            Delay(1000000L);
+            GPIOD->BSRRL = 0x8000;
+            GPIOD->BSRRH = 0x4000;
+            Delay(1000000L);
+        }
+        else
+        {
+            GPIOD->BSRRH = 0xF000;
+        }
 	}
 	return 0;
 
@@ -88,7 +101,7 @@ void USART1_IRQHandler(void){
         else if( t == 0x62 )
         {
            state = 0;
-           USART_puts(USART1, "Enabling...\r\n");
+           USART_puts(USART1, "Toggled measurement...\r\n");
         }
         else if( t == 0x63 )
         {

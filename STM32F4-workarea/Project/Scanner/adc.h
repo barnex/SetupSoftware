@@ -21,5 +21,6 @@ typedef struct
 } adc_tx_struct;
  
 void readChannel(char channel, uint16_t * value);
-void readChannels(uint16_t *values);
+// Value is a pointer to (at least) an eight uint16_t array
+void readChannels(uint16_t *value);
 #endif
