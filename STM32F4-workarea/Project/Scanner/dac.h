@@ -22,5 +22,6 @@ typedef struct
 
 
 void setDAC(char channel, uint16_t value);
+void setDACS(uint16_t *values);
 
 #endif
