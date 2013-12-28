@@ -34,7 +34,7 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
 int main()
 {
 	init_LEDs();
-	init_USART1(115200);
+	init_USART1(460800);
     init_ADC();
     init_DAC();
     state = 0;
@@ -108,4 +108,9 @@ void USART1_IRQHandler(void){
             state = 3;
         }
     }
+}
+
+void TIM2_IRQHandler(void)
+{
+
 }
