@@ -13,17 +13,37 @@
 
 #define MAX_STRLEN 64
 
-#define ABORT   (uint32_t) 0
-#define ACTIVE  (uint32_t) 1
-#define IDLE    (uint32_t) 2
-#define START   (uint32_t) 3
+#define STATE_ABORT   (uint32_t) 0
+#define STATE_ACTIVE  (uint32_t) 1
+#define STATE_IDLE    (uint32_t) 2
+#define STATE_START   (uint32_t) 3
 
-#define FIRSTPIXEL  (uint8_t) 1
-#define LASTPIXEL   (uint8_t) 2
-#define SCANNING    (uint8_t) 3
+#define OUT_CMD_FIRSTPIXEL  (uint8_t) 1
+#define OUT_CMD_LASTPIXEL   (uint8_t) 2
+#define OUT_CMD_SCANNING    (uint8_t) 3
 
-volatile char received_string[MAX_STRLEN];
-
+#define IN_CMD_ABORT            (uint8_t) 0
+#define IN_CMD_GOTO             (uint8_t) 1
+#define IN_CMD_START            (uint8_t) 2
+#define IN_CMD_SET_DACX         (uint8_t) 3
+#define IN_CMD_SET_DACY         (uint8_t) 4
+#define IN_CMD_SET_DACZ         (uint8_t) 5
+#define IN_CMD_SET_DACAUX       (uint8_t) 6
+#define IN_CMD_GET_DACX         (uint8_t) 7
+#define IN_CMD_GET_DACY         (uint8_t) 8
+#define IN_CMD_GET_DACZ         (uint8_t) 9
+#define IN_CMD_GET_DACAUX       (uint8_t) 10
+#define IN_CMD_GET_CHAN1        (uint8_t) 11
+#define IN_CMD_GET_CHAN2        (uint8_t) 12
+#define IN_CMD_GET_CHAN3        (uint8_t) 13
+#define IN_CMD_GET_CHAN4        (uint8_t) 14
+#define IN_CMD_GET_CHAN5        (uint8_t) 15
+#define IN_CMD_GET_CHAN6        (uint8_t) 16
+#define IN_CMD_GET_CHAN7        (uint8_t) 17
+#define IN_CMD_GET_CHAN8        (uint8_t) 18
+#define IN_CMD_SET_START        (uint8_t) 19
+#define IN_CMD_SET_PIXELS       (uint8_t) 20
+#define IN_CMD_SET_TSETTLE      (uint8_t) 21
 
 volatile int32_t    position[4];
 volatile int32_t    start[4];
@@ -36,16 +56,13 @@ volatile uint32_t   t_settle;
 volatile uint32_t   state;
 volatile uint16_t   DACBuffer[4];
 volatile int16_t    ADCBuffer[8];
+volatile uint16_t   USARTBuffer[16];
 
-union cmdstrct
+struct commandstructure
 {
-    uint16_t bytes;
-    struct commandstructure
-    {
-        unsigned char cmd   :8;
-        unsigned char size  :8;
-    } bits;
-} command;
+    unsigned char cmd   :8;
+    unsigned char size  :8;
+} command_out, command_in;
 
 void Delay(__IO uint32_t nCount) {
   while(nCount--) {
@@ -66,11 +83,15 @@ void shipDataOut(uint16_t * buffer, uint32_t n)
 {
     // First ship out the command byte
     while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-    USART_SendData(USART1, command.bytes); 
+    USART_SendData(USART1, command_out.cmd); 
+    while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
+    USART_SendData(USART1, command_out.size); 
     for(int i = 0; i < n; i++ )
     {
         while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-        USART_SendData(USART1, buffer[i]);
+        USART_SendData(USART1, buffer[i] && 0x00ff );
+        while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
+        USART_SendData(USART1, buffer[i] >> 8);
     }
 
 }
@@ -81,7 +102,7 @@ inline void halt()
     TIM_Cmd(TIM2, DISABLE);                     // Disable timer completely
     TIM_SetCounter(TIM2, (uint32_t) 0);         // Reset counter register
     GPIO_ResetBits(GPIOD, 0xF000);              // Dim the LED's
-    state = IDLE;                               // Switch to idle state
+    state = STATE_IDLE;                               // Switch to idle state
 }
 
 inline void getPosition()
@@ -96,30 +117,40 @@ inline void getPosition()
     DACBuffer[3] = (uint16_t) position[3];
 }
 
+inline void parseInput()
+{
+    if( command_in.cmd == IN_CMD_ABORT )
+    {
+        state = STATE_ABORT;
+    }
+    else if( command_in.cmd == IN_CMD_START )
+    {
+        halt();
+        state = STATE_START;
+    }
+}
+
 int main()
 {
 	init_LEDs();
     init_Timer(5000);
-    while(1);
-    /*
+    
 	init_USART1(460800);
     init_ADC();
     init_DAC();
-    state = 0;
-	//RCC_ClocksTypeDef myClocks;
-	//RCC_GetClocksFreq(&myClocks);
+    state = STATE_IDLE;
 	USART_puts(USART1, "Init complete\r\n");
-    */
+    
 
 	while(1)
 	{
-        if( state == ABORT)
+        if( state == STATE_ABORT)
         {
             halt();
         }
-        else if(state == ACTIVE)
+        else if(state == STATE_ACTIVE)
         {
-            command.bits.cmd = SCANNING;
+            command_out.cmd = OUT_CMD_SCANNING;
             GPIO_SetBits(GPIOD, 0xF000);
             readChannels((int16_t *)ADCBuffer);
             scan_i++;
@@ -130,27 +161,29 @@ int main()
                 if( scan_j >= pixels )
                 {
                     scan_j = 0;
-                    command.bits.cmd = LASTPIXEL;
+                    command_out.cmd = OUT_CMD_LASTPIXEL;
                     halt();
                 }
+            }
             getPosition();
             setDACS((uint16_t *) DACBuffer);
-            if( state == ACTIVE )
+            if( state == STATE_ACTIVE )
             {
                 init_Timer(t_settle);
             }
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
-            state = IDLE;
+            state = STATE_IDLE;
 
         }
-        else if(state == IDLE)
+        else if(state == STATE_IDLE)
+
         {
            // NOP
         }
-        else if(state == START)
+        else if(state == STATE_START)
         {
-            command.bits.cmd = FIRSTPIXEL;
-            command.bits.size = (uint8_t) 8;
+            command_out.cmd = OUT_CMD_FIRSTPIXEL;
+            command_out.size = (uint8_t) 8;
             // Set the start position
             scan_i = 0;
             scan_j = 0;
@@ -158,11 +191,10 @@ int main()
             setDACS((uint16_t *) DACBuffer);
             // Start the timer to allow the stage to settle
             init_Timer(t_settle);
-            state = IDLE;
+            state = STATE_IDLE;
         }
 	}
 	return 0;
-
 }
 
 void TIM2_IRQHandler(void)
@@ -170,39 +202,36 @@ void TIM2_IRQHandler(void)
     if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
         TIM_Cmd(TIM2, DISABLE);
-        while( state == ACTIVE );
+        while( state == STATE_ACTIVE );
         
-        if( state == IDLE )
+        if( state == STATE_IDLE )
         {
-            state = ACTIVE;
+            state = STATE_ACTIVE;
         }
     }
 }
 
 void USART1_IRQHandler(void){
-
     // check if the USART1 receive interrupt flag was set
     if( USART_GetITStatus(USART1, USART_IT_RXNE) ){
+	    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+        command_in.cmd = USART1->DR;
+        while( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != SET );
+        command_in.size = USART1->DR;
 
-        
-        char t = USART1->DR; // the character from the USART1 data register is saved in t
+        for(int i = 0 ; i < command_in.size; i++)
+        {
+            if( i % 2 == 0)
+            {
+                USARTBuffer[i/2] = USART1->DR;
+            }
+            else
+            {
+                USARTBuffer[i/2] = USART1->DR << 8;
+            }
+        }
 
-        /* check if the received character is not the LF character (used to determine end of string)
-         * or the if the maximum string length has been been reached
-         */
-        if( t == 0x61 )
-        {
-            state = 1;
-            USART_puts(USART1, "Disabling...\r\n");
-        }
-        else if( t == 0x62 )
-        {
-           state = 0;
-           USART_puts(USART1, "Toggled measurement...\r\n");
-        }
-        else if( t == 0x63 )
-        {
-            state = 3;
-        }
+        parseInput();
+	    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
     }
 }
