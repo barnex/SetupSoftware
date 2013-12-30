@@ -34,6 +34,10 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
 int main()
 {
 	init_LEDs();
+    init_Timer(5000);
+    TIM_Cmd(TIM2, ENABLE);
+    while(1);
+    /*
 	init_USART1(460800);
     init_ADC();
     init_DAC();
@@ -78,8 +82,17 @@ int main()
             GPIOD->BSRRH = 0xF000;
         }
 	}
+    */
 	return 0;
 
+}
+
+void TIM2_IRQHandler(void)
+{
+    if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+        GPIO_ToggleBits(GPIOD, 0xF000);
+    }
 }
 
 void USART1_IRQHandler(void){
@@ -108,9 +121,4 @@ void USART1_IRQHandler(void){
             state = 3;
         }
     }
-}
-
-void TIM2_IRQHandler(void)
-{
-
 }

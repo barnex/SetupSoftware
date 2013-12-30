@@ -4,6 +4,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_spi.h"
 #include "stm32f4xx_usart.h"
+#include "stm32f4xx_tim.h"
 #include "stm32f4xx_rcc.h"
 #include "misc.h"
 #include <stdio.h>
@@ -38,5 +39,6 @@ void init_DAC(void);
 void init_LEDs();
 
 
+void init_Timer(uint32_t t_settle);
 #endif
 
