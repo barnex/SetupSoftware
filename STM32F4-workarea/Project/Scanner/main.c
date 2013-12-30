@@ -131,10 +131,12 @@ int main()
                     command.bits.cmd = LASTPIXEL;
                     halt();
                 }
-            }
             getPosition();
             setDACS((uint16_t *) DACBuffer);
-            init_Timer(t_settle);
+            if( state == ACTIVE )
+            {
+                init_Timer(t_settle);
+            }
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
             state = IDLE;
 
