@@ -12,9 +12,39 @@
 #include "dac.h"
 
 #define MAX_STRLEN 64
+
+#define ABORT   (uint32_t) 0
+#define ACTIVE  (uint32_t) 1
+#define IDLE    (uint32_t) 2
+#define START   (uint32_t) 3
+
+#define FIRSTPIXEL  (uint8_t) 1
+#define LASTPIXEL   (uint8_t) 2
+
 volatile char received_string[MAX_STRLEN];
 
-volatile char state;
+
+volatile int32_t    position[4];
+volatile int32_t    start[4];
+volatile int32_t    i_inc[4];
+volatile int32_t    j_inc[4];
+volatile int32_t    scan_i;
+volatile int32_t    scan_j;
+volatile int32_t    pixels;
+volatile uint32_t   t_settle;
+volatile uint32_t   state;
+volatile uint16_t   DACBuffer[4];
+volatile int16_t    ADCBuffer[8];
+
+union cmdstrct
+{
+    uint16_t bytes;
+    struct commandstructure
+    {
+        unsigned char cmd   :8;
+        unsigned char size  :8;
+    } bits;
+} command;
 
 void Delay(__IO uint32_t nCount) {
   while(nCount--) {
@@ -31,11 +61,44 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
     }
 }
 
+void shipDataOut(uint16_t * buffer, uint32_t n)
+{
+    // First ship out the command byte
+    while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
+    USART_SendData(USART1, command.bytes); 
+    for(int i = 0; i < n; i++ )
+    {
+        while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
+        USART_SendData(USART1, buffer[i]);
+    }
+
+}
+
+inline void halt()
+{
+    TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE); // Disable throwing interrupts
+    TIM_Cmd(TIM2, DISABLE);                     // Disable timer completely
+    TIM_SetCounter(TIM2, (uint32_t) 0);         // Reset counter register
+    GPIO_ResetBits(GPIOD, 0xF000);              // Dim the LED's
+    state = IDLE;                               // Switch to idle state
+}
+
+inline void getPosition()
+{
+    position[0] = start[0] + scan_i*i_inc[0] + scan_j*pixels*j_inc[0];
+    DACBuffer[0] = (uint16_t) position[0];
+    position[1] = start[1] + scan_i*i_inc[1] + scan_j*pixels*j_inc[1];
+    DACBuffer[1] = (uint16_t) position[1];
+    position[2] = start[2] + scan_i*i_inc[2] + scan_j*pixels*j_inc[2];
+    DACBuffer[2] = (uint16_t) position[2];
+    position[3] = start[3] + scan_i*i_inc[3] + scan_j*pixels*j_inc[3];
+    DACBuffer[3] = (uint16_t) position[3];
+}
+
 int main()
 {
 	init_LEDs();
     init_Timer(5000);
-    TIM_Cmd(TIM2, ENABLE);
     while(1);
     /*
 	init_USART1(460800);
@@ -45,44 +108,55 @@ int main()
 	//RCC_ClocksTypeDef myClocks;
 	//RCC_GetClocksFreq(&myClocks);
 	USART_puts(USART1, "Init complete\r\n");
+    */
 
 	while(1)
 	{
-        if( state == 0 )
+        if( state == ABORT)
         {
-            GPIOD->BSRRL = 0xF000;
-            uint16_t buffer[8];
-            readChannels( buffer );
-            char outstr[64];
-            memset(outstr, 0, 64);
-            sprintf(outstr, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\r\n",
-                buffer[0], buffer[1], buffer[2], buffer[3],
-                buffer[4], buffer[5], buffer[6], buffer[7]);
-            USART_puts(USART1, outstr);
-            state = 1;
-            GPIOD->BSRRH = 0xF000;
+            halt();
         }
-        else if( state == 1 )
+        else if(state == ACTIVE)
         {
-            GPIOD->BSRRL = 0x1000;
-            GPIOD->BSRRH = 0x8000;
-            Delay(1000000L);
-            GPIOD->BSRRL = 0x2000;
-            GPIOD->BSRRH = 0x1000;
-            Delay(1000000L);
-            GPIOD->BSRRL = 0x4000;
-            GPIOD->BSRRH = 0x2000;
-            Delay(1000000L);
-            GPIOD->BSRRL = 0x8000;
-            GPIOD->BSRRH = 0x4000;
-            Delay(1000000L);
+            GPIO_SetBits(GPIOD, 0xF000);
+            readChannels((int16_t *)ADCBuffer);
+            scan_i++;
+            if( scan_i >= pixels )
+            {
+                scan_i = 0;
+                scan_j++;
+                if( scan_j >= pixels )
+                {
+                    scan_j = 0;
+                    command.bits.cmd = LASTPIXEL;
+                    halt();
+                }
+            }
+            getPosition();
+            setDACS((uint16_t *) DACBuffer);
+            init_Timer(t_settle);
+            shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
+            state = IDLE;
+
         }
-        else
+        else if(state == IDLE)
         {
-            GPIOD->BSRRH = 0xF000;
+           // NOP
+        }
+        else if(state == START)
+        {
+            command.bits.cmd = FIRSTPIXEL;
+            command.bits.size = (uint8_t) 8;
+            // Set the start position
+            scan_i = 0;
+            scan_j = 0;
+            getPosition();
+            setDACS((uint16_t *) DACBuffer);
+            // Start the timer to allow the stage to settle
+            init_Timer(t_settle);
+            state = IDLE;
         }
 	}
-    */
 	return 0;
 
 }
@@ -91,7 +165,13 @@ void TIM2_IRQHandler(void)
 {
     if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-        GPIO_ToggleBits(GPIOD, 0xF000);
+        TIM_Cmd(TIM2, DISABLE);
+        while( state == ACTIVE );
+        
+        if( state == IDLE )
+        {
+            state = ACTIVE;
+        }
     }
 }
 

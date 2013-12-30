@@ -1,6 +1,6 @@
 #include "adc.h"
 
-void readChannel(char channel, uint16_t * value)
+void readChannel(char channel, int16_t * value)
 {
     while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
 
@@ -43,11 +43,12 @@ void readChannel(char channel, uint16_t * value)
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
     while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
 
-    *value = (tmp << 8) | SPI1->DR;
+    uint16_t tmp2 = (tmp << 8) | SPI1->DR;
+    *value = (int16_t) tmp2;
 
 }
 
-void readChannels(uint16_t *value)
+void readChannels(int16_t *value)
 {
     /* Initialisation for the first measurement */
     while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
@@ -100,7 +101,8 @@ void readChannels(uint16_t *value)
         while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
         while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until receive complete
 
-        value[channel-1] = (tmp << 8) | SPI1->DR;
+        uint16_t tmp2 = (tmp << 8) | SPI1->DR;
+        value[channel-1] = (int16_t) tmp2;
 
         // Wait for ~5us 
         int nCount = 0x00ff;

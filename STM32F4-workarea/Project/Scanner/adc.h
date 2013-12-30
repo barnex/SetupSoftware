@@ -20,7 +20,7 @@ typedef struct
     unsigned int sgl        :1;
 } adc_tx_struct;
  
-void readChannel(char channel, uint16_t * value);
+void readChannel(char channel, int16_t * value);
 // Value is a pointer to (at least) an eight uint16_t array
-void readChannels(uint16_t *value);
+void readChannels(int16_t *value);
 #endif
