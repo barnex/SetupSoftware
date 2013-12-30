@@ -207,10 +207,13 @@ void TIM2_IRQHandler(void)
 void USART1_IRQHandler(void){
     // check if the USART1 receive interrupt flag was set
     if( USART_GetITStatus(USART1, USART_IT_RXNE) ){
+        // TODO: add timeout timer to wait max. ~10ms and then reset
 	    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
         command_in.cmd = USART1->DR;
         while( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != SET );
         command_in.size = USART1->DR;
+
+        memset(USARTBuffer, 0, sizeof(uint16_t)*16);
 
         for(int i = 0 ; i < command_in.size; i++)
         {
