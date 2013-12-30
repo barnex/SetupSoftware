@@ -20,6 +20,7 @@
 
 #define FIRSTPIXEL  (uint8_t) 1
 #define LASTPIXEL   (uint8_t) 2
+#define SCANNING    (uint8_t) 3
 
 volatile char received_string[MAX_STRLEN];
 
@@ -118,6 +119,7 @@ int main()
         }
         else if(state == ACTIVE)
         {
+            command.bits.cmd = SCANNING;
             GPIO_SetBits(GPIOD, 0xF000);
             readChannels((int16_t *)ADCBuffer);
             scan_i++;
