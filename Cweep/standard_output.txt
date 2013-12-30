@@ -1,6 +1,0 @@
-
-
-# 1.25A
-# Scan parameters: power 16.000000 dBm, bandwidth 1.500000 Hz
-# Frequency [MHz]	avg noise	std noise	peak value
-4.000000e+03	1.911335e+01	1.877225e+01	9.120484e+01	4.701483e-315
