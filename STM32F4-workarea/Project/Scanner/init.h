@@ -38,7 +38,8 @@ void init_DAC(void);
 
 void init_LEDs();
 
-
 void init_Timer(uint32_t t_settle);
+
+void init_USART_WDT();
 #endif
 

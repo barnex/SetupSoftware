@@ -38,6 +38,13 @@
 #define IN_CMD_SET_IINC         (uint8_t) 12
 #define IN_CMD_SET_JINC         (uint8_t) 13
 
+#define USART_WDT_ACTIVE        (uint8_t) 1
+#define USART_WDT_INACTIVE      (uint8_t) 2
+
+#define USART_STATE_CMD         (uint8_t) 0
+#define USART_STATE_SIZE        (uint8_t) 1
+#define USART_STATE_PAYLOAD     (uint8_t) 2
+
 volatile int32_t    position[4];
 volatile int32_t    start[4];
 volatile int32_t    i_inc[4];
@@ -50,6 +57,8 @@ volatile uint8_t    state;
 volatile uint16_t   DACBuffer[4];
 volatile int16_t    ADCBuffer[8];
 volatile uint16_t   USARTBuffer[16];
+volatile uint8_t    uart_wdt_state;
+volatile uint8_t    uart_state;
 
 struct commandstructure
 {
@@ -204,26 +213,56 @@ void TIM2_IRQHandler(void)
     }
 }
 
+void TIM3_IRQHandler(void)
+{
+    if( TIM_GetITStatus(TIM3, TIM_IT_UPDATE) != RESET )
+    {
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+        TIM_Cmd(TM3, DISABLE);
+        usart_wdt_state = USART_WDT_INACTIVE;
+    }
+
+}
+
 void USART1_IRQHandler(void){
     // check if the USART1 receive interrupt flag was set
     if( USART_GetITStatus(USART1, USART_IT_RXNE) ){
-        // TODO: add timeout timer to wait max. ~10ms and then reset
 	    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
-        command_in.cmd = USART1->DR;
-        while( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != SET );
-        command_in.size = USART1->DR;
-
+        usart_wdt_state = USART_WDT_ACTIVE;
+        usart_state = USART_STATE_CMD;
         memset(USARTBuffer, 0, sizeof(uint16_t)*16);
+        uint32_t i = 0;
 
-        for(int i = 0 ; i < command_in.size; i++)
+        while( usart_wdt_state == USART_WDT_ACTIVE )
         {
-            if( i % 2 == 0)
+            if( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET )
             {
-                USARTBuffer[i/2] = USART1->DR;
-            }
-            else
-            {
-                USARTBuffer[i/2] = USART1->DR << 8;
+                if( usart_state == USART_STATE_CMD )
+                {
+                    command_in.cmd = USART1->DR;
+                    usart_state = USART_STATE_SIZE;
+                }
+                else if( usart_state == USART_STATE_SIZE )
+                {
+                    command_in.size = USART1->DR;
+                    usart_state = USART_STATE_PAYLOAD;
+                }
+                else if( usart_state == USART_STATE_PAYLOAD )
+                {
+                    if( i % 2 == 0)
+                    {
+                        USARTBuffer[i/2] = USART1->DR;
+                    }
+                    else
+                    {
+                        USARTBuffer[i/2] = USART1->DR << 8;
+                    }
+                    i++;
+                    if( i >= command_in.size )
+                    {
+                        usart_wdt_state = USART_WDT_INACTIVE;
+                    }
+                }
             }
         }
 
