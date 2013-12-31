@@ -57,8 +57,8 @@ volatile uint8_t    state;
 volatile uint16_t   DACBuffer[4];
 volatile int16_t    ADCBuffer[8];
 volatile uint16_t   USARTBuffer[16];
-volatile uint8_t    uart_wdt_state;
-volatile uint8_t    uart_state;
+volatile uint8_t    usart_wdt_state;
+volatile uint8_t    usart_state;
 
 struct commandstructure
 {
@@ -140,6 +140,7 @@ int main()
 	init_USART1(460800);
     init_ADC();
     init_DAC();
+    init_USART_WDT();
     state = STATE_IDLE;
 	USART_puts(USART1, "Init complete\r\n");
     
@@ -215,10 +216,10 @@ void TIM2_IRQHandler(void)
 
 void TIM3_IRQHandler(void)
 {
-    if( TIM_GetITStatus(TIM3, TIM_IT_UPDATE) != RESET )
+    if( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET )
     {
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-        TIM_Cmd(TM3, DISABLE);
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+        TIM_Cmd(TIM3, DISABLE);
         usart_wdt_state = USART_WDT_INACTIVE;
     }
 
@@ -226,12 +227,17 @@ void TIM3_IRQHandler(void)
 
 void USART1_IRQHandler(void){
     // check if the USART1 receive interrupt flag was set
-    if( USART_GetITStatus(USART1, USART_IT_RXNE) ){
+    if( USART_GetITStatus(USART1, USART_IT_RXNE) )
+    {
 	    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
         usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
-        memset(USARTBuffer, 0, sizeof(uint16_t)*16);
+        memset((void *)USARTBuffer, 0, sizeof(uint16_t)*16);
         uint32_t i = 0;
+        TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+        TIM_SetCounter(TIM3, (uint32_t) 0);
+        TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+        TIM_Cmd(TIM3, ENABLE);
 
         while( usart_wdt_state == USART_WDT_ACTIVE )
         {
@@ -258,15 +264,20 @@ void USART1_IRQHandler(void){
                         USARTBuffer[i/2] = USART1->DR << 8;
                     }
                     i++;
-                    if( i >= command_in.size )
-                    {
-                        usart_wdt_state = USART_WDT_INACTIVE;
-                    }
+                }
+            }
+
+            if( usart_state == USART_STATE_PAYLOAD )
+            {
+                if( i >= command_in.size )
+                {
+                    usart_wdt_state = USART_WDT_INACTIVE;
                 }
             }
         }
 
         parseInput();
+        TIM_Cmd(TIM3, DISABLE);
 	    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
     }
 }
