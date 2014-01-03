@@ -22,7 +22,7 @@ void setDAC(char channel, uint16_t value)
     }
 
     // Bring PB11 back high
-    GPIOB->BSRRH |= GPIO_Pin_11;
+    GPIOB->BSRRL |= GPIO_Pin_11;
 }
 
 void setDACS(uint16_t *values)
@@ -53,7 +53,7 @@ void setDACS(uint16_t *values)
         }
 
         // Bring PB11 back high
-        GPIOB->BSRRH |= GPIO_Pin_11;
+        GPIOB->BSRRL |= GPIO_Pin_11;
     }
 
 }

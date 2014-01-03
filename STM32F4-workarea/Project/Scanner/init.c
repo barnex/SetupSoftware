@@ -173,13 +173,13 @@ void init_DAC(void){
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
 
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIOB->BSRRL |= GPIO_Pin_11; // PB11 high
+	GPIOB->BSRRL |= GPIO_Pin_11; // PB11 high
 
 	// enable peripheral clock
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
