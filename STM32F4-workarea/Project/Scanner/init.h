@@ -11,10 +11,10 @@
 #include <stdint.h>
 
 /*
- * PB6 = TX
- * PB7 = RX
+ * PD8 = TX
+ * PD9 = RX
  */
-void init_USART1(uint32_t baudrate);
+void init_USART(uint32_t baudrate);
 
 /*
  * This function initializes SPI1-transceiver as follows:

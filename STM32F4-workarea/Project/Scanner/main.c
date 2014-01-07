@@ -84,16 +84,16 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
 void shipDataOut(uint16_t * buffer, uint32_t n)
 {
     // First ship out the command byte
-    while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-    USART_SendData(USART1, command_out.cmd); 
-    while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-    USART_SendData(USART1, command_out.size); 
+    while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+    USART_SendData(USART3, command_out.cmd); 
+    while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+    USART_SendData(USART3, command_out.size); 
     for(int i = 0; i < n; i++ )
     {
-        while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-        USART_SendData(USART1, buffer[i] && 0x00ff );
-        while( USART_GetFlagStatus(USART1, USART_FLAG_TXE) != SET );
-        USART_SendData(USART1, buffer[i] >> 8);
+        while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        USART_SendData(USART3, buffer[i] && 0x00ff );
+        while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        USART_SendData(USART3, buffer[i] >> 8);
     }
 
 }
@@ -134,15 +134,16 @@ inline void parseInput()
 
 int main()
 {
-	init_LEDs();
+    init_LEDs();
     init_Timer(5000);
     
-	init_USART1(460800);
+    init_USART(115200);
     init_ADC();
     init_DAC();
     init_USART_WDT();
     state = STATE_IDLE;
-	USART_puts(USART1, "Init complete\r\n");
+    USART_puts(USART3, "Init complete\r\n");
+    /*
     
 
 	while(1)
@@ -197,6 +198,7 @@ int main()
             state = STATE_IDLE;
         }
 	}
+	*/
 	return 0;
 }
 
@@ -225,11 +227,11 @@ void TIM3_IRQHandler(void)
 
 }
 
-void USART1_IRQHandler(void){
-    // check if the USART1 receive interrupt flag was set
-    if( USART_GetITStatus(USART1, USART_IT_RXNE) )
+void USART3_IRQHandler(void){
+    // check if the USART3 receive interrupt flag was set
+    if( USART_GetITStatus(USART3, USART_IT_RXNE) )
     {
-	    USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
+	    USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
         usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
         memset((void *)USARTBuffer, 0, sizeof(uint16_t)*16);
@@ -241,27 +243,27 @@ void USART1_IRQHandler(void){
 
         while( usart_wdt_state == USART_WDT_ACTIVE )
         {
-            if( USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == SET )
+            if( USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == SET )
             {
                 if( usart_state == USART_STATE_CMD )
                 {
-                    command_in.cmd = USART1->DR;
+                    command_in.cmd = USART3->DR;
                     usart_state = USART_STATE_SIZE;
                 }
                 else if( usart_state == USART_STATE_SIZE )
                 {
-                    command_in.size = USART1->DR;
+                    command_in.size = USART3->DR;
                     usart_state = USART_STATE_PAYLOAD;
                 }
                 else if( usart_state == USART_STATE_PAYLOAD )
                 {
                     if( i % 2 == 0)
                     {
-                        USARTBuffer[i/2] = USART1->DR;
+                        USARTBuffer[i/2] = USART3->DR;
                     }
                     else
                     {
-                        USARTBuffer[i/2] = USART1->DR << 8;
+                        USARTBuffer[i/2] = USART3->DR << 8;
                     }
                     i++;
                 }
@@ -278,6 +280,6 @@ void USART1_IRQHandler(void){
 
         parseInput();
         TIM_Cmd(TIM3, DISABLE);
-	    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+	    USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
     }
 }
