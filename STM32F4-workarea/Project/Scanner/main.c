@@ -134,15 +134,18 @@ inline void parseInput()
 
 int main()
 {
+    NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
+
     init_LEDs();
     init_Timer(5000);
-    
+   
     init_USART(115200);
     init_ADC();
     init_DAC();
     init_USART_WDT();
     state = STATE_IDLE;
     USART_puts(USART3, "Init complete\r\n");
+    while(1);
     /*
     
 
