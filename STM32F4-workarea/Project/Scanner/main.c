@@ -219,10 +219,22 @@ int main()
 	}
 	else if( state == STATE_GOTO )
 	{
+	    
+	    // Check if the state was not modified externally
+	    if( state == STATE_GOTO )
+	    {
+		state = STATE_IDLE;
+	    }
 
 	}
 	else if( state == STATE_SINGLE_MEAS )
 	{
+
+	    // Check if the state was not modified externally
+	    if( state == STATE_SINGLE_MEAS )
+	    {
+		state = STATE_IDLE;
+	    }
 
 	}
     }
