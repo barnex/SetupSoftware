@@ -5,6 +5,6 @@
 #include <stdio.h>
 #include <wand/MagickWand.h>
 
-int createImage( FILE * target, uint16_t **pixelArray, int pixels );
+int createImage( FILE * target, uint16_t *pixelArray, int pixels );
 
 #endif

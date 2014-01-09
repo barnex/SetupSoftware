@@ -42,7 +42,7 @@ set_interface_attribs (int fd, int speed, int parity)
         tty.c_cflag &= ~(PARENB | PARODD);      // shut off parity
         tty.c_cflag |= parity;
         tty.c_cflag &= ~CSTOPB;
-        tty.c_cflag &= ~CRTSCTS;
+        //tty.c_cflag &= ~CRTSCTS;
 
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
         {
@@ -96,6 +96,23 @@ int main(int argc, char **argv)
 	int ret = write (fd, out, 4);
 	printf("write returned: %d\n", ret);
 	*/
+	uint16_t *pixelArray;
+	pixelArray = malloc(sizeof(uint16_t)*100*100);
+	for(int i = 0; i < 100; i++ )
+	{
+	    for(int j = 0; j < 100; j++ )
+	    {
+		if( i % 2  == 0 )
+		{
+		    pixelArray[i+100*j] = UINT16_MAX;
+		}
+		else
+		{
+		    pixelArray[i+100*j] = 0;
+		}
+	    }
+	}
+	createImage( NULL, pixelArray, 100);
 
 	return EXIT_SUCCESS;
 }

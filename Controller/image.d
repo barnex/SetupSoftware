@@ -1,5 +1,4 @@
-./main.o: main.c mydefs.h image.h \
- /usr/include/ImageMagick/wand/MagickWand.h \
+./image.o: image.c image.h /usr/include/ImageMagick/wand/MagickWand.h \
  /usr/include/ImageMagick/magick/magick-config.h \
  /usr/include/ImageMagick/magick/magick-config-64.h \
  /usr/include/ImageMagick/magick/MagickCore.h \
@@ -98,8 +97,6 @@
  /usr/include/ImageMagick/wand/montage.h \
  /usr/include/ImageMagick/wand/pixel-view.h \
  /usr/include/ImageMagick/wand/stream.h
-
-mydefs.h:
 
 image.h:
 
