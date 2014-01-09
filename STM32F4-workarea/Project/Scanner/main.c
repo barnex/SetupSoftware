@@ -146,12 +146,9 @@ int main()
     init_DAC();
     state = STATE_IDLE;
     USART_puts(USART3, "Init complete\r\n");
-    while(1);
-    /*
-    
 
-	while(1)
-	{
+    while(1)
+    {
         if( state == STATE_ABORT)
         {
             halt();
@@ -175,13 +172,13 @@ int main()
             }
             getPosition();
             setDACS((uint16_t *) DACBuffer);
+	    // If we are still in the active state (and user has not called for ABORT)...
             if( state == STATE_ACTIVE )
             {
                 init_Timer(t_settle);
+		state = STATE_IDLE;
             }
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
-            state = STATE_IDLE;
-
         }
         else if(state == STATE_IDLE)
 
@@ -198,20 +195,27 @@ int main()
             getPosition();
             setDACS((uint16_t *) DACBuffer);
             // Start the timer to allow the stage to settle
-            init_Timer(t_settle);
-            state = STATE_IDLE;
-        }
+            if( state == STATE_START )
+	    {
+		init_Timer(t_settle);
+		state = STATE_IDLE;
+	    }
 	}
-	*/
-	return 0;
+    }
+    return 0;
 }
 
+// ISR for the the settling time timer
 void TIM2_IRQHandler(void)
 {
     if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) {
+	// If the timer overflowed... clear the interrupt bit
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	// Disable the timer
         TIM_Cmd(TIM2, DISABLE);
-        while( state == STATE_ACTIVE );
+
+	// Check that we are not in an active state, else wait for it to finish
+        //while( state == STATE_ACTIVE );
         
         if( state == STATE_IDLE )
         {
@@ -220,24 +224,36 @@ void TIM2_IRQHandler(void)
     }
 }
 
+
+// Function that gets called everytime something gets received to reset the USART WDT
 void reset_USART_WDT(void)
 {
+	// Disable interrupts for a second
         TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+	// Reset the timer
         TIM_SetCounter(TIM3, (uint32_t) 0);
+	// Enable the timer (should it have been disabled)
         TIM_Cmd(TIM3, ENABLE);
+	// Clear the interrupt bit and enable interrupt (ALWAYS clear bit before enabling!)
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
         TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
 }
 
+// TIM3 is the USART watchdog (highest interrupt priority)
 void TIM3_IRQHandler(void)
 {
+    // If an update interrupt was thrown...
     if( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET )
     {
+	// Disable the WDT for the moment
         TIM_Cmd(TIM3, DISABLE);
+	// Switch on the LED to signal timeout
 	GPIOD->BSRRL |= GPIO_Pin_15;
-	USART_puts(USART3, "Timeout\r\n");
+	// Clear the interrupt bit
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+	// Disable the interrupt
 	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+	// Switch USART WDT state to timeout
         usart_wdt_state = USART_WDT_TIMEOUT;
     }
 
@@ -249,21 +265,29 @@ void USART3_IRQHandler(void){
     {
 	GPIOD->BSRRH |= GPIO_Pin_15 | GPIO_Pin_13;
 	
+	// Disables interrupts, we will be "reading by blocking", not "interrupt reading"
 	USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
 
+	// Init the USART Watchdog and state machine
         usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
 
+	// Clear the memory
         memset((void *)USARTBuffer, 0, sizeof(uint16_t)*16);
         uint32_t i = 0;
 
+	// Reset the USART watchdog timer
 	reset_USART_WDT();
 
+	// Keep trying to read whilst the USART WDT is active (i.e. not finished or timed out)
         while( usart_wdt_state == USART_WDT_ACTIVE )
         {
+	    // If something was received...
             if( USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == SET )
             {
+		// Reset the watchdog
 		reset_USART_WDT();
+		// Depending on the state of the USART state machine, copy the byte to the correct place
                 if( usart_state == USART_STATE_CMD )
                 {
                     command_in.cmd = USART3->DR;
@@ -287,22 +311,27 @@ void USART3_IRQHandler(void){
                     i++;
                 }
             }
-
+	    
+	    // Check if the correct number of bytes have been received
             if( usart_state == USART_STATE_PAYLOAD )
             {
                 if( i >= command_in.size )
                 {
+		    // If so, stop receiving
                     usart_wdt_state = USART_WDT_INACTIVE;
                 }
             }
         }
 
+	// If the USART didn't time out
 	if( usart_wdt_state != USART_WDT_TIMEOUT )
 	{
+	    // Parse the input and disable the watchdog timer
 	    parseInput();
             TIM_Cmd(TIM3, DISABLE);
 	    GPIOD->BSRRL |= GPIO_Pin_13;
 	}
     }
+    // After finished the ISR, enable it again.
     USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 }
