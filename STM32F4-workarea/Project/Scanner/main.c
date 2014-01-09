@@ -282,7 +282,7 @@ void USART3_IRQHandler(void){
                     }
                     else
                     {
-                        USARTBuffer[i/2] = USART3->DR << 8;
+                        USARTBuffer[i/2] |= USART3->DR << 8;
                     }
                     i++;
                 }
