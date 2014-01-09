@@ -147,8 +147,23 @@ int main()
     state = STATE_IDLE;
     USART_puts(USART3, "Init complete\r\n");
 
+    // A loop that will run until the end of times (or when you switch of the controller)
     while(1)
     {
+	/*
+	 * The following is the state machine for the scanning procedure. It knows four states:
+	 * STATE_IDLE: nothing is done in this state. You can not depart from this state, only external
+	 *	interrupt can leave from this state to another state.
+	 * STATE_START:	This is the initial state when the scanning is started. It will initialize the
+	 *	scanning parameters and move the state machine into a dynamical machine.
+	 * STATE_ACTIVE: This state firstly measures the current inputs and then calculates and
+	 *	moves to the next pixel. It inializes Timer2 to wait a specific time before a next
+	 *	measurement. Then it moves the state machine into the STATE_IDLE state, from which
+	 *	it will awake using Timer2 interrupt.
+	 * STATE_ABORT:	This state is called externally (USART). When the machine is moved in this state,
+	 *	current scanning is aborted (all interrupts/timers disabled) and the machine is moved into
+	 *	the STATE_IDLE state. It cannot awake until moved externally.
+	 */
         if( state == STATE_ABORT)
         {
             halt();
@@ -181,7 +196,6 @@ int main()
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
         }
         else if(state == STATE_IDLE)
-
         {
            // NOP
         }
@@ -216,7 +230,8 @@ void TIM2_IRQHandler(void)
 
 	// Check that we are not in an active state, else wait for it to finish
         //while( state == STATE_ACTIVE );
-        
+    
+	// If we were waiting (and not ABORT) then we proceed to the next pixel    
         if( state == STATE_IDLE )
         {
             state = STATE_ACTIVE;
