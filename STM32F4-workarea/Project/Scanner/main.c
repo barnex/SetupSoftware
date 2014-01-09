@@ -47,6 +47,9 @@ void USART_puts(USART_TypeDef* USARTx, volatile char *s){
     }
 }
 
+/*
+ * Function ships n uint16_t words out through the serial port
+ */
 void shipDataOut(uint16_t * buffer, uint32_t n)
 {
     // First ship out the command byte
@@ -84,6 +87,14 @@ inline void getPosition()
     DACBuffer[3] = (uint16_t) position[3];
 }
 
+/*
+ * There can be some discussion on the work divsion between this function
+ * and the main state machine loop. Input parsing happens in an ISR (USART3_IRQn)
+ * and should be as short as possible. Therefore it can only change the machine
+ * state and copy values from USARTBuffer and to the USART (e.g. GET_DAC), 
+ * as other interrupts might otherwise interfere. All the rest is executed 
+ * by the main state machine below.
+ */
 inline void parseInput()
 {
     if( command_in.cmd == IN_CMD_ABORT )
@@ -95,7 +106,53 @@ inline void parseInput()
         halt();
         state = STATE_START;
     }
+    else if (command_in.cmd == IN_CMD_GOTO )
+    {
+	halt();
+	position[0] = (int32_t) USARTBuffer[0];
+	position[1] = (int32_t) USARTBuffer[1];
+	position[2] = (int32_t) USARTBuffer[2];
+	position[3] = (int32_t) USARTBuffer[3];
+	state = STATE_GOTO;
+    }
+    /*
+     *  When a simple parameter read is requested, the state machine
+     *  does not get altered.
+     */
+    else if ( command_in.cmd == IN_CMD_GET_DAC )
+    {
+	command_out.command = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
+	command_out.size    = 8;	    // Though confusing, 4 uint16_t will be transmitted,
+					    // which corresponds with 8 bytes
+	USARTBuffer[0] = (uint16_t) = position[0];
+	USARTBuffer[1] = (uint16_t) = position[1];
+	USARTBuffer[2] = (uint16_t) = position[2];
+	USARTBuffer[3] = (uint16_t) = position[3];
+	shipDataOut(USARTBuffer, 4);
+    }
+    /*
+     * We simply move the state machine into single shot measurement state
+     */ 
+    else if ( command_in.cmd == IN_CMD_GET_CHAN )
+    {
+	halt();
+	state = STATE_SINGLE_MEAS;
+    }
+    /*
+     *	We abort the current state and update the starting position
+     */
+    else if ( command_in.cmd == IN_CMD_SET_START )
+    {
+	halt();
+	state = STATE_IDLE;
+	start[0] = (int32_t) USARTBuffer[0];
+	start[1] = (int32_t) USARTBuffer[1];
+	start[2] = (int32_t) USARTBuffer[2];
+	start[3] = (int32_t) USARTBuffer[3];
+    }
+
 }
+
 
 int main()
 {

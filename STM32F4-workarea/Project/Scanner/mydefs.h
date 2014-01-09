@@ -18,10 +18,13 @@
 #define IN_CMD_ABORT            (uint8_t) 0
 #define IN_CMD_GOTO             (uint8_t) 1
 #define IN_CMD_START            (uint8_t) 2
+/* These are comprehended by IN_CMD_GOTO and 
+ * are not duplicated (hence commented out)
 #define IN_CMD_SET_DACX         (uint8_t) 3
 #define IN_CMD_SET_DACY         (uint8_t) 4
 #define IN_CMD_SET_DACZ         (uint8_t) 5
 #define IN_CMD_SET_DACAUX       (uint8_t) 6
+*/ 
 #define IN_CMD_GET_DAC          (uint8_t) 7
 #define IN_CMD_GET_CHAN         (uint8_t) 8
 #define IN_CMD_SET_START        (uint8_t) 9
