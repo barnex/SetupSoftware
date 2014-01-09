@@ -310,7 +310,13 @@ int main()
 	}
 	else if( state == STATE_GOTO )
 	{
-	    
+	    // Copy and cast the data into the buffer
+	    DACBuffer[0] = (uint16_t) position[0];
+	    DACBuffer[1] = (uint16_t) position[1]; 
+	    DACBuffer[2] = (uint16_t) position[2]; 
+	    DACBuffer[3] = (uint16_t) position[3]; 
+	    // Update the DAC values
+            setDACS((uint16_t *) DACBuffer);
 	    // Check if the state was not modified externally
 	    if( state == STATE_GOTO )
 	    {
@@ -320,7 +326,10 @@ int main()
 	}
 	else if( state == STATE_SINGLE_MEAS )
 	{
-
+	    // Read data from the ADC
+            readChannels((int16_t *)ADCBuffer);
+	    // And write it into the USART
+            shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
 	    // Check if the state was not modified externally
 	    if( state == STATE_SINGLE_MEAS )
 	    {
