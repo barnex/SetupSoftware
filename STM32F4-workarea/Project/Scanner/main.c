@@ -68,7 +68,7 @@ void shipDataOut(uint16_t * buffer, uint32_t n)
     for(int i = 0; i < n; i++ )
     {
         while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
-        USART_SendData(USART3, buffer[i] && 0x00ff );
+        USART_SendData(USART3, buffer[i] & 0x00ff );
         while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
         USART_SendData(USART3, buffer[i] >> 8);
     }
