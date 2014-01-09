@@ -1,6 +1,20 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdint.h>
+
+#include "mydefs.h"
+#include "image.h"
+
 int abort(int fd);
 
 int setStart(int fd, int *start);
