@@ -232,7 +232,7 @@ int main()
     NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
 
     init_LEDs();
-    init_Timer(5000);
+    //init_Timer(5000);
   
     // Always set the USART watchdog before the USART self 
     init_USART_WDT();
