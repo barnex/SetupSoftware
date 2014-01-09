@@ -246,15 +246,16 @@ void init_USART_WDT()
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
     TIM_TimeBaseInitTypeDef TIM3Init;
-    TIM3Init.TIM_Prescaler = 8199;
+    TIM3Init.TIM_Prescaler = 2*8199;
     TIM3Init.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM3Init.TIM_Period = 99;
+    TIM3Init.TIM_Period = 999;
     TIM3Init.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM3Init.TIM_RepetitionCounter = 0;
 
     TIM_TimeBaseInit(TIM3, &TIM3Init);
 
-	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+	//TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;

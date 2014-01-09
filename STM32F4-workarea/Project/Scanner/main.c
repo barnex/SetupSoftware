@@ -40,6 +40,7 @@
 
 #define USART_WDT_ACTIVE        (uint8_t) 1
 #define USART_WDT_INACTIVE      (uint8_t) 2
+#define USART_WDT_TIMEOUT	(uint8_t) 3
 
 #define USART_STATE_CMD         (uint8_t) 0
 #define USART_STATE_SIZE        (uint8_t) 1
@@ -139,10 +140,10 @@ int main()
     init_LEDs();
     init_Timer(5000);
    
+    init_USART_WDT();
     init_USART(115200);
     init_ADC();
     init_DAC();
-    init_USART_WDT();
     state = STATE_IDLE;
     USART_puts(USART3, "Init complete\r\n");
     while(1);
@@ -219,15 +220,25 @@ void TIM2_IRQHandler(void)
     }
 }
 
+void reset_USART_WDT(void)
+{
+        TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+        TIM_SetCounter(TIM3, (uint32_t) 0);
+        TIM_Cmd(TIM3, ENABLE);
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+        TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+}
+
 void TIM3_IRQHandler(void)
 {
     if( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET )
     {
+        TIM_Cmd(TIM3, DISABLE);
 	GPIOD->BSRRL |= GPIO_Pin_15;
 	USART_puts(USART3, "Timeout\r\n");
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-        TIM_Cmd(TIM3, DISABLE);
-        usart_wdt_state = USART_WDT_INACTIVE;
+	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
+        usart_wdt_state = USART_WDT_TIMEOUT;
     }
 
 }
@@ -236,22 +247,23 @@ void USART3_IRQHandler(void){
     // check if the USART3 receive interrupt flag was set
     if( USART_GetITStatus(USART3, USART_IT_RXNE) )
     {
-	GPIOD->BSRRH |= GPIO_Pin_15;
-	char outstring[64];
+	GPIOD->BSRRH |= GPIO_Pin_15 | GPIO_Pin_13;
+	
 	USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+
         usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
+
         memset((void *)USARTBuffer, 0, sizeof(uint16_t)*16);
         uint32_t i = 0;
-        TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
-        TIM_SetCounter(TIM3, (uint32_t) 0);
-        TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-        TIM_Cmd(TIM3, ENABLE);
+
+	reset_USART_WDT();
 
         while( usart_wdt_state == USART_WDT_ACTIVE )
         {
             if( USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == SET )
             {
+		reset_USART_WDT();
                 if( usart_state == USART_STATE_CMD )
                 {
                     command_in.cmd = USART3->DR;
@@ -285,8 +297,12 @@ void USART3_IRQHandler(void){
             }
         }
 
-        parseInput();
-        TIM_Cmd(TIM3, DISABLE);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+	if( usart_wdt_state != USART_WDT_TIMEOUT )
+	{
+	    parseInput();
+            TIM_Cmd(TIM3, DISABLE);
+	    GPIOD->BSRRL |= GPIO_Pin_13;
+	}
     }
+    USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 }
