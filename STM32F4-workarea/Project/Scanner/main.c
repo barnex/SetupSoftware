@@ -26,10 +26,15 @@ volatile int16_t    ADCBuffer[8];   // The value that is read from the ADC
 volatile uint16_t   USARTBuffer[16];	// The values that have been read/written from/to the USART
 volatile uint8_t    usart_state;    // The current state of the USART state machine
 
+/*
+ * Before shipping data out, set command_out.size and command_out.cmd to make
+ * clear to the user what he is about to receive. On the receiving hand, parseInput
+ * uses these to check what the user is requesting/writing.
+ */
 struct commandstructure
 {
-    unsigned char cmd   :8;
-    unsigned char size  :8;
+    unsigned char cmd   :8;	// One of the 256 possible commands
+    unsigned char size  :8;	// Up to 256 bytes can be sent, and it's specified right here!
 } command_out, command_in;
 
 void Delay(__IO uint32_t nCount) {
@@ -37,6 +42,9 @@ void Delay(__IO uint32_t nCount) {
   }
 }
 
+/*
+ * Use this function only for debugging and outputting strings.
+ */
 void USART_puts(USART_TypeDef* USARTx, volatile char *s){
 
     while(*s){
@@ -67,6 +75,9 @@ void shipDataOut(uint16_t * buffer, uint32_t n)
 
 }
 
+/*
+ * Halts Timer2 and associated interrupt, which disables waking from STATE_IDLE
+ */
 inline void halt()
 {
     TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE); // Disable throwing interrupts
@@ -75,6 +86,10 @@ inline void halt()
     GPIO_ResetBits(GPIOD, 0xF000);              // Dim the LED's
 }
 
+/*
+ * This inline function calculates the current position from the indices of
+ * the pixels. No check on bounds!
+ */
 inline void getPosition()
 {
     position[0] = start[0] + scan_i*i_inc[0] + scan_j*pixels*j_inc[0];
@@ -194,7 +209,7 @@ inline void parseInput()
     /*
      * Abort and update the large increase vector
      */
-    else if ( command_in.cmd == IN_CMD_SET_IINC && command_in.size >= 8 )
+    else if ( command_in.cmd == IN_CMD_SET_JINC && command_in.size >= 8 )
     {
 	halt();
 	state = STATE_IDLE;
