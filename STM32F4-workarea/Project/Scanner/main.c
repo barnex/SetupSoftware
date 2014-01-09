@@ -12,19 +12,19 @@
 #include "dac.h"
 #include "mydefs.h"
 
-volatile int32_t    position[4];
-volatile int32_t    start[4];
-volatile int32_t    i_inc[4];
-volatile int32_t    j_inc[4];
-volatile int32_t    scan_i;
-volatile int32_t    scan_j;
-volatile int32_t    pixels;
-volatile uint32_t   t_settle;
-volatile uint8_t    state;
-volatile uint16_t   DACBuffer[4];
-volatile int16_t    ADCBuffer[8];
-volatile uint16_t   USARTBuffer[16];
-volatile uint8_t    usart_state;
+volatile int32_t    position[4];    // Current position, though signed int, strictly positive and smaller than 0xFFFF
+volatile int32_t    start[4];	    // The state position (see comment above)
+volatile int32_t    i_inc[4];	    // The smaller increase vector (")
+volatile int32_t    j_inc[4];	    // The larger increase vector (")
+volatile int32_t    scan_i;	    // The current small index of the scan (<pixels)
+volatile int32_t    scan_j;	    // The current large index of the scan (<pixels)
+volatile int32_t    pixels;	    // The number of pixels in the image
+volatile uint32_t   t_settle;	    // The number of milliseconds to let the DAC/stage settle
+volatile uint8_t    state;	    // The current state of the main state machine
+volatile uint16_t   DACBuffer[4];   // The value the is copied to the DAC
+volatile int16_t    ADCBuffer[8];   // The value that is read from the ADC
+volatile uint16_t   USARTBuffer[16];	// The values that have been read/written from/to the USART
+volatile uint8_t    usart_state;    // The current state of the USART state machine
 
 struct commandstructure
 {
@@ -97,16 +97,27 @@ inline void getPosition()
  */
 inline void parseInput()
 {
+    /*
+     *  We move the state machine into the ABORT state
+     */
     if( command_in.cmd == IN_CMD_ABORT )
     {
         state = STATE_ABORT;
     }
+    /*
+     *  We move the state machine into the starting state
+     */
     else if( command_in.cmd == IN_CMD_START )
     {
         halt();
         state = STATE_START;
     }
-    else if (command_in.cmd == IN_CMD_GOTO )
+    /*
+     *  We abort the current scan (if in progress) and
+     *  copy the values from the USART into the position
+     *  and move into the GOTO state (and later update the real position)
+     */
+    else if (command_in.cmd == IN_CMD_GOTO && command_in.size >= 8 )
     {
 	halt();
 	position[0] = (int32_t) USARTBuffer[0];
@@ -141,7 +152,7 @@ inline void parseInput()
     /*
      *	We abort the current state and update the starting position
      */
-    else if ( command_in.cmd == IN_CMD_SET_START )
+    else if ( command_in.cmd == IN_CMD_SET_START && command_in.size >= 8 )
     {
 	halt();
 	state = STATE_IDLE;
@@ -149,6 +160,48 @@ inline void parseInput()
 	start[1] = (int32_t) USARTBuffer[1];
 	start[2] = (int32_t) USARTBuffer[2];
 	start[3] = (int32_t) USARTBuffer[3];
+    }
+    /*
+     * Abort and update settle time
+     */
+    else if ( command_in.cmd == IN_CMD_SET_TSETTLE && command_in.size >= 2)
+    {
+	halt();
+	state = STATE_IDLE;
+	t_settle = (uint32_t) USARTBuffer[0];
+    }
+    /*
+     * Abort and update the number of pixels
+     */
+    else if ( command_in.cmd == IN_CMD_SET_PIXELS && command_in.size >= 2)
+    {
+	halt();
+	state = STATE_IDLE;
+	pixels = (int32_t) USARTBuffer[0];
+    }
+    /*
+     * Abort and update the small increase vector
+     */
+    else if ( command_in.cmd == IN_CMD_SET_IINC && command_in.size >= 8)
+    {
+	halt();
+	state = STATE_IDLE;
+	i_inc[0] = (int32_t) USARTBuffer[0];
+	i_inc[1] = (int32_t) USARTBuffer[1];
+	i_inc[2] = (int32_t) USARTBuffer[2];
+	i_inc[3] = (int32_t) USARTBuffer[3];
+    }
+    /*
+     * Abort and update the large increase vector
+     */
+    else if ( command_in.cmd == IN_CMD_SET_IINC && command_in.size >= 8 )
+    {
+	halt();
+	state = STATE_IDLE;
+	j_inc[0] = (int32_t) USARTBuffer[0];
+	j_inc[1] = (int32_t) USARTBuffer[1];
+	j_inc[2] = (int32_t) USARTBuffer[2];
+	j_inc[3] = (int32_t) USARTBuffer[3];
     }
 
 }
