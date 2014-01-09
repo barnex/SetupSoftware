@@ -223,6 +223,8 @@ void TIM3_IRQHandler(void)
 {
     if( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET )
     {
+	GPIOD->BSRRL |= GPIO_Pin_15;
+	USART_puts(USART3, "Timeout\r\n");
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
         TIM_Cmd(TIM3, DISABLE);
         usart_wdt_state = USART_WDT_INACTIVE;
@@ -234,7 +236,9 @@ void USART3_IRQHandler(void){
     // check if the USART3 receive interrupt flag was set
     if( USART_GetITStatus(USART3, USART_IT_RXNE) )
     {
-	    USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
+	GPIOD->BSRRH |= GPIO_Pin_15;
+	char outstring[64];
+	USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
         usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
         memset((void *)USARTBuffer, 0, sizeof(uint16_t)*16);
@@ -283,6 +287,6 @@ void USART3_IRQHandler(void){
 
         parseInput();
         TIM_Cmd(TIM3, DISABLE);
-	    USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
     }
 }
