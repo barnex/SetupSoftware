@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "mydefs.h"
+#include "controller.h"
 #include "image.h"
 
 int
@@ -84,7 +85,10 @@ int main(int argc, char **argv)
 	set_blocking (fd, 0);                // set no blocking
 
 	printf("Everything is ready. Press ENTER to continue\n");
+	getchar();
 	setPixels(fd, 150);
+	int startPosition[4] = {0, 128, 256, 512};
+	setStart(fd, startPosition);	
 
 	/*
 	uint16_t *pixelArray;
