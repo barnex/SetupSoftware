@@ -38,13 +38,11 @@
 #define IN_CMD_SET_IINC         (uint8_t) 12
 #define IN_CMD_SET_JINC         (uint8_t) 13
 
-#define USART_WDT_ACTIVE        (uint8_t) 1
-#define USART_WDT_INACTIVE      (uint8_t) 2
-#define USART_WDT_TIMEOUT	(uint8_t) 3
-
 #define USART_STATE_CMD         (uint8_t) 0
 #define USART_STATE_SIZE        (uint8_t) 1
 #define USART_STATE_PAYLOAD     (uint8_t) 2
+#define USART_STATE_TIMEOUT	(uint8_t) 3
+#define USART_STATE_FINISHED	(uint8_t) 4
 
 volatile int32_t    position[4];
 volatile int32_t    start[4];
@@ -58,7 +56,6 @@ volatile uint8_t    state;
 volatile uint16_t   DACBuffer[4];
 volatile int16_t    ADCBuffer[8];
 volatile uint16_t   USARTBuffer[16];
-volatile uint8_t    usart_wdt_state;
 volatile uint8_t    usart_state;
 
 struct commandstructure
@@ -163,6 +160,7 @@ int main()
 	 *	current scanning is aborted (all interrupts/timers disabled) and the machine is moved into
 	 *	the STATE_IDLE state. It cannot awake until moved externally.
 	 */
+	/*
         if( state == STATE_ABORT)
         {
             halt();
@@ -215,6 +213,7 @@ int main()
 		state = STATE_IDLE;
 	    }
 	}
+	*/
     }
     return 0;
 }
@@ -268,8 +267,8 @@ void TIM3_IRQHandler(void)
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 	// Disable the interrupt
 	TIM_ITConfig(TIM3, TIM_IT_Update, DISABLE);
-	// Switch USART WDT state to timeout
-        usart_wdt_state = USART_WDT_TIMEOUT;
+	// Switch USART state to timeout
+        usart_state = USART_STATE_TIMEOUT;
     }
 
 }
@@ -284,7 +283,6 @@ void USART3_IRQHandler(void){
 	USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
 
 	// Init the USART Watchdog and state machine
-        usart_wdt_state = USART_WDT_ACTIVE;
         usart_state = USART_STATE_CMD;
 
 	// Clear the memory
@@ -294,8 +292,8 @@ void USART3_IRQHandler(void){
 	// Reset the USART watchdog timer
 	reset_USART_WDT();
 
-	// Keep trying to read whilst the USART WDT is active (i.e. not finished or timed out)
-        while( usart_wdt_state == USART_WDT_ACTIVE )
+	// Keep trying to read whilst the USART is active (i.e. not finished and not timed out)
+        while( usart_state != USART_STATE_TIMEOUT && usart_state != USART_STATE_FINISHED )
         {
 	    // If something was received...
             if( USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == SET )
@@ -333,13 +331,13 @@ void USART3_IRQHandler(void){
                 if( i >= command_in.size )
                 {
 		    // If so, stop receiving
-                    usart_wdt_state = USART_WDT_INACTIVE;
+                    usart_state = USART_STATE_FINISHED;
                 }
             }
         }
 
 	// If the USART didn't time out
-	if( usart_wdt_state != USART_WDT_TIMEOUT )
+	if( usart_state != USART_STATE_TIMEOUT )
 	{
 	    // Parse the input and disable the watchdog timer
 	    parseInput();
