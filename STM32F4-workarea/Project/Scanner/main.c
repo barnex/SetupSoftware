@@ -284,6 +284,16 @@ void TIM3_IRQHandler(void)
 
 }
 
+/*
+ * This ISR is called when data has been received from the USART. Using
+ * a state machine, it tries to parse data input. However if it should not
+ * receive enough data or the connection hangs, it will time out through a
+ * watchdog timer. Data is pumped through as follows:
+ *	* first byte: command, IN_CMD_...
+ *	* second byte: the number of bytes to be received
+ *	* following bytes: the payload data, these bytes will be grouped into 
+ *	    uint16_t's. LSB comes first.
+ */
 void USART3_IRQHandler(void){
     // check if the USART3 receive interrupt flag was set
     if( USART_GetITStatus(USART3, USART_IT_RXNE) )
@@ -342,10 +352,12 @@ void USART3_IRQHandler(void){
                 {
                     if( i % 2 == 0)
                     {
+			// Read the LSByte firstly
                         USARTBuffer[i/2] = USART3->DR;
                     }
                     else
                     {
+			// Now concatenate with the MSByte
                         USARTBuffer[i/2] |= USART3->DR << 8;
                     }
                     i++;
