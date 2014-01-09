@@ -10,6 +10,7 @@
 
 #include "mydefs.h"
 #include "image.h"
+#include "ini.h"
 
 int
 set_interface_attribs (int fd, int speed, int parity)
