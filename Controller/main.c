@@ -8,9 +8,8 @@
 #include <sys/stat.h>
 #include <stdint.h>
 
-#include <wand/MagickWand.h>
-
 #include "mydefs.h"
+#include "image.h"
 
 int
 set_interface_attribs (int fd, int speed, int parity)
@@ -73,6 +72,7 @@ set_blocking (int fd, int should_block)
 
 int main(int argc, char **argv)
 {
+	/*
 	char *portname = "/dev/ttyAMA0";
 	int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
 	if (fd < 0)
@@ -95,6 +95,7 @@ int main(int argc, char **argv)
 	printf("writing: 0x%X 0x%X 0x%X 0x%X\n", out[0], out[1], out[2], out[3]);
 	int ret = write (fd, out, 4);
 	printf("write returned: %d\n", ret);
-	
+	*/
+
 	return EXIT_SUCCESS;
 }
