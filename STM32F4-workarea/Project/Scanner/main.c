@@ -15,6 +15,8 @@
 #define STATE_ACTIVE            (uint8_t) 1
 #define STATE_IDLE              (uint8_t) 2
 #define STATE_START             (uint8_t) 3
+#define STATE_GOTO		(uint8_t) 4
+#define STATE_SINGLE_MEAS	(uint8_t) 5
 
 #define OUT_CMD_FIRSTPIXEL      (uint8_t) 1
 #define OUT_CMD_LASTPIXEL       (uint8_t) 2
@@ -147,7 +149,7 @@ int main()
     while(1)
     {
 	/*
-	 * The following is the state machine for the scanning procedure. It knows four states:
+	 * The following is the state machine for the scanning procedure. It knows the following states:
 	 * STATE_IDLE: nothing is done in this state. You can not depart from this state, only external
 	 *	interrupt can leave from this state to another state.
 	 * STATE_START:	This is the initial state when the scanning is started. It will initialize the
@@ -159,8 +161,10 @@ int main()
 	 * STATE_ABORT:	This state is called externally (USART). When the machine is moved in this state,
 	 *	current scanning is aborted (all interrupts/timers disabled) and the machine is moved into
 	 *	the STATE_IDLE state. It cannot awake until moved externally.
+	 * STATE_SINGLE_MEAS: In this state, one measurement is made and returned to the user. Afterwards
+	 *	it returns to the STATE_IDLE.
+	 * STATE_GOTO: Adjusts the position to the user's request and goes to the STATE_IDLE
 	 */
-	/*
         if( state == STATE_ABORT)
         {
             halt();
@@ -213,7 +217,14 @@ int main()
 		state = STATE_IDLE;
 	    }
 	}
-	*/
+	else if( state == STATE_GOTO )
+	{
+
+	}
+	else if( state == STATE_SINGLE_MEAS )
+	{
+
+	}
     }
     return 0;
 }
@@ -291,6 +302,22 @@ void USART3_IRQHandler(void){
 
 	// Reset the USART watchdog timer
 	reset_USART_WDT();
+
+	/*
+	 * The USART state machine consists of the following states:
+	 * USART_STATE_CMD: The interrupt is called for the first time, the first byte is sent
+	 *	through and this holds the command. State moves to USART_STATE_SIZE.
+	 * USART_STATE_SIZE: Now the second byte is received, this holds the number of bytes
+	 *	that will be sent through. These bytes are grouped into uint16_t!! The state
+	 *	moves to USART_STATE_PAYLOAD.
+	 * USART_STATE_PAYLOAD: The previously specified number of bytes are now read and
+	 *	converted into uint16_t values in USARTBuffer[0..15]. When the specified
+	 *	number of bytes have been read the state changes to USART_STATE_FINISHED
+	 * USART_STATE_FINISHED: Now the loop is broken and we progress to parse the input.
+	 *	This state will finish the ISR and reenable the USART interrupt.
+	 * USART_STATE_TIMEOUT: The USART watchdog timer has timed out the connection. The
+	 *	loop and ISR will break here without trying to parse the input.
+	 */
 
 	// Keep trying to read whilst the USART is active (i.e. not finished and not timed out)
         while( usart_state != USART_STATE_TIMEOUT && usart_state != USART_STATE_FINISHED )
