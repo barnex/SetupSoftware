@@ -147,14 +147,14 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_GET_DAC )
     {
-	command_out.command = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
+	command_out.cmd = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
 	command_out.size    = 8;	    // Though confusing, 4 uint16_t will be transmitted,
 					    // which corresponds with 8 bytes
-	USARTBuffer[0] = (uint16_t) = position[0];
-	USARTBuffer[1] = (uint16_t) = position[1];
-	USARTBuffer[2] = (uint16_t) = position[2];
-	USARTBuffer[3] = (uint16_t) = position[3];
-	shipDataOut(USARTBuffer, 4);
+	USARTBuffer[0] = (uint16_t)  position[0];
+	USARTBuffer[1] = (uint16_t)  position[1];
+	USARTBuffer[2] = (uint16_t)  position[2];
+	USARTBuffer[3] = (uint16_t)  position[3];
+	shipDataOut((uint16_t *)USARTBuffer, 4);
     }
     /*
      * We simply move the state machine into single shot measurement state
@@ -224,18 +224,24 @@ inline void parseInput()
 
 int main()
 {
+    /* 
+     * This is important and you should understand the following:
+     * PriorityGroup_4 ALLOWS FOR ONLY PREEMPTIVE INTERRUPTS AND NO SUB-GROUPINGS
+     * You should always set the NVIC_PriorityGroup.
+     */  
     NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
 
     init_LEDs();
     init_Timer(5000);
-   
+  
+    // Always set the USART watchdog before the USART self 
     init_USART_WDT();
     init_USART(115200);
     init_ADC();
     init_DAC();
-    state = STATE_IDLE;
     USART_puts(USART3, "Init complete\r\n");
 
+    state = STATE_IDLE;
     // A loop that will run until the end of times (or when you switch of the controller)
     while(1)
     {
