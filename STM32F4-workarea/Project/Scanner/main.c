@@ -105,7 +105,6 @@ inline void halt()
     TIM_Cmd(TIM2, DISABLE);                     // Disable timer completely
     TIM_SetCounter(TIM2, (uint32_t) 0);         // Reset counter register
     GPIO_ResetBits(GPIOD, 0xF000);              // Dim the LED's
-    state = STATE_IDLE;                               // Switch to idle state
 }
 
 inline void getPosition()
@@ -167,6 +166,7 @@ int main()
         if( state == STATE_ABORT)
         {
             halt();
+	    state = STATE_IDLE;
         }
         else if(state == STATE_ACTIVE)
         {
