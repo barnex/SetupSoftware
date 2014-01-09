@@ -10,7 +10,6 @@
 
 #include "mydefs.h"
 #include "image.h"
-#include "ini.h"
 
 int
 set_interface_attribs (int fd, int speed, int parity)
@@ -73,7 +72,6 @@ set_blocking (int fd, int should_block)
 
 int main(int argc, char **argv)
 {
-	/*
 	char *portname = "/dev/ttyAMA0";
 	int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
 	if (fd < 0)
@@ -85,18 +83,10 @@ int main(int argc, char **argv)
 	set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
 	set_blocking (fd, 0);                // set no blocking
 
-	char out[4];
-	uint16_t value = 0xaabb;
-	out[0] = IN_CMD_SET_PIXELS;
-	out[1] = 0x02;
-	out[2] = (char)(value & 0x00ff);
-	out[3] = (char)(value >> 8);
 	printf("Everything is ready. Press ENTER to continue\n");
-	getchar();
-	printf("writing: 0x%X 0x%X 0x%X 0x%X\n", out[0], out[1], out[2], out[3]);
-	int ret = write (fd, out, 4);
-	printf("write returned: %d\n", ret);
-	*/
+	setPixels(fd, 150);
+
+	/*
 	uint16_t *pixelArray;
 	pixelArray = malloc(sizeof(uint16_t)*100*100);
 	for(int i = 0; i < 100; i++ )
@@ -114,6 +104,6 @@ int main(int argc, char **argv)
 	    }
 	}
 	createImage( NULL, pixelArray, 100);
-
+	*/
 	return EXIT_SUCCESS;
 }

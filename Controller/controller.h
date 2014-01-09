@@ -15,7 +15,7 @@
 #include "mydefs.h"
 #include "image.h"
 
-int abort(int fd);
+int abortscan(int fd);
 
 int setStart(int fd, int *start);
 int setIInc(int fd, int *i_inc);
@@ -27,7 +27,7 @@ int getPosition(int fd, int *position);
 int getChannels(int fd, int *values);
 
 int gotoPosition(int fd, int *position);
-int 1DScan(int fd, uint16_t *pixelList, int wait_time);
-int 2DScan(int fd, uint16_t *pixelList, const char *filename);
+int OneDScan(int fd, uint16_t *pixelList, int wait_time);
+int TwoDScan(int fd, uint16_t *pixelList, const char *filename);
 
 #endif
