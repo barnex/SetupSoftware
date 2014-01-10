@@ -241,6 +241,7 @@ int main()
     init_USART(115200);
     init_ADC();
     init_DAC();
+    setDAC(0, 0xffff);
     USART_puts(USART3, "Init complete\r\n");
 
     state = STATE_IDLE;

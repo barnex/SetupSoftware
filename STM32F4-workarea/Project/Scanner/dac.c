@@ -12,7 +12,7 @@ void setDAC(char channel, uint16_t value)
     dac.address   = 0;
     dac.channel   = channel;
     dac.command   = 1; // Load value and update DAC
-    dac.value      = value;
+    dac.value      = ((value >> 8) & 0x00ff) | ((value << 8) & 0xff00);
 
     uint8_t *buffer = (uint8_t *)(&dac);
     for(int i = 0; i < 4; i++ )
@@ -27,6 +27,13 @@ void setDAC(char channel, uint16_t value)
 
 void setDACS(uint16_t *values)
 {
+    for(int i = 0; i < 4; i++)
+    {
+	setDAC(i, values[i]);
+	uint32_t j = 0xff;
+	while(j--);
+    }
+    /*
     dac_tx_struct dac;
 
     dac.powerDown = 0;
@@ -55,5 +62,6 @@ void setDACS(uint16_t *values)
         // Bring PB11 back high
         GPIOB->BSRRL |= GPIO_Pin_11;
     }
+    */
 
 }
