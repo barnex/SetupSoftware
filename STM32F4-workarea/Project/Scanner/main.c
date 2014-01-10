@@ -67,12 +67,13 @@ void shipDataOut(uint16_t * buffer, uint32_t n)
     USART_SendData(USART3, command_out.size); 
     for(int i = 0; i < n; i++ )
     {
-        while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        //while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        while( !(USART3->SR & 0x00000040) );
         USART_SendData(USART3, buffer[i] & 0x00ff );
-        while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        //while( USART_GetFlagStatus(USART3, USART_FLAG_TXE) != SET );
+        while( !(USART3->SR & 0x00000040) );
         USART_SendData(USART3, buffer[i] >> 8);
     }
-
 }
 
 /*
@@ -147,14 +148,15 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_GET_DAC )
     {
-	command_out.cmd = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
+	command_out.cmd	    = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
 	command_out.size    = 8;	    // Though confusing, 4 uint16_t will be transmitted,
 					    // which corresponds with 8 bytes
 	USARTBuffer[0] = (uint16_t)  position[0];
 	USARTBuffer[1] = (uint16_t)  position[1];
 	USARTBuffer[2] = (uint16_t)  position[2];
 	USARTBuffer[3] = (uint16_t)  position[3];
-	shipDataOut((uint16_t *)USARTBuffer, 4);
+	state = STATE_SEND_POS;
+	
     }
     /*
      * We simply move the state machine into single shot measurement state
@@ -343,6 +345,14 @@ int main()
 	    }
 
 	}
+	else if( state == STATE_SEND_POS )
+	{
+	    shipDataOut((uint16_t *)USARTBuffer, (uint32_t) 4);
+	    if( state == STATE_SEND_POS )
+	    {
+		state = STATE_IDLE;
+	    }
+	}
     }
     return 0;
 }
@@ -497,9 +507,10 @@ void USART3_IRQHandler(void){
 	if( usart_state != USART_STATE_TIMEOUT )
 	{
 	    // Parse the input and disable the watchdog timer
-	    parseInput();
-            TIM_Cmd(TIM3, DISABLE);
 	    GPIOD->BSRRL |= GPIO_Pin_13;
+            TIM_Cmd(TIM3, DISABLE);
+	    parseInput();
+	    
 	}
     }
     // After finished the ISR, enable it again.

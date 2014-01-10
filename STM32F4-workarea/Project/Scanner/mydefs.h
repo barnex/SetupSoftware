@@ -7,6 +7,7 @@
 #define STATE_START             (uint8_t) 3
 #define STATE_GOTO		(uint8_t) 4
 #define STATE_SINGLE_MEAS	(uint8_t) 5
+#define STATE_SEND_POS		(uint8_t) 6
 
 #define OUT_CMD_FIRSTPIXEL      (uint8_t) 1
 #define OUT_CMD_LASTPIXEL       (uint8_t) 2
