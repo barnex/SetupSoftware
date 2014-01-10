@@ -1,5 +1,28 @@
 #include "controller.h"
 
+static int readfull(int fd, uint8_t *buffer, int n)
+{
+    int ret = 0, i = 0;
+    ret = read(fd, buffer, n);
+    if( ret > 0 && ret != n )
+    {
+	i = ret;
+	while(i < n && ret > 0)
+	{
+	    ret = read(fd, &(buffer[i]), n-i);
+	    i += ret;
+	}
+    }
+    if( ret > 0 )
+    {
+	return i;
+    }
+    else
+    {
+	return ret;
+    }
+}
+
 int abortscan(int fd)
 {
     uint8_t out[2];
@@ -89,10 +112,9 @@ int getPosition(int fd, int *position)
     out[0] = IN_CMD_GET_DAC;
     out[1] = 0;    
     write(fd, out, 2);
-    read(fd, in, 2);
+    readfull(fd, in, 10);
     if( in[1] == 8 )
     {
-	read(fd, in, 8);
 	for(int i = 0 ; i < 8; i++)
 	{
 	    if( i % 2 == 0 )
