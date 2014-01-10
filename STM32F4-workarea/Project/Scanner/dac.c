@@ -61,7 +61,8 @@ void setDACS(uint16_t *values)
 
         // Bring PB11 back high
         GPIOB->BSRRL |= GPIO_Pin_11;
+	uint8_t tmp = 0xff;
+	while(tmp--);
     }
     */
-
 }
