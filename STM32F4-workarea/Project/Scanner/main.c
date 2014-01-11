@@ -21,6 +21,7 @@ volatile int32_t    scan_j;	    // The current large index of the scan (<pixels)
 volatile int32_t    pixels;	    // The number of pixels in the image
 volatile uint32_t   t_settle;	    // The number of milliseconds to let the DAC/stage settle
 volatile uint8_t    state;	    // The current state of the main state machine
+volatile uint8_t    previousState;  // Hold the previous state of the SM
 volatile uint16_t   DACBuffer[4];   // The value the is copied to the DAC
 volatile int16_t    ADCBuffer[8];   // The value that is read from the ADC
 volatile uint16_t   USARTBuffer[16];	// The values that have been read/written from/to the USART
@@ -118,6 +119,7 @@ inline void parseInput()
      */
     if( command_in.cmd == IN_CMD_ABORT )
     {
+        previousState = state;
         state = STATE_ABORT;
     }
     /*
@@ -126,6 +128,7 @@ inline void parseInput()
     else if( command_in.cmd == IN_CMD_START )
     {
         halt();
+        previousState = state;
         state = STATE_START;
     }
     /*
@@ -140,6 +143,7 @@ inline void parseInput()
 	position[1] = (int32_t) USARTBuffer[1];
 	position[2] = (int32_t) USARTBuffer[2];
 	position[3] = (int32_t) USARTBuffer[3];
+    previousState = state;
 	state = STATE_GOTO;
     }
     /*
@@ -155,6 +159,7 @@ inline void parseInput()
 	USARTBuffer[1] = (uint16_t)  position[1];
 	USARTBuffer[2] = (uint16_t)  position[2];
 	USARTBuffer[3] = (uint16_t)  position[3];
+        previousState = state;
 	state = STATE_SEND_POS;
 	
     }
@@ -164,6 +169,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_GET_CHAN )
     {
 	halt();
+        previousState = state;
 	state = STATE_SINGLE_MEAS;
     }
     /*
@@ -172,6 +178,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_SET_START && command_in.size >= 8 )
     {
 	halt();
+        previousState = state;
 	state = STATE_IDLE;
 	start[0] = (int32_t) USARTBuffer[0];
 	start[1] = (int32_t) USARTBuffer[1];
@@ -184,6 +191,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_SET_TSETTLE && command_in.size >= 2)
     {
 	halt();
+        previousState = state;
 	state = STATE_IDLE;
 	t_settle = (uint32_t) USARTBuffer[0];
     }
@@ -193,6 +201,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_SET_PIXELS && command_in.size >= 2)
     {
 	halt();
+        previousState = state;
 	state = STATE_IDLE;
 	pixels = (int32_t) USARTBuffer[0];
     }
@@ -202,6 +211,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_SET_IINC && command_in.size >= 8)
     {
 	halt();
+        previousState = state;
 	state = STATE_IDLE;
 	i_inc[0] = (int32_t) USARTBuffer[0];
 	i_inc[1] = (int32_t) USARTBuffer[1];
@@ -214,6 +224,7 @@ inline void parseInput()
     else if ( command_in.cmd == IN_CMD_SET_JINC && command_in.size >= 8 )
     {
 	halt();
+        previousState = state;
 	state = STATE_IDLE;
 	j_inc[0] = (int32_t) USARTBuffer[0];
 	j_inc[1] = (int32_t) USARTBuffer[1];
@@ -351,7 +362,7 @@ int main()
 	    shipDataOut((uint16_t *)USARTBuffer, (uint32_t) 4);
 	    if( state == STATE_SEND_POS )
 	    {
-		state = STATE_IDLE;
+		state = previousState; // Return to the previous state, before we started sending out data
 	    }
 	}
     }
