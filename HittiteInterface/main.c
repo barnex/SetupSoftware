@@ -10,6 +10,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <signal.h>
+#include <assert.h>
 
 FILE * logfile;
 FILE *hittite;
@@ -94,6 +95,7 @@ int main(int argc, char **argv)
 	{
         /* Listen for incoming calls */
 		newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+		assert( newsockfd > 0 );
 		char client_ip[256];
 		char client_name[256];
 		char serv_name[256];

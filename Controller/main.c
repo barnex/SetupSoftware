@@ -12,10 +12,12 @@
 #include <stdint.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <strings.h>
 #include <netdb.h>
+#include <assert.h>
 
 #include "mydefs.h"
 #include "controller.h"
@@ -81,30 +83,32 @@ set_blocking (int fd, int should_block)
 }
 
 int
-initServer(int sockfd, int portno)
+initServer(int *sockfd, int portno)
 {
     struct sockaddr_in serv_addr;
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
+    *sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (*sockfd <= 0) 
     {
 	fprintf(stderr, "! ERROR: Could not open socket\n");
 	fprintf(stderr, "!Error Message from system %s", strerror(errno));
 	perror("! ERROR Message from system");
 	return EXIT_FAILURE;
     }
+	int iMode = 0;
+	ioctl(*sockfd, FIONBIO, &iMode);
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     fprintf(stdout, "Port for binding is %d\n", portno);
     serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+    if (bind(*sockfd, (struct sockaddr *) &serv_addr,
 	sizeof(serv_addr)) < 0)
     {
 	fprintf(stderr, "! ERROR: Could not open socket!\n");
 	perror("! ERROR Message from system");
 	return EXIT_FAILURE;
     }
-    listen(sockfd,5);
+    listen(*sockfd,5);
     fprintf(stdout, "Succesfully opened socket, now listening\n");
     return EXIT_SUCCESS;
 }
@@ -118,8 +122,8 @@ int main(int argc, char **argv)
     clilen = sizeof(cli_addr);
     char buffer[256];
     char allowed_client[256];
-    strcpy(allowed_client, argv[1]);
     memset(allowed_client, 0, 256);
+    strcpy(allowed_client, argv[1]);
     
     memset(buffer, 0, 256);
     int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
@@ -133,14 +137,20 @@ int main(int argc, char **argv)
     set_blocking (fd, 0);                // set no blockin  
     printf("Terminal interface initialized\n");
     int position[4] = {0, 0, 0, 0};
-    initServer(sockfd, atoi(argv[2]));
+    initServer( &sockfd, atoi(argv[2]));
     //gotoPosition(fd, startPosition);	
     while(1)
     {
     /* Listen for incoming calls */
 	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+	if( newsockfd <= 0 )
+	{
+		perror("Blocking error:");
+	}
+	assert(newsockfd > 0);
 	char client_ip[256];
 	char client_name[256];
+	memset(client_name, 0, 256);
 	char serv_name[256];
 	struct sockaddr_in *tmp = (struct sockaddr_in *)&cli_addr;
 	inet_ntop(AF_INET, &(tmp->sin_addr), client_ip, clilen);
@@ -154,13 +164,21 @@ int main(int argc, char **argv)
 	    int ret = read(newsockfd,buffer,256);
 	    while( ret > 0 && (strpbrk(buffer, "STOP") == strpbrk("a", "b") ) )
 	    {
-		if ( strlen(buffer) > 2 )
+		if ( strlen(buffer) > 0 )
 		{	 
 		    printf("Incoming: %s\n", buffer );
+			float milliAmps = atof(buffer);
+			if( milliAmps < 2500.0 )
+			{
+				position[3] = (int)( milliAmps * 13.1072 );
+				printf("Setting DAC to: %d\n", position[3]);
+				gotoPosition(fd, position);
+			}
 		}
 		memset(buffer, 0, 256);
 		ret = read(newsockfd, buffer, 256);
 	    }
+		printf("Connection closed\n");
 	}
 	else
 	{
