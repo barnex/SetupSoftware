@@ -1,3 +1,6 @@
+
+# define _POSIX_SOURCE
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,6 +10,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdint.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <strings.h>
+#include <netdb.h>
 
 #include "mydefs.h"
 #include "controller.h"
@@ -71,43 +80,93 @@ set_blocking (int fd, int should_block)
                 printf("error %d setting term attributes", errno);
 }
 
+int
+initServer(int sockfd, int portno)
+{
+    struct sockaddr_in serv_addr;
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) 
+    {
+	fprintf(stderr, "! ERROR: Could not open socket\n");
+	fprintf(stderr, "!Error Message from system %s", strerror(errno));
+	perror("! ERROR Message from system");
+	return EXIT_FAILURE;
+    }
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    fprintf(stdout, "Port for binding is %d\n", portno);
+    serv_addr.sin_port = htons(portno);
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+	sizeof(serv_addr)) < 0)
+    {
+	fprintf(stderr, "! ERROR: Could not open socket!\n");
+	perror("! ERROR Message from system");
+	return EXIT_FAILURE;
+    }
+    listen(sockfd,5);
+    fprintf(stdout, "Succesfully opened socket, now listening\n");
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv)
 {
-	char *portname = "/dev/ttyAMA0";
-	int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
-	if (fd < 0)
+    char *portname = "/dev/ttyAMA0";
+    int sockfd = 0, newsockfd = 0;
+    struct sockaddr_in cli_addr;
+    socklen_t clilen;
+    clilen = sizeof(cli_addr);
+    char buffer[256];
+    char allowed_client[256];
+    strcpy(allowed_client, argv[1]);
+    memset(allowed_client, 0, 256);
+    
+    memset(buffer, 0, 256);
+    int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
+    if (fd < 0)
+    {
+	    printf("error %d opening %s: %s", errno, portname, strerror (errno));
+	    return EXIT_FAILURE;
+    }
+	
+    set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+    set_blocking (fd, 0);                // set no blockin  
+    printf("Terminal interface initialized\n");
+    int position[4] = {0, 0, 0, 0};
+    initServer(sockfd, atoi(argv[2]));
+    //gotoPosition(fd, startPosition);	
+    while(1)
+    {
+    /* Listen for incoming calls */
+	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+	char client_ip[256];
+	char client_name[256];
+	char serv_name[256];
+	struct sockaddr_in *tmp = (struct sockaddr_in *)&cli_addr;
+	inet_ntop(AF_INET, &(tmp->sin_addr), client_ip, clilen);
+	getnameinfo((struct sockaddr *) &cli_addr, clilen,
+	    client_name, 256,  serv_name, 256, 0);
+
+	if( strcmp(client_name, allowed_client) == 0 )
 	{
-        	printf("error %d opening %s: %s", errno, portname, strerror (errno));
-	        return EXIT_FAILURE;
-	}
-
-	set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-	set_blocking (fd, 0);                // set no blocking
-
-	printf("Everything is ready. Press ENTER to continue\n");
-	getchar();
-	setPixels(fd, 150);
-	int startPosition[4] = {0, 128, 256, 512};
-	setStart(fd, startPosition);	
-
-	/*
-	uint16_t *pixelArray;
-	pixelArray = malloc(sizeof(uint16_t)*100*100);
-	for(int i = 0; i < 100; i++ )
-	{
-	    for(int j = 0; j < 100; j++ )
+	    printf("Accepted new connection from %s\n", client_name);
+	    bzero(buffer,256);
+	    int ret = read(newsockfd,buffer,256);
+	    while( ret > 0 && (strpbrk(buffer, "STOP") == strpbrk("a", "b") ) )
 	    {
-		if( i % 2  == 0 )
-		{
-		    pixelArray[i+100*j] = UINT16_MAX;
+		if ( strlen(buffer) > 2 )
+		{	 
+		    printf("Incoming: %s\n", buffer );
 		}
-		else
-		{
-		    pixelArray[i+100*j] = 0;
-		}
+		memset(buffer, 0, 256);
+		ret = read(newsockfd, buffer, 256);
 	    }
 	}
-	createImage( NULL, pixelArray, 100);
-	*/
-	return EXIT_SUCCESS;
+	else
+	{
+	    close(newsockfd);
+	}
+    }
+	
+    return EXIT_SUCCESS;
 }
