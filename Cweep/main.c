@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	    sprintf(outstr, "%f\n", currentCurrent );
 	    write( fieldSocket, outstr, strlen(outstr) );
 	    currentCurrent -= currentStep;
-	    usleep(10000.0); 
+	    usleep(100000.0); // Sleep 100ms before lowering the current further
 	}
 
 	fprintf(fileout, "\n");
