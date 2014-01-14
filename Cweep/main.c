@@ -19,6 +19,182 @@ typedef struct
     double offset;
 } configuration;
 
+
+static int handler(void *user, const char *section, const char *name,
+    const char *value);
+
+int initSockets(int *sock, char *server_name, int portno);
+int initSocket(int *socket, char *server_name, int portno);
+
+int main(int argc, char **argv)
+{
+    FILE *fileout = NULL;
+    if( argc < 2 )
+    {
+	fileout = fopen("standard_output.txt", "a");
+    }
+    else
+    {
+	fileout = fopen(argv[1], "a");
+    }
+    /* Load the config file */
+    configuration config;
+
+    if( ini_parse("config.ini", handler, &config) )
+    {
+	printf("Could not load cweep.ini\n");
+    }
+    printf("Loaded ini file, start %f GHz, stop: %f GHz, bandwith %f Hz\n", config.startFrequency,
+	config.stopFrequency, config.bandwidth);
+    
+    /* Init the sockets */
+    int audioSocket = 0;
+    initSocket( *audioSocket, "mona.ugent.be", 2000);
+    int HPTrSocket  = 0;
+    initSocket( *HPTrSocket, "pllctrl.ugent.be", 2000);
+    int HPRxSocket  = 0;
+    initSocket( *HPRxSocket, "mona.ugent.be", 2001);
+    int rigolSocket = 0;
+    initSocket( *rigolSocket, "mona.ugent.be", 2002);
+    int fieldSocket = 0;
+    initSocket( *fieldSocket, "pllctrl.ugent.be", 2001);
+    
+
+    /* Init the relevant params */
+    double avgNoise, stdNoise, peakValue, currentF = config.startFrequency;
+    if( config.stopFrequency < config.startFrequency ){
+       config.stepFrequency = -config.stepFrequency;
+    }
+
+    struct timespec sleeptime, remaining;
+    sleeptime.tv_sec = 2;
+    sleeptime.tv_nsec = (int)(config.settleTime);
+
+    FILE * indexfile = fopen("index.txt", "a");
+    char *textbuffer = NULL;
+    size_t size;
+    printf("Please enter your comment for this measurement: ");
+    if( argc < 2 )
+    {
+	fprintf( indexfile, "standard_output.txt: ");
+    }	
+    else
+    {
+	fprintf( indexfile, "%s: ", argv[1] );
+    }
+
+    if( getline( &textbuffer, &size, stdin) != -1 )
+    {
+	fprintf(fileout, "\n\n# %s", textbuffer);
+	fprintf( indexfile, "%s", textbuffer);
+    }
+    else
+    {
+	fprintf( indexfile, "No comment\n" );
+    }
+   
+    fclose(indexfile);
+	
+    
+    fprintf(fileout, "# Scan parameters: power %f dBm, bandwidth %f Hz\n", config.power, config.bandwidth);
+    fprintf(fileout, "# Frequency [MHz]\tavg noise\tstd noise\tpeak value\n");
+
+    double highBound = 0.0;
+    double lowBound = 0.0;
+    if( config.stepFrequency < 0.0 )
+    {
+       highBound = config.startFrequency;
+       lowBound = config.stopFrequency;
+    } else {
+       highBound = config.stopFrequency;
+       lowBound = config.startFrequency;
+    }
+    retval = setHP(5090.0, hittiteSock);
+    retval = setHP(5090.0 + config.offset/1.0e6 , HPSock);
+    printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
+    while( currentF <= highBound && currentF >= lowBound )
+    {  
+	printf("Current frequency: %f MHz\n", currentF);
+	retval = 0;
+	char outstring[128];
+	sprintf(outstring, "%2.2f\n", currentF);
+	write(vSock, outstring, strlen(outstring));
+
+	/*
+	do
+	{
+	    //retval = setHittite(currentF, hittiteSock);
+	    retval = setHP(currentF, hittiteSock);
+	    if( retval != 0 )
+	    {
+		printf("Hittite sent: %d\n", retval);
+	    }
+	} while(retval != 0);
+
+
+	retval = 0;
+	do{
+	   retval = setHP(currentF + config.offset/1.0e6 , HPSock);
+	    if( retval != 0 )
+	    {
+		printf("Pllctrl sent: %d\n", retval);
+	    }
+	}while(retval != 0);
+	*/
+	/* Wait a short time so the LO's can settle */
+	retval = nanosleep( &sleeptime, &remaining );
+	if( retval != 0)
+	{
+		printf("Something went wrong whilst sleeping\n");
+	}
+
+
+	if ( getValue(monaSock, config.bandwidth, &avgNoise, &stdNoise, &peakValue, config.offset) != 0 )
+        {
+	   printf("Error\n");
+	}
+	else
+        {
+	    // Measure current current
+	    char buffer[64];
+	    bzero(buffer, 64);
+	    while( strlen(buffer) < 2)
+	    {
+		sprintf(buffer, ":MEAS:CURR:DC?\n");
+		write(rigolSock, buffer, strlen(buffer));
+		bzero(buffer, 64);
+		read(rigolSock, buffer, 64);
+	    }
+	    // Save result
+	    fprintf(fileout, "%e\t%e\t%e\t%e\t%s", currentF, avgNoise, stdNoise, peakValue, buffer);
+	    fflush(fileout);
+        }
+	
+
+	currentF += config.stepFrequency;
+    
+    }
+    //setHittitePwr(config.power, 0, hittiteSock);
+    fclose(fileout);
+    char buffer[64];
+    memset( buffer, 0, sizeof(buffer) );
+    sprintf(buffer, "STOP");
+
+    /* Close all sockets and let the servers know we are finished */
+    write(monaSock, buffer, 64);
+    close(monaSock);
+    write(hittiteSock, buffer, 64);
+    close(hittiteSock);
+    write(HPSock, buffer, 64);
+    close(HPSock);
+    write(rigolSock, buffer, 64);
+    close(rigolSock);
+    write(vSock, buffer, 64);
+    close(vSock);
+
+    return 0;
+}
+
 static int handler(void *user, const char *section, const char *name,
     const char *value)
 {
@@ -65,7 +241,6 @@ static int handler(void *user, const char *section, const char *name,
     return 1;
 }
 
-
 int initSockets(int *monaSock, int *hittiteSock, int *HPSock, int *rigolSock, int *vSock)
 {
     /*
@@ -102,7 +277,7 @@ int initSockets(int *monaSock, int *hittiteSock, int *HPSock, int *rigolSock, in
     /*
      * Connect to Raspbpi over TCP
      */
-    portno = 2000;
+    portno = 2001;
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
 	printf("Error: Could not create socket\n");
@@ -195,7 +370,7 @@ int initSockets(int *monaSock, int *hittiteSock, int *HPSock, int *rigolSock, in
 	return -1;
     }
     
-    server = gethostbyname("dynalab.ugent.be");
+    server = gethostbyname("pllctrl.ugent.be");
     memset(&serv_addr, 0, sizeof(serv_addr)); 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = portno;
@@ -216,165 +391,34 @@ int initSockets(int *monaSock, int *hittiteSock, int *HPSock, int *rigolSock, in
     return 0;
 }
 
-int main(int argc, char **argv)
+int initSocket(int *socket, char *server_name, int portno)
 {
-    FILE *fileout = NULL;
-    if( argc < 2 )
+    int sockfd = 0;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-	fileout = fopen("standard_output.txt", "a");
+	printf("Error: Could not create socket\n");
+	return -1;
     }
-    else
-    {
-	fileout = fopen(argv[1], "a");
-    }
-    /* Load the config file */
-    configuration config;
-
-    if( ini_parse("config.ini", handler, &config) )
-    {
-	printf("Could not load cweep.ini\n");
-    }
-    printf("Loaded ini file, start %f GHz, stop: %f GHz, bandwith %f Hz\n", config.startFrequency,
-	config.stopFrequency, config.bandwidth);
     
-    /* Init the sockets */
-    int monaSock, hittiteSock, HPSock, rigolSock, vSock, retval = 0;
-    initSockets( &monaSock , &hittiteSock, &HPSock, &rigolSock, &vSock );
+    server = gethostbyname(server_name);
+    memset(&serv_addr, 0, sizeof(serv_addr)); 
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = portno;
 
-    double avgNoise, stdNoise, peakValue, currentF = config.startFrequency;
-    if( config.stopFrequency < config.startFrequency ){
-       config.stepFrequency = -config.stepFrequency;
-    }
-
-    struct timespec sleeptime, remaining;
-    sleeptime.tv_sec = 2;
-    sleeptime.tv_nsec = (int)(config.settleTime);
-
-    FILE * indexfile = fopen("index.txt", "a");
-    char *textbuffer = NULL;
-    size_t size;
-    printf("Please enter your comment for this measurement: ");
-    if( argc < 2 )
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr, 
+         (char *)&serv_addr.sin_addr.s_addr,
+         server->h_length);
+    serv_addr.sin_port = htons(portno);
+    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
     {
-	fprintf( indexfile, "standard_output.txt: ");
-    }	
-    else
-    {
-	fprintf( indexfile, "%s: ", argv[1] );
+	printf("Error: Could not connect\n");
+	return -1;
     }
 
-    if( getline( &textbuffer, &size, stdin) != -1 )
-    {
-	fprintf(fileout, "\n\n# %s", textbuffer);
-	fprintf( indexfile, "%s", textbuffer);
-    }
-    else
-    {
-	fprintf( indexfile, "No comment\n" );
-    }
-   
-    fclose(indexfile);
-	
-    
-    fprintf(fileout, "# Scan parameters: power %f dBm, bandwidth %f Hz\n", config.power, config.bandwidth);
-    fprintf(fileout, "# Frequency [MHz]\tavg noise\tstd noise\tpeak value\n");
+    *socket = sockfd;
 
-    //setHittitePwr(config.power, 1, hittiteSock);
-    double highBound = 0.0;
-    double lowBound = 0.0;
-    if( config.stepFrequency < 0.0 )
-    {
-       highBound = config.startFrequency;
-       lowBound = config.stopFrequency;
-    } else {
-       highBound = config.stopFrequency;
-       lowBound = config.startFrequency;
-    }
-    retval = setHP(4500.0, hittiteSock);
-    retval = setHP(4500.0 + config.offset/1.0e6 , HPSock);
-    printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
-    while( currentF <= highBound && currentF >= lowBound )
-    {  
-	printf("Current frequency: %f MHz\n", currentF);
-	retval = 0;
-	char outstring[128];
-	sprintf(outstring, "ISET1:%2.2f\n", currentF/1000.0);
-	write(vSock, outstring, strlen(outstring));
-
-	/*	
-	do
-	{
-	    //retval = setHittite(currentF, hittiteSock);
-	    retval = setHP(currentF, hittiteSock);
-	    if( retval != 0 )
-	    {
-		printf("Hittite sent: %d\n", retval);
-	    }
-	} while(retval != 0);
-	*/
-
-    	/* Set the PLL's */
-
-	/*
-	retval = 0;
-	do{
-	   retval = setHP(currentF + config.offset/1.0e6 , HPSock);
-	    if( retval != 0 )
-	    {
-		printf("Pllctrl sent: %d\n", retval);
-	    }
-	}while(retval != 0);
-	*/
-	/* Wait a short time so the LO's can settle */
-	retval = nanosleep( &sleeptime, &remaining );
-	if( retval != 0)
-	{
-		printf("Something went wrong whilst sleeping\n");
-	}
-
-
-	if ( getValue(monaSock, config.bandwidth, &avgNoise, &stdNoise, &peakValue, config.offset) != 0 )
-        {
-	   printf("Error\n");
-	}
-	else
-        {
-	    // Measure current current
-	    char buffer[64];
-	    bzero(buffer, 64);
-	    while( strlen(buffer) < 2)
-	    {
-		sprintf(buffer, ":MEAS:CURR:DC?\n");
-		write(rigolSock, buffer, strlen(buffer));
-		bzero(buffer, 64);
-		read(rigolSock, buffer, 64);
-	    }
-	    // Save result
-	    fprintf(fileout, "%e\t%e\t%e\t%e\t%s", currentF, avgNoise, stdNoise, peakValue, buffer);
-	    fflush(fileout);
-        }
-	
-
-	currentF += config.stepFrequency;
-    
-    }
-    //setHittitePwr(config.power, 0, hittiteSock);
-    fclose(fileout);
-    char buffer[64];
-    memset( buffer, 0, sizeof(buffer) );
-    sprintf(buffer, "STOP");
-
-    /* Close all sockets and let the servers know we are finished */
-    write(monaSock, buffer, 64);
-    close(monaSock);
-    write(hittiteSock, buffer, 64);
-    close(hittiteSock);
-    write(HPSock, buffer, 64);
-    close(HPSock);
-    write(rigolSock, buffer, 64);
-    close(rigolSock);
-    write(vSock, buffer, 64);
-    close(vSock);
-
-    return 0;
 }
