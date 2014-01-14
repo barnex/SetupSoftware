@@ -23,7 +23,6 @@ typedef struct
 static int handler(void *user, const char *section, const char *name,
     const char *value);
 
-int initSockets(int *sock, char *server_name, int portno);
 int initSocket(int *socket, char *server_name, int portno);
 
 int main(int argc, char **argv)
@@ -49,19 +48,19 @@ int main(int argc, char **argv)
     
     /* Init the sockets */
     int audioSocket = 0;
-    initSocket( *audioSocket, "mona.ugent.be", 2000);
-    int HPTrSocket  = 0;
-    initSocket( *HPTrSocket, "pllctrl.ugent.be", 2000);
+    initSocket( &audioSocket, "mona.ugent.be", 2000);
+    int HPTxSocket  = 0;
+    initSocket( &HPTxSocket, "pllctrl.ugent.be", 2000);
     int HPRxSocket  = 0;
-    initSocket( *HPRxSocket, "mona.ugent.be", 2001);
+    initSocket( &HPRxSocket, "mona.ugent.be", 2001);
     int rigolSocket = 0;
-    initSocket( *rigolSocket, "mona.ugent.be", 2002);
+    initSocket( &rigolSocket, "mona.ugent.be", 2002);
     int fieldSocket = 0;
-    initSocket( *fieldSocket, "pllctrl.ugent.be", 2001);
+    initSocket( &fieldSocket, "pllctrl.ugent.be", 2001);
     
 
     /* Init the relevant params */
-    double avgNoise, stdNoise, peakValue, currentF = config.startFrequency;
+    double avgNoise, stdNoise, peakValue;
     if( config.stopFrequency < config.startFrequency ){
        config.stepFrequency = -config.stepFrequency;
     }
@@ -99,6 +98,8 @@ int main(int argc, char **argv)
     fprintf(fileout, "# Scan parameters: power %f dBm, bandwidth %f Hz\n", config.power, config.bandwidth);
     fprintf(fileout, "# Frequency [MHz]\tavg noise\tstd noise\tpeak value\n");
 
+
+    /*
     double highBound = 0.0;
     double lowBound = 0.0;
     if( config.stepFrequency < 0.0 )
@@ -109,8 +110,80 @@ int main(int argc, char **argv)
        highBound = config.stopFrequency;
        lowBound = config.startFrequency;
     }
-    retval = setHP(5090.0, hittiteSock);
-    retval = setHP(5090.0 + config.offset/1.0e6 , HPSock);
+    */
+    float freqStep  = 10.0;	// Step 10MHz up each time
+    float freqStart = 2000.0; // Sweep from 2GHz to 5GHz
+    float freqStop  = 5000.0;
+    float freqCurrent = freqStart;
+    
+
+    float currentStart	= 0.0;	// Sweep from 0 to 2.3A with 5mA steps
+    float currentStop	= 2300.0;
+    float currentStep	= 5.0;
+    float currentCurrent = currentStart;
+
+    while( freqCurrent <= freqStop )
+    {
+	setHP( freqCurrent, HPRxSocket );
+	setHP( freqCurrent + config.offset/1.0e6, HPTxSocket );
+	currentCurrent = currentStart;
+
+	while( currentCurrent <= currentStop )
+	{
+	    char outstr[64];
+	    memset(outstr, 0, 64);
+	    sprintf(outstr, "%f\n", currentCurrent );
+	    write( fieldSocket, outstr, strlen(outstr) );
+
+	    int retval = nanosleep( &sleeptime, &remaining );
+	    if( retval != 0)
+	    {
+		    printf("Something went wrong whilst sleeping\n");
+	    }
+    
+    
+	    if ( getValue(audioSocket, config.bandwidth, &avgNoise, &stdNoise, &peakValue, config.offset) != 0 )
+	    {
+		printf("Error\n");
+	    }
+	    else
+	    {
+		// Measure current current
+		char buffer[64];
+		bzero(buffer, 64);
+		while( strlen(buffer) < 2)
+		{
+		    sprintf(buffer, ":MEAS:CURR:DC?\n");
+		    write(rigolSocket, buffer, strlen(buffer));
+		    bzero(buffer, 64);
+		    read(rigolSocket, buffer, 64);
+		}
+		// Save result
+		fprintf(fileout, "%e\t%e\t%e\t%e\t%e\t%s", currentCurrent, freqCurrent, avgNoise, stdNoise, peakValue, buffer);
+		fflush(fileout);
+
+		currentCurrent += currentStep;
+	    }
+	}
+
+	while(currentCurrent > currentStart )
+	{
+	    char outstr[64];
+	    memset(outstr, 0, 64);
+	    sprintf(outstr, "%f\n", currentCurrent );
+	    write( fieldSocket, outstr, strlen(outstr) );
+	    currentCurrent -= currentStep;
+	    usleep(10000.0); 
+	}
+
+	fprintf(fileout, "\n");
+
+	freqCurrent += freqStep;
+    }
+
+    /*
+    retval = setHP(5090.0, HPTxSocket);
+    retval = setHP(5090.0 + config.offset/1.0e6 , HPRxSocket);
     printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
     while( currentF <= highBound && currentF >= lowBound )
     {  
@@ -119,8 +192,6 @@ int main(int argc, char **argv)
 	char outstring[128];
 	sprintf(outstring, "%2.2f\n", currentF);
 	write(vSock, outstring, strlen(outstring));
-
-	/*
 	do
 	{
 	    //retval = setHittite(currentF, hittiteSock);
@@ -140,8 +211,8 @@ int main(int argc, char **argv)
 		printf("Pllctrl sent: %d\n", retval);
 	    }
 	}while(retval != 0);
-	*/
-	/* Wait a short time so the LO's can settle */
+	
+	// Wait a short time so the LO's can settle
 	retval = nanosleep( &sleeptime, &remaining );
 	if( retval != 0)
 	{
@@ -174,23 +245,23 @@ int main(int argc, char **argv)
 	currentF += config.stepFrequency;
     
     }
-    //setHittitePwr(config.power, 0, hittiteSock);
+    */
     fclose(fileout);
     char buffer[64];
     memset( buffer, 0, sizeof(buffer) );
     sprintf(buffer, "STOP");
 
     /* Close all sockets and let the servers know we are finished */
-    write(monaSock, buffer, 64);
-    close(monaSock);
-    write(hittiteSock, buffer, 64);
-    close(hittiteSock);
-    write(HPSock, buffer, 64);
-    close(HPSock);
-    write(rigolSock, buffer, 64);
-    close(rigolSock);
-    write(vSock, buffer, 64);
-    close(vSock);
+    write(HPTxSocket, buffer, 64);
+    close(HPTxSocket);
+    write(HPRxSocket, buffer, 64);
+    close(HPRxSocket);
+    write(rigolSocket, buffer, 64);
+    close(rigolSocket);
+    write(fieldSocket, buffer, 64);
+    close(fieldSocket);
+    write(audioSocket, buffer, 64);
+    close(audioSocket);
 
     return 0;
 }
@@ -241,157 +312,7 @@ static int handler(void *user, const char *section, const char *name,
     return 1;
 }
 
-int initSockets(int *monaSock, int *hittiteSock, int *HPSock, int *rigolSock, int *vSock)
-{
-    /*
-     * Connect to MONA over TCP
-     */
-    
-    int sockfd = 0, portno = 2000;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-	printf("Error: Could not create socket\n");
-	return -1;
-    }
-    
-    server = gethostbyname("mona.ugent.be");
-    memset(&serv_addr, 0, sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = portno;
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-    {
-	printf("Error: Could not connect\n");
-	return -1;
-    }
-
-    *monaSock = sockfd;
-    /*
-     * Connect to Raspbpi over TCP
-     */
-    portno = 2001;
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-	printf("Error: Could not create socket\n");
-	return -1;
-    }
-    
-    server = gethostbyname("pllctrl.ugent.be");
-    memset(&serv_addr, 0, sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = portno;
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-    {
-	printf("Error: Could not connect\n");
-	return -1;
-    }
-
-    *hittiteSock = sockfd;
-    /*
-     * Connect to HP 8672A over TCP
-     */
-    portno = 2001;
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-	printf("Error: Could not create socket\n");
-	return -1;
-    }
-    
-    server = gethostbyname("mona.ugent.be");
-    memset(&serv_addr, 0, sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = portno;
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-    {
-	printf("Error: Could not connect\n");
-	return -1;
-    }
-
-    *HPSock = sockfd;
-    /*
-     * connect to rigol mm over tcp
-     */
-    portno = 2002;
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-	printf("Error: Could not create socket\n");
-	return -1;
-    }
-    
-    server = gethostbyname("mona.ugent.be");
-    memset(&serv_addr, 0, sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = portno;
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-    {
-	printf("Error: Could not connect\n");
-	return -1;
-    }
-
-
-    *rigolSock = sockfd;
-
-    /*
-     * connect to Velleman over tcp
-     */
-    portno = 2000;
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    {
-	printf("Error: Could not create socket\n");
-	return -1;
-    }
-    
-    server = gethostbyname("pllctrl.ugent.be");
-    memset(&serv_addr, 0, sizeof(serv_addr)); 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = portno;
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-    {
-	printf("Error: Could not connect\n");
-	return -1;
-    }
-
-    *vSock= sockfd;
-    return 0;
-}
-
-int initSocket(int *socket, char *server_name, int portno)
+int initSocket(int *sock, char *server_name, int portno)
 {
     int sockfd = 0;
     struct sockaddr_in serv_addr;
@@ -419,6 +340,7 @@ int initSocket(int *socket, char *server_name, int portno)
 	return -1;
     }
 
-    *socket = sockfd;
+    *sock = sockfd;
 
+    return EXIT_SUCCESS;
 }
