@@ -263,7 +263,7 @@ int main(int argc, char **argv)
     */
 
     int audioSocket = 0;
-    initSocket( &audioSocket, "mona.ugent.be", 2001);
+    initSocket( &audioSocket, "mona.ugent.be", 2000);
 
     double avgNoise, stdNoise, peakValue, fCenter[2];
     fCenter[0] = 18.0e3;
@@ -272,6 +272,7 @@ int main(int argc, char **argv)
 
     char buffer[64];
     memset(buffer, 0, 64);
+    sprintf(buffer, "STOP");
     write(audioSocket, buffer, 64);
     close(audioSocket);
 
