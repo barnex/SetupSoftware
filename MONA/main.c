@@ -83,8 +83,8 @@ void* finalCallbackfunction(void *callbackArgs, fftw_real **result, int length, 
     sprintf(buffer, "EOL");
     write(*sock, buffer, 64);
 
-    int start = (int) (args->areaOfInterest[2] / Bandwidth );
-    int stop = (int) ( args->areaOfInterest[3] / Bandwidth );
+    start = (int) (args->areaOfInterest[2] / Bandwidth );
+    stop = (int) ( args->areaOfInterest[3] / Bandwidth );
     for( k = start ; k < stop; ++k )
     {
 	bzero(buffer, 64);
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
 			args.areaOfInterest[2] = atof(strtok(NULL, ","));
 			args.areaOfInterest[3] = atof(strtok(NULL, ","));
 
-			initRingBuffer(&FFTbuffer, FFTSIZE*2, 1);
+			initRingBuffer(&FFTbuffer, FFTSIZE*2, 2);
 			dataCopyThreadArgs.fftsize = FFTSIZE;
 			double measureTime = 1.2e3 * (double)FFTSIZE/(double)SAMPLE_RATE + 50.0;
 			printf("measureTime = %f\n", measureTime);
