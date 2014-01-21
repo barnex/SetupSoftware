@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 	// This is the callback-function that PortAudio call's when the data is ready
 	callbackData callbackArgs;
 	ringBuffer primaryRB;
-	initRingBuffer(&primaryRB, 16384, 1);
+	initRingBuffer(&primaryRB, 16384, 2);
 	callbackArgs.out = signalOut;
 	callbackArgs.in = &primaryRB;
 	callbackArgs.discard = 1;
