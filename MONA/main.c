@@ -255,9 +255,9 @@ int main(int argc, char **argv)
 		    bzero(buffer, 256);
 		    int ret = 0;
 		    ret = read(newsockfd, buffer, 256);
-		    while( ret > 0 && (strpbrk( buffer, "STOP" ) == strpbrk("a", "b") ) )
+		    int stop = 0;
+		    while( ret > 0 && !stop )
 		    {
-			printf("%s\n", buffer);
 			int FFTSIZE = atoi(strtok(buffer, ","));
 			args.areaOfInterest[0] = atof(strtok(NULL, ","));
 			args.areaOfInterest[1] = atof(strtok(NULL, ","));
@@ -296,6 +296,9 @@ int main(int argc, char **argv)
 			freeRingBuffer(&FFTbuffer);
 			pthread_mutex_unlock( &(args.lock) );
 			ret = read(newsockfd, buffer, 256);
+			printf("Buffer contains: %s\n", buffer);
+			stop = (strstr(buffer, "STOP") != NULL);
+			printf("I check for STOP %d\n", stop);
 		    }
 		    printf("Closing connection\n");
 		    close( newsockfd );
