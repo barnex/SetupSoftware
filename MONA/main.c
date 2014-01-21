@@ -71,7 +71,9 @@ void* finalCallbackfunction(void *callbackArgs, fftw_real **result, int length, 
     char buffer[64];
     bzero(buffer, 64);
     int k = 0;
-    for( k = 1 ; k < (length+1)/2; ++k )
+    int start = (int) (args->areaOfInterest[0] / Bandwidth );
+    int stop = (int) ( args->areaOfInterest[1] / Bandwidth );
+    for( k = start ; k < stop; ++k )
     {
 	bzero(buffer, 64);
 	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[0][k], result[0][length-k]);
@@ -80,6 +82,19 @@ void* finalCallbackfunction(void *callbackArgs, fftw_real **result, int length, 
     bzero(buffer, 64);
     sprintf(buffer, "EOL");
     write(*sock, buffer, 64);
+
+    int start = (int) (args->areaOfInterest[2] / Bandwidth );
+    int stop = (int) ( args->areaOfInterest[3] / Bandwidth );
+    for( k = start ; k < stop; ++k )
+    {
+	bzero(buffer, 64);
+	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[1][k], result[1][length-k]);
+	write(*sock, buffer, 64);
+    }
+    bzero(buffer, 64);
+    sprintf(buffer, "EOL");
+    write(*sock, buffer, 64);
+    
     printf("Finished final callback\n");
     // Show that the data has been sent
     args->sentData = 1;
@@ -211,11 +226,11 @@ int main(int argc, char **argv)
 	dataCopyThreadArgs.callback = finalCallbackfunction;
 	finalCallbackArgs args;	
 	args.sentData = 0;
-	args.areaOfInterest = malloc(sizeof(int)*4);
-	args.areaOfInterest[0] = 0;
-	args.areaOfInterest[1] = 0;
-	args.areaOfInterest[2] = 0;
-	args.areaOfInterest[3] = 0;
+	args.areaOfInterest = malloc(sizeof(float)*4);
+	args.areaOfInterest[0] = 0.0;
+	args.areaOfInterest[1] = 0.0;
+	args.areaOfInterest[2] = 0.0;
+	args.areaOfInterest[3] = 0.0;
 	dataCopyThreadArgs.callbackArgs = &args;
 	pthread_mutex_init( &(args.lock), NULL);
 	Pa_StartStream( stream );
@@ -244,10 +259,10 @@ int main(int argc, char **argv)
 		    {
 			printf("%s\n", buffer);
 			int FFTSIZE = atoi(strtok(buffer, ","));
-			args.areaOfInterest[0] = atoi(strtok(NULL, ","));
-			args.areaOfInterest[1] = atoi(strtok(NULL, ","));
-			args.areaOfInterest[2] = atoi(strtok(NULL, ","));
-			args.areaOfInterest[3] = atoi(strtok(NULL, ","));
+			args.areaOfInterest[0] = atof(strtok(NULL, ","));
+			args.areaOfInterest[1] = atof(strtok(NULL, ","));
+			args.areaOfInterest[2] = atof(strtok(NULL, ","));
+			args.areaOfInterest[3] = atof(strtok(NULL, ","));
 
 			initRingBuffer(&FFTbuffer, FFTSIZE*2, 1);
 			dataCopyThreadArgs.fftsize = FFTSIZE;
