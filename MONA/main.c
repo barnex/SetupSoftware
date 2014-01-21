@@ -296,6 +296,7 @@ int main(int argc, char **argv)
 			freeRingBuffer(&FFTbuffer);
 			pthread_mutex_unlock( &(args.lock) );
 			ret = read(newsockfd, buffer, 256);
+			stop = (strstr(buffer, "STOP") != NULL);
 		    }
 		    printf("Closing connection\n");
 		    close( newsockfd );
