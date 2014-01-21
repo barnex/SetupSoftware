@@ -13,6 +13,6 @@
 #include <netdb.h>
 #include <errno.h>
 
-int getValue(int monaSock, double bandwidth, double *avgNoise, double *stdNoise, double *peakValue, double fCenter);
+int getValue(int monaSock, double bandwidth, double *avgNoise, double *stdNoise, double *peakValue, double *fCenter);
 
 #endif

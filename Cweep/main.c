@@ -27,6 +27,7 @@ int initSocket(int *socket, char *server_name, int portno);
 
 int main(int argc, char **argv)
 {
+    /*
     FILE *fileout = NULL;
     if( argc < 2 )
     {
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
     {
 	fileout = fopen(argv[1], "a");
     }
-    /* Load the config file */
+    // Load the config file
     configuration config;
 
     if( ini_parse("config.ini", handler, &config) )
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
     printf("Loaded ini file, start %f GHz, stop: %f GHz, bandwith %f Hz\n", config.startFrequency,
 	config.stopFrequency, config.bandwidth);
     
-    /* Init the sockets */
+    // Init the sockets
     int audioSocket = 0;
     initSocket( &audioSocket, "mona.ugent.be", 2000);
     int HPTxSocket  = 0;
@@ -59,7 +60,7 @@ int main(int argc, char **argv)
     initSocket( &fieldSocket, "pllctrl.ugent.be", 2001);
     
 
-    /* Init the relevant params */
+    // Init the relevant params
     double avgNoise, stdNoise, peakValue;
     if( config.stopFrequency < config.startFrequency ){
        config.stepFrequency = -config.stepFrequency;
@@ -99,7 +100,6 @@ int main(int argc, char **argv)
     fprintf(fileout, "# Frequency [MHz]\tavg noise\tstd noise\tpeak value\n");
 
 
-    /*
     double highBound = 0.0;
     double lowBound = 0.0;
     if( config.stepFrequency < 0.0 )
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
        highBound = config.stopFrequency;
        lowBound = config.startFrequency;
     }
-    */
+    
     float freqStep  = 100.0;	// Step 10MHz up each time
     float freqStart = 5000.0; // Sweep from 2GHz to 5GHz
     float freqStop  = 8000.0;
@@ -180,8 +180,8 @@ int main(int argc, char **argv)
 
 	freqCurrent += freqStep;
     }
-
-    /*
+    
+   
     retval = setHP(5090.0, HPTxSocket);
     retval = setHP(5090.0 + config.offset/1.0e6 , HPRxSocket);
     printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
@@ -245,13 +245,13 @@ int main(int argc, char **argv)
 	currentF += config.stepFrequency;
     
     }
-    */
+  
     fclose(fileout);
     char buffer[64];
     memset( buffer, 0, sizeof(buffer) );
     sprintf(buffer, "STOP");
 
-    /* Close all sockets and let the servers know we are finished */
+    // Close all sockets and let the servers know we are finished
     write(HPTxSocket, buffer, 64);
     close(HPTxSocket);
     write(HPRxSocket, buffer, 64);
@@ -260,6 +260,18 @@ int main(int argc, char **argv)
     close(rigolSocket);
     write(fieldSocket, buffer, 64);
     close(fieldSocket);
+    */
+
+    int audioSocket = 0;
+    initSocket( &audioSocket, "mona.ugent.be", 2001);
+
+    double avgNoise, stdNoise, peakValue, fCenter[2];
+    fCenter[0] = 18.0e3;
+    fCenter[1] = 10.0e3;
+    getValue(audioSocket, 1.0, &avgNoise, &stdNoise, &peakValue, fCenter);
+
+    char buffer[64];
+    memset(buffer, 0, 64);
     write(audioSocket, buffer, 64);
     close(audioSocket);
 
