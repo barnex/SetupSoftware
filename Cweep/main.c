@@ -111,15 +111,15 @@ int main(int argc, char **argv)
        lowBound = config.startFrequency;
     }
     */
-    float freqStep  = 10.0;	// Step 10MHz up each time
-    float freqStart = 2000.0; // Sweep from 2GHz to 5GHz
-    float freqStop  = 5000.0;
+    float freqStep  = 100.0;	// Step 10MHz up each time
+    float freqStart = 5000.0; // Sweep from 2GHz to 5GHz
+    float freqStop  = 8000.0;
     float freqCurrent = freqStart;
     
 
-    float currentStart	= 0.0;	// Sweep from 0 to 2.3A with 5mA steps
+    float currentStart	= 500.0;	// Sweep from 0 to 2.3A with 5mA steps
     float currentStop	= 2300.0;
-    float currentStep	= 5.0;
+    float currentStep	= 20.0;
     float currentCurrent = currentStart;
 
     while( freqCurrent <= freqStop )

@@ -146,7 +146,7 @@ int main(int argc, char **argv)
 	bzero( &inputParameters, sizeof(inputParameters));
 	bzero( &outputParameters, sizeof(outputParameters));
 
-	inputParameters.channelCount = 1;
+	inputParameters.channelCount = 2;
 	inputParameters.device = 2;
 	inputParameters.hostApiSpecificStreamInfo = NULL;
 	inputParameters.sampleFormat = paFloat32;
@@ -211,6 +211,11 @@ int main(int argc, char **argv)
 	dataCopyThreadArgs.callback = finalCallbackfunction;
 	finalCallbackArgs args;	
 	args.sentData = 0;
+	args.areaOfInterest = malloc(sizeof(int)*4);
+	args.areaOfInterest[0] = 0;
+	args.areaOfInterest[1] = 0;
+	args.areaOfInterest[2] = 0;
+	args.areaOfInterest[3] = 0;
 	dataCopyThreadArgs.callbackArgs = &args;
 	pthread_mutex_init( &(args.lock), NULL);
 	Pa_StartStream( stream );
@@ -238,7 +243,12 @@ int main(int argc, char **argv)
 		    while( ret > 0 && (strpbrk( buffer, "STOP" ) == strpbrk("a", "b") ) )
 		    {
 			printf("%s\n", buffer);
-			int FFTSIZE = atoi(buffer);
+			int FFTSIZE = atoi(strtok(buffer, ","));
+			args.areaOfInterest[0] = atoi(strtok(NULL, ","));
+			args.areaOfInterest[1] = atoi(strtok(NULL, ","));
+			args.areaOfInterest[2] = atoi(strtok(NULL, ","));
+			args.areaOfInterest[3] = atoi(strtok(NULL, ","));
+
 			initRingBuffer(&FFTbuffer, FFTSIZE*2, 1);
 			dataCopyThreadArgs.fftsize = FFTSIZE;
 			double measureTime = 1.2e3 * (double)FFTSIZE/(double)SAMPLE_RATE + 50.0;
