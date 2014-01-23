@@ -12,6 +12,13 @@ typedef struct
     double startFrequency;
     double stopFrequency;
     double stepFrequency;
+
+    double startCurrent;
+    double stopCurrent;
+    double stepCurrent;
+
+    int nMeasurements;
+
     double power;
     double IF;
     double bandwidth;
@@ -110,15 +117,15 @@ int main(int argc, char **argv)
        lowBound = config.startFrequency;
     }
     
-    float freqStep  = 100.0;	// Step 10MHz up each time
-    float freqStart = 5000.0; // Sweep from 2GHz to 5GHz
-    float freqStop  = 8000.0;
+    float freqStep  = config.stepFrequency;
+    float freqStart = config.startFrequency;
+    float freqStop  = config.stopFrequency;
     float freqCurrent = freqStart;
     
 
-    float currentStart	= 500.0;	// Sweep from 0 to 2.3A with 5mA steps
-    float currentStop	= 2300.0;
-    float currentStep	= 20.0;
+    float currentStart	= config.startCurrent;
+    float currentStop	= config.stopCurrent;
+    float currentStep	= config.stepCurrent;
     float currentCurrent = currentStart;
 
     double * measurement = malloc(sizeof(double)*6);
@@ -142,30 +149,34 @@ int main(int argc, char **argv)
 	    {
 		    printf("Something went wrong whilst sleeping\n");
 	    }
-    
-	    if ( getValue(audioSocket, config.bandwidth, measurement, fcenter) != 0 )
-	    {
-		printf("Error\n");
-	    }
-	    else
-	    {
-		// Measure current current
-		char buffer[64];
-		bzero(buffer, 64);
-		while( strlen(buffer) < 2)
+   
+	    int i = 0;
+	    for( i = 0 ; i < config.nMeasurements; i++ )
+	    { 
+		if ( getValue(audioSocket, config.bandwidth, measurement, fcenter) != 0 )
 		{
-		    sprintf(buffer, ":MEAS:CURR:DC?\n");
-		    write(rigolSocket, buffer, strlen(buffer));
-		    bzero(buffer, 64);
-		    read(rigolSocket, buffer, 64);
+		    printf("Error\n");
 		}
-		// Save result
-		fprintf(fileout, "%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%s", currentCurrent, freqCurrent, measurement[0], measurement[1], 
-		    measurement[2], measurement[3], measurement[4], measurement[5], buffer);
-		fflush(fileout);
-
-		currentCurrent += currentStep;
+		else
+		{
+		    // Measure current current
+		    char buffer[64];
+		    bzero(buffer, 64);
+		    while( strlen(buffer) < 2)
+		    {
+			sprintf(buffer, ":MEAS:CURR:DC?\n");
+			write(rigolSocket, buffer, strlen(buffer));
+			bzero(buffer, 64);
+			read(rigolSocket, buffer, 64);
+		    }
+		    // Save result
+		    fprintf(fileout, "%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%s", currentCurrent, freqCurrent, measurement[0], measurement[1], 
+			measurement[2], measurement[3], measurement[4], measurement[5], buffer);
+		    fflush(fileout);
+		}
 	    }
+
+	    currentCurrent += currentStep;
 	}
 
 	while(currentCurrent > currentStart )
@@ -182,77 +193,8 @@ int main(int argc, char **argv)
 
 	freqCurrent += freqStep;
     }
-    
+
   
-    /* 
-    retval = setHP(5090.0, HPTxSocket);
-    retval = setHP(5090.0 + config.offset/1.0e6 , HPRxSocket);
-    printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
-    while( currentF <= highBound && currentF >= lowBound )
-    {  
-	printf("Current frequency: %f MHz\n", currentF);
-	retval = 0;
-	char outstring[128];
-	sprintf(outstring, "%2.2f\n", currentF);
-	write(vSock, outstring, strlen(outstring));
-	do
-	{
-	    //retval = setHittite(currentF, hittiteSock);
-	    retval = setHP(currentF, hittiteSock);
-	    if( retval != 0 )
-	    {
-		printf("Hittite sent: %d\n", retval);
-	    }
-	} while(retval != 0);
-
-
-	retval = 0;
-	do{
-	   retval = setHP(currentF + config.offset/1.0e6 , HPSock);
-	    if( retval != 0 )
-	    {
-		printf("Pllctrl sent: %d\n", retval);
-	    }
-	}while(retval != 0);
-	
-	// Wait a short time so the LO's can settle
-	retval = nanosleep( &sleeptime, &remaining );
-	if( retval != 0)
-	{
-		printf("Something went wrong whilst sleeping\n");
-	}
-
-
-	if ( getValue(monaSock, config.bandwidth, measurement, config.offset) != 0 )
-        {
-	   printf("Error\n");
-	}
-	else
-        {
-	    // Measure current current
-	    char buffer[64];
-	    bzero(buffer, 64);
-	    while( strlen(buffer) < 2)
-	    {
-		sprintf(buffer, ":MEAS:CURR:DC?\n");
-		write(rigolSock, buffer, strlen(buffer));
-		bzero(buffer, 64);
-		read(rigolSock, buffer, 64);
-	    }
-    getValue(audioSocket, 1.0, measurements, fCenter);
-    printf("%f\t%f\t%f\t%f\t%f\t%f\n", measurements[0], measurements[1],
-	measurements[2], measurements[3],
-	measurements[4], measurements[5]);
-	    // Save result
-	    fprintf(fileout, "%e\t%e\t%e\t%e\t%s", currentF, avgNoise, stdNoise, peakValue, buffer);
-	    fflush(fileout);
-        }
-	
-
-	currentF += config.stepFrequency;
-    
-    }
-    */
     fclose(fileout);
     char buffer[64];
     memset( buffer, 0, sizeof(buffer) );
@@ -267,26 +209,6 @@ int main(int argc, char **argv)
     close(rigolSocket);
     write(fieldSocket, buffer, 64);
     close(fieldSocket);
-    /*
-
-    int audioSocket = 0;
-    initSocket( &audioSocket, "mona.ugent.be", 2000);
-
-    double fCenter[2];
-    fCenter[0] = 18.0e3;
-    fCenter[1] = 10.0e3;
-    double *measurements = malloc(sizeof(double)*6);
-    getValue(audioSocket, 1.0, measurements, fCenter);
-    printf("%f\t%f\t%f\t%f\t%f\t%f\n", measurements[0], measurements[1],
-	measurements[2], measurements[3],
-	measurements[4], measurements[5]);
-
-    char buffer[64];
-    memset(buffer, 0, 64);
-    sprintf(buffer, "STOP");
-    write(audioSocket, buffer, 64);
-    close(audioSocket);
-    */
 
     return 0;
 }
@@ -328,6 +250,22 @@ static int handler(void *user, const char *section, const char *name,
     else if( MATCH( "audio", "offset" ) )
     {
 	pconfig->offset = atof(value);
+    }
+    else if( MATCH( "current", "start" ) )
+    {
+	pconfig->startCurrent = atof(value);
+    }	
+    else if( MATCH( "current", "stop" ) )
+    {
+	pconfig->stopCurrent = atof(value);
+    }	
+    else if( MATCH( "current", "step" ) )
+    {
+	pconfig->stepCurrent = atof(value);
+    }	
+    else if( MATCH( "various", "measurements" ) )
+    {
+	pconfig->nMeasurements = atoi(value);
     }
     else
     {
