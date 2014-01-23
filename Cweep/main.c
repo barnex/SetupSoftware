@@ -27,7 +27,7 @@ int initSocket(int *socket, char *server_name, int portno);
 
 int main(int argc, char **argv)
 {
-    /*
+
     FILE *fileout = NULL;
     if( argc < 2 )
     {
@@ -61,7 +61,6 @@ int main(int argc, char **argv)
     
 
     // Init the relevant params
-    double avgNoise, stdNoise, peakValue;
     if( config.stopFrequency < config.startFrequency ){
        config.stepFrequency = -config.stepFrequency;
     }
@@ -122,6 +121,9 @@ int main(int argc, char **argv)
     float currentStep	= 20.0;
     float currentCurrent = currentStart;
 
+    double * measurement = malloc(sizeof(double)*6);
+    double fcenter[2] = { config.offset, 10.0e3 };
+
     while( freqCurrent <= freqStop )
     {
 	setHP( freqCurrent, HPRxSocket );
@@ -141,8 +143,7 @@ int main(int argc, char **argv)
 		    printf("Something went wrong whilst sleeping\n");
 	    }
     
-    
-	    if ( getValue(audioSocket, config.bandwidth, &avgNoise, &stdNoise, &peakValue, config.offset) != 0 )
+	    if ( getValue(audioSocket, config.bandwidth, measurement, fcenter) != 0 )
 	    {
 		printf("Error\n");
 	    }
@@ -159,7 +160,8 @@ int main(int argc, char **argv)
 		    read(rigolSocket, buffer, 64);
 		}
 		// Save result
-		fprintf(fileout, "%e\t%e\t%e\t%e\t%e\t%s", currentCurrent, freqCurrent, avgNoise, stdNoise, peakValue, buffer);
+		fprintf(fileout, "%e\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%s", currentCurrent, freqCurrent, measurement[0], measurement[1], 
+		    measurement[2], measurement[3], measurement[4], measurement[5], buffer);
 		fflush(fileout);
 
 		currentCurrent += currentStep;
@@ -181,7 +183,8 @@ int main(int argc, char **argv)
 	freqCurrent += freqStep;
     }
     
-   
+  
+    /* 
     retval = setHP(5090.0, HPTxSocket);
     retval = setHP(5090.0 + config.offset/1.0e6 , HPRxSocket);
     printf("Lower bound %f, upper bound %f, current F %f, stepf %f \n", lowBound, highBound, currentF, config.stepFrequency);
@@ -220,7 +223,7 @@ int main(int argc, char **argv)
 	}
 
 
-	if ( getValue(monaSock, config.bandwidth, &avgNoise, &stdNoise, &peakValue, config.offset) != 0 )
+	if ( getValue(monaSock, config.bandwidth, measurement, config.offset) != 0 )
         {
 	   printf("Error\n");
 	}
@@ -236,6 +239,10 @@ int main(int argc, char **argv)
 		bzero(buffer, 64);
 		read(rigolSock, buffer, 64);
 	    }
+    getValue(audioSocket, 1.0, measurements, fCenter);
+    printf("%f\t%f\t%f\t%f\t%f\t%f\n", measurements[0], measurements[1],
+	measurements[2], measurements[3],
+	measurements[4], measurements[5]);
 	    // Save result
 	    fprintf(fileout, "%e\t%e\t%e\t%e\t%s", currentF, avgNoise, stdNoise, peakValue, buffer);
 	    fflush(fileout);
@@ -245,7 +252,7 @@ int main(int argc, char **argv)
 	currentF += config.stepFrequency;
     
     }
-  
+    */
     fclose(fileout);
     char buffer[64];
     memset( buffer, 0, sizeof(buffer) );
@@ -260,21 +267,26 @@ int main(int argc, char **argv)
     close(rigolSocket);
     write(fieldSocket, buffer, 64);
     close(fieldSocket);
-    */
+    /*
 
     int audioSocket = 0;
     initSocket( &audioSocket, "mona.ugent.be", 2000);
 
-    double avgNoise, stdNoise, peakValue, fCenter[2];
+    double fCenter[2];
     fCenter[0] = 18.0e3;
     fCenter[1] = 10.0e3;
-    getValue(audioSocket, 1.0, &avgNoise, &stdNoise, &peakValue, fCenter);
+    double *measurements = malloc(sizeof(double)*6);
+    getValue(audioSocket, 1.0, measurements, fCenter);
+    printf("%f\t%f\t%f\t%f\t%f\t%f\n", measurements[0], measurements[1],
+	measurements[2], measurements[3],
+	measurements[4], measurements[5]);
 
     char buffer[64];
     memset(buffer, 0, 64);
     sprintf(buffer, "STOP");
     write(audioSocket, buffer, 64);
     close(audioSocket);
+    */
 
     return 0;
 }

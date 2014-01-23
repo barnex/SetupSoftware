@@ -1,6 +1,6 @@
 #include "peakfind.h"
 
-int getValue(int monaSock, double bandwidth, double *avgNoise, double *stdNoise, double *peakValue, double *fCenter)
+int getValue(int monaSock, double bandwidth, double *measurements, double *fCenter)
 {
     FILE * audioSpectrum = fopen("audio_spectrum.txt", "w");
     /*
@@ -88,73 +88,98 @@ int getValue(int monaSock, double bandwidth, double *avgNoise, double *stdNoise,
 	    nBytes += read(monaSock, buffer + nBytes, sizeof(buffer) - nBytes);
 	}
 	
-	printf("Buffer contents: %s\n", buffer);
 	int found = (strstr(buffer, "EOL") != NULL);
-	printf("found = %d\n", found);
 	if( (ref == 0) && (strstr(buffer, "EOL") != NULL) )
 	{
 	    ref = 1;
+	    widthSig = i;
 	    i = 0;
-	    printf("Detected EOL\n");
 	    fprintf(audioSpectrum, "\n\n");
 	}
     }while( strstr(buffer, "EOM") == NULL );
-    printf("Detected EOM\n");
+    widthRef = i;
     fclose(audioSpectrum);
-    //
-    // Now go look for the peak at 10kHz
-    //
-    /*
-    double spacing = f[1] - f[0];
-    double tmp     = 0.0;
-    *peakValue	   = 0.0;
-    int startIndex = (fCenter - 50.0)/spacing;
-    int stopIndex  = (fCenter + 50.0)/spacing;
-    int peakIndex = 0;
 
-    for( i = startIndex; i < stopIndex; i++ )
+    // Firstly, analyse the reference spectrum, i.e. find the maximum magnitude
+    double max = 0.0;
+    int refPeakIndex = 0;
+    i = 0;
+    double tmp = 0;
+    for( i = 0; i < widthRef; i++ )
     {
-	tmp = Re[i]*Re[i] + Im[i]*Im[i];
-	if( tmp > *peakValue )
+	if( tmp < (ReRef[i]*ReRef[i] + ImRef[i]*ImRef[i]) )
 	{
-	    *peakValue = tmp;
-	    peakIndex = i;
+	    tmp = ReRef[i]*ReRef[i] + ImRef[i]*ImRef[i];
+	    refPeakIndex = i;
 	}
     }
-    
+
+    // Now analyse the signal spectrum
+    tmp = 0.0;
+    int sigPeakIndex = 0;
+    i = 0;
+    for( i = 0; i < widthSig; i++ )
+    {
+	if( tmp < (ReSig[i]*ReSig[i] + ImSig[i]*ImSig[i]) )
+	{
+	    tmp = (ReSig[i]*ReSig[i] + ImSig[i]*ImSig[i]) ;
+	    sigPeakIndex = i;
+	}
+    }
 
     //
     // Now calculate noise parameters outside the band of interest
     //
-    startIndex = (fCenter+100.0)/spacing;
-    stopIndex  = (fCenter+600.0)/spacing;
-
-    *avgNoise = 0.0;
-    *stdNoise = 0.0;
-    for (i = startIndex; i < stopIndex; i++ )
+    measurements[0] = 0.0;
+    int start = 0, stop = widthSig;
+    if( sigPeakIndex > widthSig/2 )
     {
-	*avgNoise += Re[i]*Re[i] + Im[i]*Im[i];
+	stop = (int) ((double)widthSig * 0.375);
     }
-    *avgNoise /= (double) (stopIndex-startIndex);
-
-    for ( i = startIndex; i < stopIndex; i++ )
+    else
     {
-	tmp = Re[i]*Re[i] + Im[i]*Im[i];
-	*stdNoise += (tmp - *avgNoise) * (tmp - *avgNoise);
+	start = (int) ((double)widthSig * 0.625);
     }
-    *stdNoise /= (double) (stopIndex - startIndex);
-    *stdNoise = sqrt(*stdNoise);
 
-    double threshold = *avgNoise + 10.0*(*stdNoise);
-    if( Re[peakIndex-1]*Re[peakIndex-1] + Im[peakIndex-1]*Im[peakIndex-1] > threshold )
+    i = 0;
+    double mag;
+    for( i = start; i < stop; i++ )
     {
-	*peakValue += Re[peakIndex-1]*Re[peakIndex-1] + Im[peakIndex-1]*Im[peakIndex-1];
+	measurements[0] += ImSig[i]*ImSig[i] + ReSig[i]*ReSig[i];
     }
+	
+    (measurements[0]) /= (double) stop;
+
+    (measurements[1]) = 0.0;	
+    for( i = start; i < stop; i++ )
+    {
+	mag = ReSig[i] * ReSig[i] + ImSig[i]*ImSig[i];
+	(measurements[1]) += (mag - (measurements[0])) * (mag - (measurements[0]));
+    }
+    (measurements[1]) /= (double) stop;
+    (measurements[1]) = sqrt( (measurements[1]) );
+
+    // Save the magnitude and phase of the energy in the largest peak in the spectrum
+    (measurements[2]) = ReSig[sigPeakIndex]*ReSig[sigPeakIndex] + ImSig[sigPeakIndex]*ImSig[sigPeakIndex];
+    (measurements[3]) = atan( ReSig[sigPeakIndex] / ImSig[sigPeakIndex] );
+
+    // Now look if there is energy in the adjacent bins next to the main peak
+    double threshold = (measurements[0]) + 10.0*((measurements[1]));
+    double magLowerSidePeak = ReSig[sigPeakIndex-1]*ReSig[sigPeakIndex-1] + ImSig[sigPeakIndex-1] * ImSig[sigPeakIndex-1];
+    if( magLowerSidePeak > threshold )
+    {
+	(measurements[2]) += magLowerSidePeak;
+    }
+
+    double magUpperSidePeak = ReSig[sigPeakIndex+1]*ReSig[sigPeakIndex+1] + ImSig[sigPeakIndex+1] * ImSig[sigPeakIndex+1];
+    if( magUpperSidePeak > threshold )
+    {
+	(measurements[2]) += magUpperSidePeak;
+    }
+
+    // Also save magnitude and phase of the reference
+    (measurements[4]) = ReRef[refPeakIndex]*ReRef[refPeakIndex] + ImRef[refPeakIndex]*ImRef[refPeakIndex];
+    (measurements[5]) = atan(ReRef[refPeakIndex]/ImRef[refPeakIndex]);
     
-    if( Re[peakIndex+1]*Re[peakIndex+1] + Im[peakIndex+1]*Im[peakIndex+1] > threshold )
-    {
-	*peakValue += Re[peakIndex+1]*Re[peakIndex+1] + Im[peakIndex+1]*Im[peakIndex+1];
-    }
-    */
     return 0;
 }
