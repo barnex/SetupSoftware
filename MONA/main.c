@@ -71,7 +71,9 @@ void* finalCallbackfunction(void *callbackArgs, fftw_real **result, int length, 
     char buffer[64];
     bzero(buffer, 64);
     int k = 0;
-    for( k = 1 ; k < (length+1)/2; ++k )
+    int start = (int) (args->areaOfInterest[0] / Bandwidth );
+    int stop = (int) ( args->areaOfInterest[1] / Bandwidth );
+    for( k = start ; k < stop; ++k )
     {
 	bzero(buffer, 64);
 	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[0][k], result[0][length-k]);
@@ -80,6 +82,19 @@ void* finalCallbackfunction(void *callbackArgs, fftw_real **result, int length, 
     bzero(buffer, 64);
     sprintf(buffer, "EOL");
     write(*sock, buffer, 64);
+
+    start = (int) (args->areaOfInterest[2] / Bandwidth );
+    stop = (int) ( args->areaOfInterest[3] / Bandwidth );
+    for( k = start ; k < stop; ++k )
+    {
+	bzero(buffer, 64);
+	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[1][k], result[1][length-k]);
+	write(*sock, buffer, 64);
+    }
+    bzero(buffer, 64);
+    sprintf(buffer, "EOL");
+    write(*sock, buffer, 64);
+    
     printf("Finished final callback\n");
     // Show that the data has been sent
     args->sentData = 1;
@@ -134,7 +149,7 @@ int main(int argc, char **argv)
 	// This is the callback-function that PortAudio call's when the data is ready
 	callbackData callbackArgs;
 	ringBuffer primaryRB;
-	initRingBuffer(&primaryRB, 16384, 1);
+	initRingBuffer(&primaryRB, 16384, 2);
 	callbackArgs.out = signalOut;
 	callbackArgs.in = &primaryRB;
 	callbackArgs.discard = 1;
@@ -146,7 +161,7 @@ int main(int argc, char **argv)
 	bzero( &inputParameters, sizeof(inputParameters));
 	bzero( &outputParameters, sizeof(outputParameters));
 
-	inputParameters.channelCount = 1;
+	inputParameters.channelCount = 2;
 	inputParameters.device = 2;
 	inputParameters.hostApiSpecificStreamInfo = NULL;
 	inputParameters.sampleFormat = paFloat32;
@@ -211,6 +226,11 @@ int main(int argc, char **argv)
 	dataCopyThreadArgs.callback = finalCallbackfunction;
 	finalCallbackArgs args;	
 	args.sentData = 0;
+	args.areaOfInterest = malloc(sizeof(float)*4);
+	args.areaOfInterest[0] = 0.0;
+	args.areaOfInterest[1] = 0.0;
+	args.areaOfInterest[2] = 0.0;
+	args.areaOfInterest[3] = 0.0;
 	dataCopyThreadArgs.callbackArgs = &args;
 	pthread_mutex_init( &(args.lock), NULL);
 	Pa_StartStream( stream );
@@ -235,11 +255,16 @@ int main(int argc, char **argv)
 		    bzero(buffer, 256);
 		    int ret = 0;
 		    ret = read(newsockfd, buffer, 256);
-		    while( ret > 0 && (strpbrk( buffer, "STOP" ) == strpbrk("a", "b") ) )
+		    int stop = 0;
+		    while( ret > 0 && !stop )
 		    {
-			printf("%s\n", buffer);
-			int FFTSIZE = atoi(buffer);
-			initRingBuffer(&FFTbuffer, FFTSIZE*2, 1);
+			int FFTSIZE = atoi(strtok(buffer, ","));
+			args.areaOfInterest[0] = atof(strtok(NULL, ","));
+			args.areaOfInterest[1] = atof(strtok(NULL, ","));
+			args.areaOfInterest[2] = atof(strtok(NULL, ","));
+			args.areaOfInterest[3] = atof(strtok(NULL, ","));
+
+			initRingBuffer(&FFTbuffer, FFTSIZE*2, 2);
 			dataCopyThreadArgs.fftsize = FFTSIZE;
 			double measureTime = 1.2e3 * (double)FFTSIZE/(double)SAMPLE_RATE + 50.0;
 			printf("measureTime = %f\n", measureTime);
@@ -271,6 +296,7 @@ int main(int argc, char **argv)
 			freeRingBuffer(&FFTbuffer);
 			pthread_mutex_unlock( &(args.lock) );
 			ret = read(newsockfd, buffer, 256);
+			stop = (strstr(buffer, "STOP") != NULL);
 		    }
 		    printf("Closing connection\n");
 		    close( newsockfd );

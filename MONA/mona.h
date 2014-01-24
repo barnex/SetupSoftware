@@ -58,6 +58,7 @@ typedef struct
     int *sock;
     int finished;
     int sentData;
+    float *areaOfInterest;
     pthread_mutex_t lock;
 } finalCallbackArgs;
 

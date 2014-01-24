@@ -81,9 +81,8 @@ void init_ADC(void){
 	/* configure pins used by SPI1
 	 * PA5 = SCK
 	 * PA6 = MISO
-	 * PA7 = MOSI
 	 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_6 | GPIO_Pin_5;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_5;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
@@ -93,7 +92,6 @@ void init_ADC(void){
 	// connect SPI1 pins to SPI alternate function
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource5, GPIO_AF_SPI1);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_SPI1);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
 
 	// enable clock for used IO pins
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
@@ -107,22 +105,26 @@ void init_ADC(void){
 
 	GPIOE->BSRRL |= GPIO_Pin_3; // set PE3 high (disables LIS302DL)
 
-    // PA1 as output (CONVST)
+        // PA1..3 as output (CONVST, RESET, ~CS)
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	GPIOE->BSRRH |= GPIO_Pin_1; // set PA1 low
+	GPIOA->BSRRH |= GPIO_Pin_1; // Bring CONVST low
+	GPIOA->BSRRL |= GPIO_Pin_2 || GPIO_Pin_3; // Bring reset and ~CS high
+	char tmp = 0xff;
+	while(tmp--);
+	GPIOA->BSRRH |= GPIO_Pin_2; // Bring reset down again
 
-    // PA3 as input (~BUSY)
-    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+	// PA4 as input (BUSY)
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	// enable peripheral clock
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -134,8 +136,8 @@ void init_ADC(void){
 	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // set to full duplex mode, seperate MOSI and MISO lines
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master;     // transmit in master mode, NSS pin has to be always high
 	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // one packet of data is 8 bits wide
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;        // clock is low when idle
-	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;      // data sampled at first edge
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High;        // clock is low when idle
+	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge;      // data sampled at first edge
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft | SPI_NSSInternalSoft_Set; // set the NSS management to internal and pull internal NSS high
 	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; // SPI frequency is APB2 frequency / 4
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;// data is transmitted MSB first

@@ -1,5 +1,11 @@
 #include "adc.h"
 
+void readChannels(int16_t *value)
+{
+
+}
+
+/*
 void readChannel(char channel, int16_t * value)
 {
     while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
@@ -47,10 +53,12 @@ void readChannel(char channel, int16_t * value)
     *value = (int16_t) tmp2;
 
 }
+*/
 
+/*
 void readChannels(int16_t *value)
 {
-    /* Initialisation for the first measurement */
+    // Initialisation for the first measurement 
     while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
     //Drive CONVST (PA1) low
     GPIOA->BSRRH |= GPIO_Pin_1;
@@ -61,7 +69,7 @@ void readChannels(int16_t *value)
     adc.uni     = 0;
     adc.sgl     = 1;
 
-    /* Sample channel 0 */
+    // Sample channel 0
     char channel = 0;
 
     adc.select  = channel / 2;
@@ -79,10 +87,10 @@ void readChannels(int16_t *value)
     //Drive CONVST high
     GPIOA->BSRRL |= GPIO_Pin_1;
  
-    /*
-     * Iterate over the other channels
-     * whilst reading the result from the previous samplings
-     */ 
+    //
+    // Iterate over the other channels
+    // whilst reading the result from the previous samplings
+    // 
     while( channel < 8 )
     {
         // Increase the channel (wrap around at 8)
@@ -114,3 +122,4 @@ void readChannels(int16_t *value)
         GPIOA->BSRRH |= GPIO_Pin_1; // CONVST -> low
     }
 }
+*/
