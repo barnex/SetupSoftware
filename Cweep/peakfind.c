@@ -148,7 +148,7 @@ int getValue(int monaSock, double bandwidth, double *measurements, double *fCent
 	measurements[0] += ImSig[i]*ImSig[i] + ReSig[i]*ReSig[i];
     }
 	
-    (measurements[0]) /= (double) stop;
+    (measurements[0]) /= (double) (stop - start);
 
     (measurements[1]) = 0.0;	
     for( i = start; i < stop; i++ )
