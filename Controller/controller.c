@@ -4,10 +4,10 @@ static int readfull(int fd, uint8_t *buffer, int n)
 {
     int ret = 0, i = 0;
     ret = read(fd, buffer, n);
-    if( ret > 0 && ret != n )
+    if( ret >= 0 && ret != n )
     {
 	i = ret;
-	while(i < n && ret > 0)
+	while(i < n && ret >= 0)
 	{
 	    ret = read(fd, &(buffer[i]), n-i);
 	    i += ret;
@@ -112,18 +112,18 @@ int getPosition(int fd, int *position)
     out[0] = IN_CMD_GET_DAC;
     out[1] = 0;    
     write(fd, out, 2);
-    readfull(fd, in, 10);
+    printf("readfull returned %d\n", readfull(fd, in, 10));
     if( in[1] == 8 )
     {
-	for(int i = 0 ; i < 8; i++)
+	for(int i = 2 ; i < 10; i++)
 	{
 	    if( i % 2 == 0 )
 	    {
-		position[i/2] = in[i];
+		position[i/2-1] = in[i];
 	    }
 	    else
 	    {
-		position[i/2] |= in[i] << 8;
+		position[i/2-1] |= in[i] << 8;
 	    }
 	}
 	return 10;
@@ -134,27 +134,34 @@ int getPosition(int fd, int *position)
     }
 }
 
-int getChannels(int fd, int *values)
+int getChannels(int fd, int16_t *values)
 {
     uint8_t out[2], in[18];
+    uint16_t tmp_in;
     out[0] = IN_CMD_GET_CHAN;
     out[1] = 0;    
     write(fd, out, 2);
-    read(fd, in, 2);
+    readfull(fd, in, 2);
+    printf("bytes received: 0x%x 0x%x\n", in[0], in[1]);
     if( in[1] == 16 )
     {
-	read(fd, in, 16);
+	printf("Proceeding to receive more channel bytes...\n");
+	readfull(fd, in, 16);
+	printf("bytes received: ");
 	for(int i = 0 ; i < 16; i++)
 	{
+	    printf("0x%x ", in[i]);
 	    if( i % 2 == 0 )
 	    {
-		values[i/2] = in[i];
+		tmp_in = in[i];
 	    }
 	    else
 	    {
-		values[i/2] |= in[i] << 8;
+		tmp_in |= in[i] << 8;
+		memcpy( &(values[i/2]), &tmp_in, 2);
 	    }
 	}
+	printf("\n");
 	return 16;
     }
     else

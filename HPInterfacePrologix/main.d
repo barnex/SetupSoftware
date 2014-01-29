@@ -35,7 +35,9 @@
  /usr/include/arm-linux-gnueabihf/bits/socket.h \
  /usr/include/arm-linux-gnueabihf/bits/sockaddr.h \
  /usr/include/arm-linux-gnueabihf/asm/socket.h \
- /usr/include/arm-linux-gnueabihf/asm/sockios.h /usr/include/netinet/in.h \
+ /usr/include/asm-generic/socket.h \
+ /usr/include/arm-linux-gnueabihf/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h /usr/include/netinet/in.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h \
  /usr/include/stdint.h /usr/include/arm-linux-gnueabihf/bits/wchar.h \
  /usr/include/arm-linux-gnueabihf/bits/in.h /usr/include/arpa/inet.h \

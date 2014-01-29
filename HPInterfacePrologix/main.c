@@ -58,6 +58,7 @@ int main(int argc, char **argv)
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	fprintf(logfile, "Port for binding is %d\n", portno);
+	fprintf(stdout, "Port for binding is %d\n", portno);
 	serv_addr.sin_port = htons(portno);
 	if (bind(sockfd, (struct sockaddr *) &serv_addr,
 	    sizeof(serv_addr)) < 0)
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
 	}
 	listen(sockfd,5);
 	fprintf(logfile, "Succesfully opened socket, now listening\n");
+	fprintf(stdout, "Succesfully opened socket, now listening\n");
 	fflush(logfile);
 	clilen = sizeof(cli_addr);
 
@@ -108,6 +110,7 @@ int main(int argc, char **argv)
 
 
 	fprintf(logfile, "Entering infinite loop...\n");
+	fprintf(stdout, "Entering infinite loop...\n");
 
 	/* Infinite loop */
 	while(1)

@@ -24,7 +24,7 @@ int setTSettle(int fd, int t_settle);
 int setPixels(int fd, int pixels);
 
 int getPosition(int fd, int *position);
-int getChannels(int fd, int *values);
+int getChannels(int fd, int16_t *values);
 
 int gotoPosition(int fd, int *position);
 int OneDScan(int fd, uint16_t *pixelList, int wait_time);

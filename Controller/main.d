@@ -6,9 +6,18 @@
  /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h \
  /usr/include/arm-linux-gnueabihf/bits/string.h \
  /usr/include/arm-linux-gnueabihf/bits/string2.h /usr/include/stdlib.h \
- /usr/include/stdio.h /usr/include/arm-linux-gnueabihf/bits/types.h \
- /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/libio.h \
- /usr/include/_G_config.h /usr/include/wchar.h \
+ /usr/include/arm-linux-gnueabihf/sys/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/time.h \
+ /usr/include/endian.h /usr/include/arm-linux-gnueabihf/bits/endian.h \
+ /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
+ /usr/include/arm-linux-gnueabihf/sys/select.h \
+ /usr/include/arm-linux-gnueabihf/bits/select.h \
+ /usr/include/arm-linux-gnueabihf/bits/sigset.h \
+ /usr/include/arm-linux-gnueabihf/bits/time.h \
+ /usr/include/arm-linux-gnueabihf/sys/sysmacros.h /usr/include/alloca.h \
+ /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
+ /usr/include/wchar.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdarg.h \
  /usr/include/arm-linux-gnueabihf/bits/stdio_lim.h \
  /usr/include/arm-linux-gnueabihf/bits/sys_errlist.h \
@@ -17,10 +26,10 @@
  /usr/include/arm-linux-gnueabihf/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/termios.h /usr/include/arm-linux-gnueabihf/bits/termios.h \
- /usr/include/unistd.h /usr/include/arm-linux-gnueabihf/bits/posix_opt.h \
+ /usr/include/arm-linux-gnueabihf/sys/ttydefaults.h /usr/include/unistd.h \
+ /usr/include/arm-linux-gnueabihf/bits/posix_opt.h \
  /usr/include/arm-linux-gnueabihf/bits/confname.h /usr/include/fcntl.h \
  /usr/include/arm-linux-gnueabihf/bits/fcntl.h \
- /usr/include/arm-linux-gnueabihf/sys/types.h /usr/include/time.h \
  /usr/include/arm-linux-gnueabihf/sys/stat.h \
  /usr/include/arm-linux-gnueabihf/bits/stat.h \
  /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h \
@@ -31,7 +40,9 @@
  /usr/include/arm-linux-gnueabihf/bits/socket.h \
  /usr/include/arm-linux-gnueabihf/bits/sockaddr.h \
  /usr/include/arm-linux-gnueabihf/asm/socket.h \
+ /usr/include/asm-generic/socket.h \
  /usr/include/arm-linux-gnueabihf/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h \
  /usr/include/arm-linux-gnueabihf/sys/ioctl.h \
  /usr/include/arm-linux-gnueabihf/bits/ioctls.h \
  /usr/include/arm-linux-gnueabihf/asm/ioctls.h \
@@ -39,13 +50,11 @@
  /usr/include/arm-linux-gnueabihf/asm/ioctl.h \
  /usr/include/asm-generic/ioctl.h \
  /usr/include/arm-linux-gnueabihf/bits/ioctl-types.h \
- /usr/include/arm-linux-gnueabihf/sys/ttydefaults.h \
  /usr/include/netinet/in.h /usr/include/arm-linux-gnueabihf/bits/in.h \
- /usr/include/endian.h /usr/include/arm-linux-gnueabihf/bits/endian.h \
- /usr/include/arm-linux-gnueabihf/bits/byteswap.h \
  /usr/include/arpa/inet.h /usr/include/strings.h /usr/include/netdb.h \
- /usr/include/arm-linux-gnueabihf/bits/netdb.h /usr/include/assert.h \
- mydefs.h controller.h image.h /usr/include/ImageMagick/wand/MagickWand.h \
+ /usr/include/rpc/netdb.h /usr/include/arm-linux-gnueabihf/bits/netdb.h \
+ /usr/include/assert.h mydefs.h controller.h image.h \
+ /usr/include/ImageMagick/wand/MagickWand.h \
  /usr/include/ImageMagick/magick/magick-config.h \
  /usr/include/ImageMagick/wand/method-attribute.h \
  /usr/include/ImageMagick/magick/MagickCore.h \
@@ -76,7 +85,6 @@
  /usr/include/ImageMagick/magick/monitor.h \
  /usr/include/ImageMagick/magick/profile.h \
  /usr/include/ImageMagick/magick/string_.h \
- /usr/include/arm-linux-gnueabihf/bits/time.h \
  /usr/include/ImageMagick/magick/quantum.h \
  /usr/include/ImageMagick/magick/resample.h \
  /usr/include/ImageMagick/magick/resize.h \
