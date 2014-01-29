@@ -1,14 +1,10 @@
 #include "adc.h"
 
-void readChannels(int16_t *value)
-{
 
-}
-
-/*
 void readChannel(char channel, int16_t * value)
 {
-    while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
+    //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
+    //while( ~GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3) );
 
     //Drive CONVST (PA1) low
     GPIOA->BSRRH |= GPIO_Pin_1;
@@ -38,7 +34,9 @@ void readChannel(char channel, int16_t * value)
     while(nCount--);
     GPIOA->BSRRH |= GPIO_Pin_1;
 
-    while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
+    //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
+    uint32_t wdt = 0xfff;
+    while( ~GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3) && wdt-- );
 
     // During this second I/O operation the results from the previous conversion are saved
     SPI1->DR = *buffer;
@@ -50,10 +48,17 @@ void readChannel(char channel, int16_t * value)
     while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
 
     uint16_t tmp2 = (tmp << 8) | SPI1->DR;
-    *value = (int16_t) tmp2;
-
+    memcpy(value, &tmp2, 2);
 }
-*/
+
+void readChannels(int16_t *value)
+{
+    for(int i = 0; i <8; i++ )
+    {
+	readChannel(i, &(value[i]));
+
+    }
+}
 
 /*
 void readChannels(int16_t *value)

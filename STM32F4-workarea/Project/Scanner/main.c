@@ -257,6 +257,7 @@ int main()
 
     state = STATE_IDLE;
     // A loop that will run until the end of times (or when you switch of the controller)
+    char buffer[64];
     while(1)
     {
 	/*
@@ -276,6 +277,7 @@ int main()
 	 *	it returns to the STATE_IDLE.
 	 * STATE_GOTO: Adjusts the position to the user's request and goes to the STATE_IDLE
 	 */
+	
         if( state == STATE_ABORT)
         {
             halt();
@@ -365,6 +367,7 @@ int main()
 		state = previousState; // Return to the previous state, before we started sending out data
 	    }
 	}
+
     }
     return 0;
 }

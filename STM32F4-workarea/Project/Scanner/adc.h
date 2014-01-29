@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 
-/*
+
 typedef struct
 {
     // Most significant byte
@@ -23,6 +23,6 @@ typedef struct
  
 void readChannel(char channel, int16_t * value);
 // Value is a pointer to (at least) an eight uint16_t array
-*/
+
 void readChannels(int16_t *value);
 #endif

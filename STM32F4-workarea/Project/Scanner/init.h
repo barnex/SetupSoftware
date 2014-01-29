@@ -20,10 +20,9 @@ void init_USART(uint32_t baudrate);
  * This function initializes SPI1-transceiver as follows:
  * PA5 = SCK (idle high, sample 2nd edge)
  * PA6 = MISO
+ * PA7 = MOSI
  * PA1 = CONVST (out)
- * PA2 = RESET (out)
- * PA3 = ~CS (out)
- * PA4 = BUSY
+ * PA4 = BUSY (in)
  * PE7 = HIGH (required to disable LIS302DL)
  */
 void init_ADC(void);
