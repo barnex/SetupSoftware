@@ -4,10 +4,14 @@
 void readChannel(char channel, int16_t * value)
 {
     //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
+    //GPIOA->BSRRL |= GPIO_Pin_1;
+    //int nCount = 0x00ff;
+    //while(nCount--);
+    //GPIOA->BSRRH |= GPIO_Pin_1;
     //while( ~GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3) );
 
     //Drive CONVST (PA1) low
-    GPIOA->BSRRH |= GPIO_Pin_1;
+    //GPIOA->BSRRH |= GPIO_Pin_1;
 
     volatile adc_tx_struct adc;
     adc.sleep   = 0;
@@ -19,14 +23,19 @@ void readChannel(char channel, int16_t * value)
     adc.odd     = channel % 2;
 
     volatile uint8_t * buffer = (uint8_t *)(&adc);
+    uint8_t tmp;
     // During this first I/O operation the results from the previous conversion are discarded!
     SPI1->DR = *buffer;
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+    while (!(SPI1->SR & SPI_I2S_FLAG_RXNE ) );
+    while( SPI1->SR & SPI_I2S_FLAG_BSY );
     SPI1->DR = 0x00; // Transmit dummy byte
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+    while (!(SPI1->SR & SPI_I2S_FLAG_RXNE ) );
+    while( SPI1->SR & SPI_I2S_FLAG_BSY );
    
     // Wait for ~5us 
-    int nCount = 0x00ff;
+    uint32_t nCount = 0x00ff;
     while(nCount--);
     //Drive CONVST high and back low
     GPIOA->BSRRL |= GPIO_Pin_1;
@@ -42,7 +51,7 @@ void readChannel(char channel, int16_t * value)
     SPI1->DR = *buffer;
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
     while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
-    uint8_t tmp = SPI1->DR;
+    tmp = SPI1->DR;
     SPI1->DR = 0x00; // Transmit dummy byte
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
     while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
@@ -53,7 +62,7 @@ void readChannel(char channel, int16_t * value)
 
 void readChannels(int16_t *value)
 {
-    for(int i = 0; i <8; i++ )
+    for(char i = 0; i <8; i++ )
     {
 	readChannel(i, &(value[i]));
     }
