@@ -171,7 +171,7 @@ inline void parseInput()
 	halt();
         previousState = state;
 
-	uommand_out.cmd	    = OUT_CMD_CHAN;  // Let the user know we are sending out DAC values
+	command_out.cmd	    = OUT_CMD_CHAN;  // Let the user know we are sending out DAC values
 	command_out.size    = 16;	    // Though confusing, 4 uint16_t will be transmitted,
 
 	state = STATE_SINGLE_MEAS;
@@ -353,7 +353,18 @@ int main()
 	else if( state == STATE_SINGLE_MEAS )
 	{
 	    // Read data from the ADC
+	    memset(ADCBuffer, 0, 8*sizeof(int16_t));
+	    
             readChannels((int16_t *)ADCBuffer);
+            
+            //ADCBuffer[1] = 1;
+            //ADCBuffer[2] = 2;
+            //ADCBuffer[3] = 3;
+            //ADCBuffer[4] = 4;
+            //ADCBuffer[5] = 5;
+            //ADCBuffer[6] = 6;
+            //ADCBuffer[7] = 7;
+	  
 	    // And write it into the USART
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
 	    // Check if the state was not modified externally

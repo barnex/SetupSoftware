@@ -9,7 +9,7 @@ void readChannel(char channel, int16_t * value)
     //Drive CONVST (PA1) low
     GPIOA->BSRRH |= GPIO_Pin_1;
 
-    adc_tx_struct adc;
+    volatile adc_tx_struct adc;
     adc.sleep   = 0;
     adc.nap     = 0;
     adc.gain    = 0;
@@ -18,7 +18,7 @@ void readChannel(char channel, int16_t * value)
     adc.select  = channel / 2;
     adc.odd     = channel % 2;
 
-    uint8_t * buffer = (uint8_t *)(&adc);
+    volatile uint8_t * buffer = (uint8_t *)(&adc);
     // During this first I/O operation the results from the previous conversion are discarded!
     SPI1->DR = *buffer;
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
@@ -47,7 +47,7 @@ void readChannel(char channel, int16_t * value)
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
     while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
 
-    uint16_t tmp2 = (tmp << 8) | SPI1->DR;
+    uint16_t tmp2 = tmp | ( SPI1->DR << 8 );
     memcpy(value, &tmp2, 2);
 }
 
@@ -56,7 +56,6 @@ void readChannels(int16_t *value)
     for(int i = 0; i <8; i++ )
     {
 	readChannel(i, &(value[i]));
-
     }
 }
 
