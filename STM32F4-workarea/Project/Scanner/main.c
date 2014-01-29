@@ -170,6 +170,10 @@ inline void parseInput()
     {
 	halt();
         previousState = state;
+
+	uommand_out.cmd	    = OUT_CMD_CHAN;  // Let the user know we are sending out DAC values
+	command_out.size    = 16;	    // Though confusing, 4 uint16_t will be transmitted,
+
 	state = STATE_SINGLE_MEAS;
     }
     /*
