@@ -115,15 +115,15 @@ int getPosition(int fd, int *position)
     printf("readfull returned %d\n", readfull(fd, in, 10));
     if( in[1] == 8 )
     {
-	for(int i = 0 ; i < 8; i++)
+	for(int i = 2 ; i < 10; i++)
 	{
 	    if( i % 2 == 0 )
 	    {
-		position[i/2] = in[i];
+		position[i/2 - 1] = in[i];
 	    }
 	    else
 	    {
-		position[i/2] |= in[i] << 8;
+		position[i/2 - 1] |= in[i] << 8;
 	    }
 	}
 	return 10;

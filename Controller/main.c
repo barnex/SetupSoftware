@@ -116,7 +116,7 @@ initServer(int *sockfd, int portno)
 
 int main(int argc, char **argv)
 {
-    char *portname = "/dev/ttyAMA0";
+    char *portname = "/dev/ttyUSB1";
     char buffer[256];
     memset(buffer, 0, 256);
     int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
@@ -131,16 +131,20 @@ int main(int argc, char **argv)
     printf("Terminal interface initialized\nPlease press enter\n");
     getchar();
     int16_t values[8];
-    //getPosition(fd, values);
-    //printf("Positions {%d, %d, %d, %d}\n", values[0], values[1], values[2], values[3]);
-    int i = 100;
+    int pos[4];
+    getPosition(fd, pos);
+    printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
+    pos[0] = 1;
+    gotoPosition(fd, pos);
+
+    int i = 10;
     while(i)
     {
 	printf("Sending command to measure\n");
 	getChannels(fd, values);
 	printf("Measured: {%d, %d, %d, %d, \n", values[0], values[1], values[2], values[3]);
 	printf("\t%d, %d, %d, %d} \n", values[4], values[5], values[6], values[7]);
-	usleep(100000);
+	//usleep(100000);
     }
     /*
     int sockfd = 0, newsockfd = 0;
