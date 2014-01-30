@@ -142,6 +142,37 @@ void init_ADC(void){
 	SPI_Init(SPI1, &SPI_InitStruct);
 
 	SPI_Cmd(SPI1, ENABLE); // enable SPI1
+
+	// Write a word to the LTC1859 and start a conversion
+	volatile adc_tx_struct adc;
+	adc.sleep   = 0;
+	adc.nap     = 0;
+	adc.gain    = 0;
+	adc.uni     = 0;
+	adc.sgl     = 1;
+	adc.select  = 0;
+	adc.odd     = 0;
+    
+	volatile uint8_t * buffer = (uint8_t *)(&adc);
+	uint8_t tmp;
+	// During this first I/O operation the results from the previous conversion are discarded!
+	SPI1->DR = *buffer;
+	while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+	while (!(SPI1->SR & SPI_I2S_FLAG_RXNE ) );
+	while( SPI1->SR & SPI_I2S_FLAG_BSY );
+	SPI1->DR = 0x00; // Transmit dummy byte
+	while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+	while (!(SPI1->SR & SPI_I2S_FLAG_RXNE ) );
+	while( SPI1->SR & SPI_I2S_FLAG_BSY );
+    
+	// Wait for ~5us 
+	uint32_t nCount = 0x00ff;
+	while(nCount--);
+	//Drive CONVST high and back low
+	GPIOA->BSRRL |= GPIO_Pin_1;
+	nCount = 0x00ff;
+        while(nCount--);
+	GPIOA->BSRRH |= GPIO_Pin_1;
 }
 
 // this function initializes the SPI2 peripheral

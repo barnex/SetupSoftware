@@ -353,7 +353,7 @@ int main()
 	else if( state == STATE_SINGLE_MEAS )
 	{
 	    // Read data from the ADC
-	    memset(ADCBuffer, 0, 8*sizeof(int16_t));
+	    memset((void *)ADCBuffer, 0, 8*sizeof(int16_t));
 	    
             readChannels((int16_t *)ADCBuffer);
             

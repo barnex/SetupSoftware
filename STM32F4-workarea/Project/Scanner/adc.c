@@ -4,11 +4,11 @@
 void readChannel(char channel, int16_t * value)
 {
     //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
-    //GPIOA->BSRRL |= GPIO_Pin_1;
-    //int nCount = 0x00ff;
-    //while(nCount--);
-    //GPIOA->BSRRH |= GPIO_Pin_1;
-    //while( ~GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3) );
+    GPIOA->BSRRL |= GPIO_Pin_1;
+    int nCount = 0x00ff;
+    while(nCount--);
+    GPIOA->BSRRH |= GPIO_Pin_1;
+    while( !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) );
 
     //Drive CONVST (PA1) low
     //GPIOA->BSRRH |= GPIO_Pin_1;
@@ -35,7 +35,7 @@ void readChannel(char channel, int16_t * value)
     while( SPI1->SR & SPI_I2S_FLAG_BSY );
    
     // Wait for ~5us 
-    uint32_t nCount = 0x00ff;
+    nCount = 0x00ff;
     while(nCount--);
     //Drive CONVST high and back low
     GPIOA->BSRRL |= GPIO_Pin_1;
@@ -43,10 +43,8 @@ void readChannel(char channel, int16_t * value)
     while(nCount--);
     GPIOA->BSRRH |= GPIO_Pin_1;
 
-    //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA3 (~BUSY) is low
-    uint32_t wdt = 0xfff;
-    while( ~GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_3) && wdt-- );
-
+    //while ( !(GPIOA->IDR & 0x0003) ); // Wait while PA4 (~BUSY) is low
+    while( !( GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) ) );
     // During this second I/O operation the results from the previous conversion are saved
     SPI1->DR = *buffer;
     while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete

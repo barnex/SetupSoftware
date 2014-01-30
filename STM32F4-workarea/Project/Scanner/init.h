@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "adc.h"
+
 /*
  * PD8 = TX
  * PD9 = RX
