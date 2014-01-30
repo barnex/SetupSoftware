@@ -133,7 +133,8 @@ int main(int argc, char **argv)
     int16_t values[8];
     //getPosition(fd, values);
     //printf("Positions {%d, %d, %d, %d}\n", values[0], values[1], values[2], values[3]);
-    while(1)
+    int i = 100;
+    while(i)
     {
 	printf("Sending command to measure\n");
 	getChannels(fd, values);
