@@ -60,10 +60,80 @@ void readChannel(char channel, int16_t * value)
 
 void readChannels(int16_t *value)
 {
-    for(char i = 0; i <8; i++ )
+    // Start a conversion, just to purge possible buffers and reset ADC state machine
+    GPIOA->BSRRL |= GPIO_Pin_1;
+    int nCount = 0x00ff;
+    while(nCount--);
+    GPIOA->BSRRH |= GPIO_Pin_1;
+    while( !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) );
+
+
+    volatile adc_tx_struct adc;
+    volatile uint8_t * buffer = (uint8_t *)(&adc);
+    uint8_t tmp[2], channel = 0, tmr;
+    adc.sleep   = 0;
+    adc.nap     = 0;
+    adc.gain    = 0;
+    adc.uni     = 0;
+    adc.sgl     = 1;
+
+    for(channel = 0; channel < 8; channel++ )
     {
-	readChannel(i, &(value[i]));
+	// Set for channel
+	adc.select  = channel / 2;
+	adc.odd     = channel % 2;
+
+	// During this I/O operation the results from the previous conversion are saved
+        SPI1->DR = *buffer;
+	while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+        while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
+	tmp[0] = SPI1->DR;
+        SPI1->DR = 0x00; // Transmit dummy byte
+	while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+        while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
+	tmp[1] = SPI1->DR;
+
+	// Copy the previous measurement
+	if( channel > 0 )
+	{
+	    memcpy(&(value[channel-1]), tmp, 2);
+	}
+
+	tmr = 0xff;
+	while(tmr--);
+
+	// Start a conversion
+        GPIOA->BSRRL |= GPIO_Pin_1;
+        while( !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) );
+	GPIOA->BSRRH |= GPIO_Pin_1;
+
+	tmr = 0xff;
+	while(tmr--);
     }
+
+    // Channel 7 has not been read, this we do seperatly
+    channel = 0; 
+    // Set for channel
+    adc.select  = channel / 2;
+    adc.odd     = channel % 2;
+
+    // During this second I/O operation the results from the previous conversion are saved
+    SPI1->DR = *buffer;
+    while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+    while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
+    tmp[0] = SPI1->DR;
+    SPI1->DR = 0x00; // Transmit dummy byte
+    while( !(SPI1->SR & SPI_I2S_FLAG_TXE) ); // wait until transmit complete
+    while( !(SPI1->SR & SPI_I2S_FLAG_RXNE) ); // wait until transmit complete
+    tmp[1] = SPI1->DR;
+
+    memcpy(&(value[7]), tmp, 2);
+
+    // Start a conversion
+    GPIOA->BSRRL |= GPIO_Pin_1;
+    while( !GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) );
+    GPIOA->BSRRH |= GPIO_Pin_1;
+
 }
 
 /*
