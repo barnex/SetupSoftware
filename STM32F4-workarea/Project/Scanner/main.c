@@ -152,7 +152,7 @@ inline void parseInput()
 	position[1] = (int32_t) USARTBuffer[1];
 	position[2] = (int32_t) USARTBuffer[2];
 	position[3] = (int32_t) USARTBuffer[3];
-    previousState = state;
+	previousState = state;
 	state = STATE_GOTO;
     }
     /*
@@ -164,10 +164,10 @@ inline void parseInput()
 	command_out.cmd	    = OUT_CMD_DAC;  // Let the user know we are sending out DAC values
 	command_out.size    = 8;	    // Though confusing, 4 uint16_t will be transmitted,
 					    // which corresponds with 8 bytes
-	USARTBuffer[0] = (uint16_t)  position[0];
-	USARTBuffer[1] = (uint16_t)  position[1];
-	USARTBuffer[2] = (uint16_t)  position[2];
-	USARTBuffer[3] = (uint16_t)  position[3];
+	USARTBuffer[0] = (uint16_t)  DACBuffer[0];
+	USARTBuffer[1] = (uint16_t)  DACBuffer[1];
+	USARTBuffer[2] = (uint16_t)  DACBuffer[2];
+	USARTBuffer[3] = (uint16_t)  DACBuffer[3];
         previousState = state;
 	state = STATE_SEND_POS;
 	
@@ -291,6 +291,17 @@ int main()
 	    init_USART(115200);
 	    init_ADC();
 	    init_DAC();
+
+	    DACBuffer[0] = 0;
+	    position[0] = 0;
+	    DACBuffer[1] = 0;
+	    position[1] = 0;
+	    DACBuffer[2] = 0;
+	    position[2] = 0;
+	    DACBuffer[3] = 0;
+	    position[3] = 0;
+	    setDACS( (uint16_t*) DACBuffer);
+    
 	    USART_puts(USART3, "Init complete\r\n");
 	    
 	    previousState = state;

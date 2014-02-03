@@ -131,20 +131,28 @@ int main(int argc, char **argv)
     printf("Terminal interface initialized\nPlease press enter\n");
     getchar();
     int16_t values[8];
-    int iinc[4] = {10.0, 0.0, 0.0, 0.0};
-    int jinc[4] = {0.0, 10.0, 0.0, 0.0};
+    int iinc[4] = {0xffff/100, 0, 0, 0};
+    int jinc[4] = {0, 0xffff/100, 0, 0};
     int pos[4];
+    memset(pos, 0, sizeof(int)*4);
+    
+    /*
+    gotoPosition(fd, pos);
     getPosition(fd, pos);
     printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
-   
+
+    reset(fd);
+    getPosition(fd, pos);
+    printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
+    */
     gotoPosition(fd, pos);
     setStart(fd, pos);
     setIInc(fd, iinc);
     setJInc(fd, jinc);
-    setTSettle(fd, 10);
+    setTSettle(fd, 1000);
     setPixels(fd, 100);
-    TwoDScan(fd, NULL, NULL);
-    
+    uint16_t pixelList[100*100];
+    TwoDScan(fd, pixelList, NULL);
     /*
 
     int i = 10;

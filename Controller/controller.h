@@ -16,6 +16,7 @@
 #include "image.h"
 
 int abortscan(int fd);
+int reset(int fd);
 
 int setStart(int fd, int *start);
 int setIInc(int fd, int *i_inc);

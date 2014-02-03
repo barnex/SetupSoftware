@@ -7,6 +7,8 @@
 #define STATE_START             (uint8_t) 3
 #define STATE_GOTO		(uint8_t) 4
 #define STATE_SINGLE_MEAS	(uint8_t) 5
+#define STATE_SEND_POS		(uint8_t) 6
+#define STATE_RESET		(uint8_t) 7
 
 #define OUT_CMD_FIRSTPIXEL      (uint8_t) 1
 #define OUT_CMD_LASTPIXEL       (uint8_t) 2
@@ -32,6 +34,7 @@
 #define IN_CMD_SET_TSETTLE      (uint8_t) 11
 #define IN_CMD_SET_IINC         (uint8_t) 12
 #define IN_CMD_SET_JINC         (uint8_t) 13
+#define IN_CMD_RESET		(uint8_t) 14
 
 #define USART_STATE_CMD         (uint8_t) 0
 #define USART_STATE_SIZE        (uint8_t) 1

@@ -253,7 +253,7 @@ void init_Timer(uint32_t t_settle)
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
     TIM_TimeBaseInitTypeDef TIM2Init;
-    TIM2Init.TIM_Prescaler = 8199;
+    TIM2Init.TIM_Prescaler = 41999;
     TIM2Init.TIM_CounterMode = TIM_CounterMode_Up;
     TIM2Init.TIM_Period = t_settle - 1;
     TIM2Init.TIM_ClockDivision = TIM_CKD_DIV1;
