@@ -116,7 +116,7 @@ initServer(int *sockfd, int portno)
 
 int main(int argc, char **argv)
 {
-    char *portname = "/dev/ttyUSB1";
+    char *portname = "/dev/ttyUSB0";
     char buffer[256];
     memset(buffer, 0, 256);
     int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
@@ -131,11 +131,21 @@ int main(int argc, char **argv)
     printf("Terminal interface initialized\nPlease press enter\n");
     getchar();
     int16_t values[8];
+    int iinc[4] = {10.0, 0.0, 0.0, 0.0};
+    int jinc[4] = {0.0, 10.0, 0.0, 0.0};
     int pos[4];
     getPosition(fd, pos);
     printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
-    pos[0] = 1;
+   
     gotoPosition(fd, pos);
+    setStart(fd, pos);
+    setIInc(fd, iinc);
+    setJInc(fd, jinc);
+    setTSettle(fd, 10);
+    setPixels(fd, 100);
+    TwoDScan(fd, NULL, NULL);
+    
+    /*
 
     int i = 10;
     while(i)
@@ -144,8 +154,11 @@ int main(int argc, char **argv)
 	getChannels(fd, values);
 	printf("Measured: {%d, %d, %d, %d, \n", values[0], values[1], values[2], values[3]);
 	printf("\t%d, %d, %d, %d} \n", values[4], values[5], values[6], values[7]);
-	//usleep(100000);
+	pos[0] += 0xff;
+	gotoPosition(fd, pos);
+	usleep(100000);
     }
+    */
     /*
     int sockfd = 0, newsockfd = 0;
     struct sockaddr_in cli_addr;

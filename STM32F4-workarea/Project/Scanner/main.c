@@ -94,13 +94,13 @@ inline void halt()
  */
 inline void getPosition()
 {
-    position[0] = start[0] + scan_i*i_inc[0] + scan_j*pixels*j_inc[0];
+    position[0] = start[0] + scan_i*i_inc[0] + scan_j*j_inc[0];
     DACBuffer[0] = (uint16_t) position[0];
-    position[1] = start[1] + scan_i*i_inc[1] + scan_j*pixels*j_inc[1];
+    position[1] = start[1] + scan_i*i_inc[1] + scan_j*j_inc[1];
     DACBuffer[1] = (uint16_t) position[1];
-    position[2] = start[2] + scan_i*i_inc[2] + scan_j*pixels*j_inc[2];
+    position[2] = start[2] + scan_i*i_inc[2] + scan_j*j_inc[2];
     DACBuffer[2] = (uint16_t) position[2];
-    position[3] = start[3] + scan_i*i_inc[3] + scan_j*pixels*j_inc[3];
+    position[3] = start[3] + scan_i*i_inc[3] + scan_j*j_inc[3];
     DACBuffer[3] = (uint16_t) position[3];
 }
 
@@ -121,6 +121,15 @@ inline void parseInput()
     {
         previousState = state;
         state = STATE_ABORT;
+    }
+    /*
+     *  Reset the controller remotely
+     */
+    else if( command_in.cmd == IN_CMD_RESET )
+    {
+        halt();
+        previousState = state;
+        state = STATE_RESET;
     }
     /*
      *  We move the state machine into the starting state
@@ -241,25 +250,8 @@ inline void parseInput()
 
 int main()
 {
-    /* 
-     * This is important and you should understand the following:
-     * PriorityGroup_4 ALLOWS FOR ONLY PREEMPTIVE INTERRUPTS AND NO SUB-GROUPINGS
-     * You should always set the NVIC_PriorityGroup.
-     */  
-    NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
 
-    init_LEDs();
-    //init_Timer(5000);
-  
-    // Always set the USART watchdog before the USART self 
-    init_USART_WDT();
-    init_USART(115200);
-    init_ADC();
-    init_DAC();
-    setDAC(0, 0xffff);
-    USART_puts(USART3, "Init complete\r\n");
-
-    state = STATE_IDLE;
+    state = STATE_RESET;
     // A loop that will run until the end of times (or when you switch of the controller)
     char buffer[64];
     while(1)
@@ -282,7 +274,29 @@ int main()
 	 * STATE_GOTO: Adjusts the position to the user's request and goes to the STATE_IDLE
 	 */
 	
-        if( state == STATE_ABORT)
+	if( state == STATE_RESET )
+	{
+	    /* 
+	    * This is important and you should understand the following:
+	    * PriorityGroup_4 ALLOWS FOR ONLY PREEMPTIVE INTERRUPTS AND NO SUB-GROUPINGS
+	    * You should always set the NVIC_PriorityGroup.
+	    */  
+	    NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
+	
+	    init_LEDs();
+	    //init_Timer(5000);
+	
+	    // Always set the USART watchdog before the USART self 
+	    init_USART_WDT();
+	    init_USART(115200);
+	    init_ADC();
+	    init_DAC();
+	    USART_puts(USART3, "Init complete\r\n");
+	    
+	    previousState = state;
+	    state = STATE_IDLE;
+	}
+        else if( state == STATE_ABORT)
         {
             halt();
 	    state = STATE_IDLE;
@@ -302,13 +316,14 @@ int main()
                     scan_j = 0;
                     command_out.cmd = OUT_CMD_LASTPIXEL;
                     halt();
+		    state = STATE_IDLE;
                 }
             }
-            getPosition();
-            setDACS((uint16_t *) DACBuffer);
-	    // If we are still in the active state (and user has not called for ABORT)...
             if( state == STATE_ACTIVE )
             {
+		getPosition();
+                setDACS((uint16_t *) DACBuffer);
+		// If we are still in the active state (and user has not called for ABORT)...
                 init_Timer(t_settle);
 		state = STATE_IDLE;
             }

@@ -191,4 +191,10 @@ int gotoPosition(int fd, int *position)
 }
 
 int OneDScan(int fd, uint16_t *pixelList, int wait_time);
-int TwoDScan(int fd, uint16_t *pixelList, const char *filename);
+int TwoDScan(int fd, uint16_t *pixelList, const char *filename)
+{
+    uint8_t out[2];
+    out[0] = IN_CMD_START; 
+    out[1] = 0;
+    return write(fd, out, 2);
+}
