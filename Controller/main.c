@@ -136,7 +136,7 @@ int main(int argc, char **argv)
     int pos[4];
     memset(pos, 0, sizeof(int)*4);
     
-    /*
+
     gotoPosition(fd, pos);
     getPosition(fd, pos);
     printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
@@ -144,17 +144,16 @@ int main(int argc, char **argv)
     reset(fd);
     getPosition(fd, pos);
     printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
-    */
+
     gotoPosition(fd, pos);
     setStart(fd, pos);
     setIInc(fd, iinc);
     setJInc(fd, jinc);
-    setTSettle(fd, 1000);
+    setTSettle(fd, 10);
     setPixels(fd, 100);
     uint16_t pixelList[100*100];
     TwoDScan(fd, pixelList, NULL);
     /*
-
     int i = 10;
     while(i)
     {

@@ -316,7 +316,7 @@ int main()
         {
             command_out.cmd = OUT_CMD_SCANNING;
             GPIO_SetBits(GPIOD, 0xF000);
-            readChannels((int16_t *)ADCBuffer);
+            //readChannels((int16_t *)ADCBuffer);
             scan_i++;
             if( scan_i >= pixels )
             {

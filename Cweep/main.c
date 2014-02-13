@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 	
     
     fprintf(fileout, "# Scan parameters: power %f dBm, bandwidth %f Hz\n", config.power, config.bandwidth);
-    fprintf(fileout, "# Frequency [MHz]\tavg noise\tstd noise\tpeak value\n");
+    fprintf(fileout, "# Current [mA]\tFrequency[MHz]\tAVG Noise\tRMS Noise\tMagnitude sig\tPhase sig\tMagnitude ref\tPhase ref\n");
 
 
     double highBound = 0.0;
