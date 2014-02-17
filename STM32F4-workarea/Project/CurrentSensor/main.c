@@ -8,28 +8,48 @@
 #include <stdint.h>
 #include <string.h>
 
-volatile uint16_t ADCValue;
+#define REQUEST_VALUE 251
 
 void initADC(void);
 void initUSART(uint32_t baudrate);
 void USART_puts(volatile char *s);
+volatile uint8_t requestValue;
 
 int main(void)
 {
+    NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); 
     initADC();
     initUSART(115200);
-    ADCValue = 0;
-    ADC_TypeDef *ADCx = ADC1;
+    int index = 0;
+    uint16_t ADCBuffer[16];
+    memset(ADCBuffer, 0, sizeof(uint16_t));
+    uint16_t avgReading = 0;
+
+    requestValue = 0;
 
     while(1)
     {
 	while(  ADC_GetFlagStatus( ADC1, ADC_FLAG_EOC) == RESET );
 	ADC_ClearFlag(ADC1, ADC_FLAG_EOC);
-	ADCValue = ADC_GetConversionValue(ADC1);
-	char outstring[256];
-	memset(outstring, 0, 256);
-	sprintf(outstring, "%d\r\n", ADCValue);
-	USART_puts(outstring);
+	ADCBuffer[index] = ADC_GetConversionValue(ADC1);
+	index++;
+	if(index >= 16)
+	    index = 0;
+
+	avgReading = 0;
+	for(int i = 0; i < 16; i++ )
+	{
+	    avgReading += ADCBuffer[i];
+	}
+
+	if( requestValue )
+	{
+	    USART_SendData(USART3, avgReading >> 8);
+	    while( !( USART_GetFlagStatus(USART3,USART_FLAG_TXE) ) );
+	    USART_SendData(USART3, avgReading & 0x00ff);
+	    while( !( USART_GetFlagStatus(USART3,USART_FLAG_TXE) ) );
+	    requestValue = 0;
+	}
     }
 
     return 0;
@@ -122,11 +142,14 @@ void initUSART(uint32_t baudrate){
     USART_Cmd(USART3, ENABLE);
 }
 
-void USART_puts(volatile char *s){
-
-    while(*s){
-        while( !(USART3->SR & 0x00000040) );
-        USART_SendData(USART3, *s);
-        *s++;
+void USART3_IRQHandler(void)
+{
+    if( USART_GetITStatus( USART3, USART_IT_RXNE ) )
+    {
+	uint8_t usartInput = USART3->DR;
+	if( usartInput == REQUEST_VALUE )
+	{
+	    requestValue = 1;
+	}
     }
 }
