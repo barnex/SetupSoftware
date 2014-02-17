@@ -23,7 +23,7 @@ int main(void)
     int index = 0;
     uint16_t ADCBuffer[16];
     memset(ADCBuffer, 0, sizeof(uint16_t));
-    uint16_t avgReading = 0;
+    volatile uint16_t avgReading = 0;
 
     requestValue = 0;
 

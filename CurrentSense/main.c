@@ -147,17 +147,79 @@ int main(int argc, char **argv)
 	
     set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
     set_blocking (fd, 0);                // set no blockin  
-    printf("Terminal interface initialized\nPlease press enter\n");
-    getchar();
+    printf("Terminal interface initialized\n");
+
+    int portno = atoi(argv[2]);
+    char *allowed_client = argv[1];
+    // This part initializes the socket
+    //  Create a socket to listen to (act as server)
+    int sockfd, newsockfd;
+    socklen_t clilen;
+    struct sockaddr_in serv_addr, cli_addr;
+    
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) 
+    {
+        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        perror("! ERROR Message from system");
+        return EXIT_FAILURE;
+    }
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(portno);
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+        sizeof(serv_addr)) < 0)
+    {
+        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        perror("! ERROR Message from system");
+        return EXIT_FAILURE;
+
+    }
+    listen(sockfd,5);
+    clilen = sizeof(cli_addr);
 
     while(1)
     {
-	char buffer = 251, input[2];
-	memset(input, 0, 2);
-        write(fd, &buffer, 1);
-	readfull(fd, (uint8_t *)input, 2);
-	uint16_t returnValue = input[0] << 8 | input[1];
-        printf("Received: %d\n", returnValue);
+        /* Listen for incoming calls */
+	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+	char client_ip[256];
+	char client_name[256];
+	char serv_name[256];
+	char buffer[256];
+	struct sockaddr_in *tmp = (struct sockaddr_in *)&cli_addr;
+	inet_ntop(AF_INET, &(tmp->sin_addr), client_ip, clilen);
+	getnameinfo((struct sockaddr *) &cli_addr, clilen,
+	    client_name, 256,  serv_name, 256, 0);
+	printf("Client: %s, sockfd: %d\n", client_name, newsockfd);
+	if( strcmp(client_name, allowed_client) == 0 )
+	{
+	    printf("I have an allowed client\n");
+	    bzero(buffer, 256);
+	    int ret = 0;
+	    ret = read(newsockfd, buffer, 256);
+	    int stop = 0;
+	    while( ret > 0 && !stop )
+	    {
+		if( strstr(buffer, "READ") != NULL )
+		{
+		    char output = 251;
+		    uint8_t input[2] = {0, 0};
+		    write(fd, &output, 1);
+		    ret = readfull(fd, (uint8_t *)input, 2);
+		    //printf("readfull returned %d, bytes 0x%x 0x%x\n", ret, input[0], input[1]);
+		    uint16_t returnValue = input[0] << 8 | input[1];
+		    bzero(buffer, 256); 
+		    sprintf(buffer, "%e\n", (double)returnValue * 1.52587890625e-8);
+		    write(newsockfd, buffer, strlen(buffer));
+		}
+		ret = read(newsockfd, buffer, 256);
+		stop = ( strstr(buffer, "STOP") != NULL );
+	    }
+	    printf("Done, closing socket\n");
+	    close(newsockfd);
+	}
+
     }
 
     return EXIT_SUCCESS;
