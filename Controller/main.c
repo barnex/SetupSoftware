@@ -104,11 +104,14 @@ int main(int argc, char **argv)
             printf("I have an allowed client\n");
             bzero(buffer, 256);
             int ret = 0;
+	    memset(buffer, 0, 256);
             ret = read(newsockfd, buffer, 256);
             int stop = 0;
             while( ret > 0 && !stop )
             {
+		printf("received: %s\n", buffer);
 		handleRequest(buffer, &newsockfd, &fd);
+		memset(buffer, 0, 256);
                 ret = read(newsockfd, buffer, 256);
                 stop = ( strstr(buffer, "STOP") != NULL );
             }
@@ -145,6 +148,10 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	else if( strstr(request, "SCAN_1D") != NULL )
 	{
 	    command = CMD_SCAN_1D;
+	}
+	else if( strstr(request, "GET") != NULL )
+	{
+	    command = CMD_GET;
 	}
 	else if( strstr(request, "SCAN_2D") != NULL )
 	{
