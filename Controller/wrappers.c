@@ -238,12 +238,11 @@ int measureWrapper  (int *sockfd, int *usbfd)
 	    char errorstring[1024];
 
 	    memset(errorstring, 0, 1024);
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", inputBuffer[0], inputBuffer[1]);
+	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
 	    write(*sockfd, &tmp, sizeof(int32_t));
 	    tmp = strlen(errorstring);
 	    write(*sockfd, &tmp, sizeof(int32_t));
 
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
 	    write(*sockfd, errorstring, strlen(errorstring));
 
 	    return( HARDWARE_COMM_ERR );
@@ -255,12 +254,11 @@ int measureWrapper  (int *sockfd, int *usbfd)
 	    char errorstring[1024];
 
 	    memset(errorstring, 0, 1024);
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", inputBuffer[0], inputBuffer[1]);
+	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
 	    write(*sockfd, &tmp, sizeof(int32_t));
 	    tmp = strlen(errorstring);
 	    write(*sockfd, &tmp, sizeof(int32_t));
 
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
 	    write(*sockfd, errorstring, strlen(errorstring));
 
 	    return( HARDWARE_COMM_ERR );
