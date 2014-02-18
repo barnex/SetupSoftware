@@ -22,7 +22,85 @@
 
 #include "mydefs.h"
 #include "controller.h"
-#include "image.h"
+
+#define CMD_GET	    1
+#define CMD_SCAN    2
+#define CMD_RESET   3
+#define CMD_ABORT   4
+#define CMD_MEAS    5
+
+void set_blocking (int fd, int should_block);
+int set_interface_attribs (int fd, int speed, int parity);
+int handleRequest(char *cmdbuffer, int *fd);
+int initServer(int *sockfd, int portno)
+
+
+int main(int argc, char **argv)
+{
+    char *portname = "/dev/ttyUSB0";
+    char buffer[256];
+    memset(buffer, 0, 256);
+    int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
+    if (fd < 0)
+    {
+	    printf("error %d opening %s: %s", errno, portname, strerror (errno));
+	    return EXIT_FAILURE;
+    }
+	
+    set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+    set_blocking (fd, 0);                // set no blockin  
+    printf("Terminal interface initialized\n");
+
+    initServer( &sockfd, atoi(argv[2]));
+    printf("Server interface initialized\n");
+    while(1)
+    {
+       /* Listen for incoming calls */
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        char client_ip[256];
+        char client_name[256];
+        char serv_name[256];
+        char buffer[256];
+        struct sockaddr_in *tmp = (struct sockaddr_in *)&cli_addr;
+        inet_ntop(AF_INET, &(tmp->sin_addr), client_ip, clilen);
+        getnameinfo((struct sockaddr *) &cli_addr, clilen,
+            client_name, 256,  serv_name, 256, 0);
+        printf("Client: %s, sockfd: %d\n", client_name, newsockfd);
+        if( strcmp(client_name, allowed_client) == 0 )
+        {
+            printf("I have an allowed client\n");
+            bzero(buffer, 256);
+            int ret = 0;
+            ret = read(newsockfd, buffer, 256);
+            int stop = 0;
+            while( ret > 0 && !stop )
+            {
+		handleRequest(buffer, &fd);
+                ret = read(newsockfd, buffer, 256);
+                stop = ( strstr(buffer, "STOP") != NULL );
+            }
+            printf("Done, closing socket\n");
+            close(newsockfd);
+	}
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int handleRequest(char *cmdbuffer, int *fd)
+{
+    // The request consists of a command and several values, separated by comma's (decimal sign = . )
+    char *request;
+    int command = 0;
+    request = strtok(cmdbuffer, ",");
+
+    while( request != NULL )
+    {
+	if( strstr(request, "READ"
+	
+
+    } 
+}
 
 int
 set_interface_attribs (int fd, int speed, int parity)
@@ -110,134 +188,5 @@ initServer(int *sockfd, int portno)
 	return EXIT_FAILURE;
     }
     listen(*sockfd,5);
-    fprintf(stdout, "Succesfully opened socket, now listening\n");
-    return EXIT_SUCCESS;
-}
-
-int main(int argc, char **argv)
-{
-    char *portname = "/dev/ttyUSB0";
-    char buffer[256];
-    memset(buffer, 0, 256);
-    int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
-    if (fd < 0)
-    {
-	    printf("error %d opening %s: %s", errno, portname, strerror (errno));
-	    return EXIT_FAILURE;
-    }
-	
-    set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking (fd, 0);                // set no blockin  
-    printf("Terminal interface initialized\nPlease press enter\n");
-    getchar();
-    int16_t values[8];
-    int iinc[4] = {0xffff/100, 0, 0, 0};
-    int jinc[4] = {0, 0xffff/100, 0, 0};
-    int pos[4];
-    memset(pos, 0, sizeof(int)*4);
-    
-
-    gotoPosition(fd, pos);
-    getPosition(fd, pos);
-    printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
-
-    reset(fd);
-    getPosition(fd, pos);
-    printf("Positions {%d, %d, %d, %d}\n", pos[0], pos[1], pos[2], pos[3]);
-
-    gotoPosition(fd, pos);
-    setStart(fd, pos);
-    setIInc(fd, iinc);
-    setJInc(fd, jinc);
-    setTSettle(fd, 10);
-    setPixels(fd, 100);
-    uint16_t pixelList[100*100];
-    TwoDScan(fd, pixelList, NULL);
-    /*
-    int i = 10;
-    while(i)
-    {
-	printf("Sending command to measure\n");
-	getChannels(fd, values);
-	printf("Measured: {%d, %d, %d, %d, \n", values[0], values[1], values[2], values[3]);
-	printf("\t%d, %d, %d, %d} \n", values[4], values[5], values[6], values[7]);
-	pos[0] += 0xff;
-	gotoPosition(fd, pos);
-	usleep(100000);
-    }
-    */
-    /*
-    int sockfd = 0, newsockfd = 0;
-    struct sockaddr_in cli_addr;
-    socklen_t clilen;
-    clilen = sizeof(cli_addr);
-    char buffer[256];
-    char allowed_client[256];
-    memset(allowed_client, 0, 256);
-    strcpy(allowed_client, argv[1]);
-    
-    memset(buffer, 0, 256);
-    int fd = open( portname, O_RDWR | O_NOCTTY | O_SYNC );
-    if (fd < 0)
-    {
-	    printf("error %d opening %s: %s", errno, portname, strerror (errno));
-	    return EXIT_FAILURE;
-    }
-	
-    set_interface_attribs (fd, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-    set_blocking (fd, 0);                // set no blockin  
-    printf("Terminal interface initialized\n");
-    int position[4] = {0, 0, 0, 0};
-    initServer( &sockfd, atoi(argv[2]));
-    //gotoPosition(fd, startPosition);	
-    while(1)
-    {
-    // Listen for incoming calls
-	newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-	if( newsockfd <= 0 )
-	{
-		perror("Blocking error:");
-	}
-	assert(newsockfd > 0);
-	char client_ip[256];
-	char client_name[256];
-	memset(client_name, 0, 256);
-	char serv_name[256];
-	struct sockaddr_in *tmp = (struct sockaddr_in *)&cli_addr;
-	inet_ntop(AF_INET, &(tmp->sin_addr), client_ip, clilen);
-	getnameinfo((struct sockaddr *) &cli_addr, clilen,
-	    client_name, 256,  serv_name, 256, 0);
-
-	if( strcmp(client_name, allowed_client) == 0 )
-	{
-	    printf("Accepted new connection from %s\n", client_name);
-	    bzero(buffer,256);
-	    int ret = read(newsockfd,buffer,256);
-		    printf("Incoming: %s\n", buffer );
-	    while( ret > 0 && (strpbrk(buffer, "STOP") == strpbrk("a", "b") ) )
-	    {
-		if ( strlen(buffer) > 0 )
-		{	 
-		    printf("Incoming: %s\n", buffer );
-			float milliAmps = atof(buffer);
-			if( milliAmps < 2500.0 )
-			{
-				position[3] = (int)( milliAmps * 13.1072 );
-				printf("Setting DAC to: %d\n", position[3]);
-				gotoPosition(fd, position);
-			}
-		}
-		memset(buffer, 0, 256);
-		ret = read(newsockfd, buffer, 256);
-	    }
-		printf("Connection closed\n");
-	}
-	else
-	{
-	    close(newsockfd);
-	}
-    }
-
-    */	
     return EXIT_SUCCESS;
 }

@@ -86,7 +86,6 @@
     <value type="QString">KDEDIRS=/usr</value>
     <value type="QString">KDE_IS_PRELINKED=1</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LANGUAGE=</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib64/qtcreator:</value>
     <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
     <value type="QString">LOADEDMODULES=</value>
@@ -134,7 +133,6 @@
     <value type="QString">KDEDIRS=/usr</value>
     <value type="QString">KDE_IS_PRELINKED=1</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LANGUAGE=</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib64/qtcreator:</value>
     <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
     <value type="QString">LOADEDMODULES=</value>

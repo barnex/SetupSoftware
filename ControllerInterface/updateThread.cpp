@@ -12,6 +12,14 @@ void updateThread::run()
 
 void updateThread::timerHit()
 {
+    mutex->lock();
+    if(sockfd > 0)
+    {
+
+
+    }
+
+    mutex->unlock();
      double values[8];
      for(int i = 0; i < 8; i++)
      {
