@@ -136,19 +136,20 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 
 int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 {
-    uint8_t outputBuffer[2], inputBuffer[10];
+    uint8_t USBBufferOut[2], USBBufferIn[10];
     int32_t socketBuffer = 0;
-    memset(outputBuffer, 0, 2); 
-    memset(inputBuffer, 0, 10); 
+    memset(USBBufferOut, 0, 2); 
+    memset(USBBufferIn, 0, 10); 
     int tmp = 0;
     float output = 0.0;
 
     if( strstr(stringParam, "POSITION") != NULL )
     {
-	outputBuffer[0] = IN_CMD_GET_DAC;
-	outputBuffer[1] = 0;
-	write( *usbfd, outputBuffer, 2);
-	if( readfull( *usbfd, inputBuffer, 10 ) == 10 && (inputBuffer[1] == 8) )
+	USBBufferOut[0] = IN_CMD_GET_DAC;
+	USBBufferOut[1] = 0;
+	write( *usbfd, USBBufferOut, 2);
+	tmp = readfull( *usbfd, USBBufferIn, 10);
+	if( (tmp == 10) && (USBBufferIn[1] == 8) )
 	{
 	    socketBuffer = SUCCESS;
 	    write( *sockfd, &socketBuffer, sizeof(int32_t)); 
@@ -158,11 +159,11 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 	    {
 		if( i % 2 == 0 )
 		{
-		    tmp = inputBuffer[i];
+		    tmp = USBBufferIn[i];
 		}
 		else
 		{
-		    tmp |= inputBuffer[i] << 8;
+		    tmp |= USBBufferIn[i] << 8;
 		    output = INT16_TO_FLOAT * (float) tmp;
 		    write(*sockfd, &output, sizeof(float));
 		}
@@ -174,7 +175,7 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 	    char errorstring[1024];
 
 	    memset(errorstring, 0, 1024);
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", inputBuffer[0], inputBuffer[1]);
+	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
 	    write(*sockfd, &tmp, sizeof(int32_t));
 	    tmp = strlen(errorstring);
 	    write(*sockfd, &tmp, sizeof(int32_t));
