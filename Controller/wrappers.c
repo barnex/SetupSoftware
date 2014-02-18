@@ -62,7 +62,6 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 	for(int i = 0; i < 8; i++ )
 	{
 	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
-	    printf("%d and %f\n", tmp, parameters[i/2]);
 	    if( i % 2 == 0 )
 	    {
 		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
@@ -159,7 +158,6 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 	USBBufferOut[1] = 0;
 	write( *usbfd, USBBufferOut, 2);
 	tmp = readfull( *usbfd, USBBufferIn, 10);
-	printf("tmp = %d\n", tmp);
 	if( (tmp == 10) && (USBBufferIn[1] == 8) )
 	{
 	    socketBuffer = SUCCESS;
