@@ -13,7 +13,7 @@ static int readfull(int fd, uint8_t *buffer, int n)
 	    i += ret;
 	}
     }
-    if( ret > 0 )
+    if( ret >= 0 )
     {
 	return i;
     }
