@@ -57,7 +57,7 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -Wall --std=c99 `pkg-config --cflags --libs MagickWand`
+MY_CFLAGS = -Wall --std=c99
 
 # The linker options.
 MY_LIBS   = -pthread -lm

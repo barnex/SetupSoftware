@@ -21,18 +21,22 @@
 #include <assert.h>
 
 #include "mydefs.h"
-#include "controller.h"
+#include "errors.h"
+#include "wrappers.h"
 
-#define CMD_GET	    1
-#define CMD_SCAN    2
-#define CMD_RESET   3
-#define CMD_ABORT   4
-#define CMD_MEAS    5
+#define CMD_SET	    1
+#define CMD_SCAN_1D 2
+#define CMD_SCAN_2D 3
+#define CMD_RESET   4
+#define CMD_ABORT   5
+#define CMD_MEAS    6
+
+#define MAX_PARAMS  4
 
 void set_blocking (int fd, int should_block);
 int set_interface_attribs (int fd, int speed, int parity);
-int handleRequest(char *cmdbuffer, int *fd);
-int initServer(int *sockfd, int portno)
+int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd);
+int initServer(int *sockfd, int portno);
 
 
 int main(int argc, char **argv)
@@ -51,7 +55,35 @@ int main(int argc, char **argv)
     set_blocking (fd, 0);                // set no blockin  
     printf("Terminal interface initialized\n");
 
-    initServer( &sockfd, atoi(argv[2]));
+    int portno = atoi(argv[2]);
+    char *allowed_client = argv[1];
+    int sockfd, newsockfd;
+    socklen_t clilen;
+    struct sockaddr_in serv_addr, cli_addr;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+    {
+        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        perror("! ERROR Message from system");
+        return EXIT_FAILURE;
+    }
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(portno);
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+        sizeof(serv_addr)) < 0)
+    {
+        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        perror("! ERROR Message from system");
+        return EXIT_FAILURE;
+
+    }
+    listen(sockfd,5);
+    clilen = sizeof(cli_addr);
+
+
     printf("Server interface initialized\n");
     while(1)
     {
@@ -75,7 +107,7 @@ int main(int argc, char **argv)
             int stop = 0;
             while( ret > 0 && !stop )
             {
-		handleRequest(buffer, &fd);
+		handleRequest(buffer, &newsockfd, &fd);
                 ret = read(newsockfd, buffer, 256);
                 stop = ( strstr(buffer, "STOP") != NULL );
             }
@@ -87,19 +119,113 @@ int main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
-int handleRequest(char *cmdbuffer, int *fd)
+int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 {
-    // The request consists of a command and several values, separated by comma's (decimal sign = . )
-    char *request;
+    char *localCopy = NULL, *request = NULL, *stringParam = NULL;
+    float parameters[MAX_PARAMS];
     int command = 0;
-    request = strtok(cmdbuffer, ",");
+    int32_t returnValue = 0;
 
-    while( request != NULL )
+    // Make a local copy of the command string for parsing
+    localCopy = malloc(strlen(cmdbuffer)+1);
+    strcpy( localCopy, cmdbuffer );
+
+    // Set all parameters to zero
+    memset(parameters, 0, sizeof(float)*MAX_PARAMS);
+    request = strtok(localCopy , ",");
+
+    // See what command has been given
+    if( request != NULL )
     {
-	if( strstr(request, "READ"
-	
+	if( strstr(request, "SET") != NULL )
+	{
+	    command = CMD_SET;
+	}
+	else if( strstr(request, "SCAN_1D") != NULL )
+	{
+	    command = CMD_SCAN_1D;
+	}
+	else if( strstr(request, "SCAN_2D") != NULL )
+	{
+	    command = CMD_SCAN_2D;
+	}
+	else if( strstr(request, "RESET") != NULL )
+	{
+	    command = CMD_RESET;
+	}   
+	else if( strstr(request, "ABORT") != NULL )
+	{
+	    command = CMD_ABORT;
+	}
+	else if( strstr(request, "MEAS") != NULL )
+	{
+	    command = CMD_MEAS;
+	}
+	else
+	{
+	    returnValue = UNKNOWN_COMMAND;
+	    write(*sockfd, &returnValue, sizeof(int32_t));
+	    int32_t length = 0;
+	    write(*sockfd, &length, sizeof(int32_t));
+	    return(returnValue);
+	}
+    }
 
-    } 
+    // If SET has been issued, the parameter name and respective value should have been received
+    if( command == CMD_SET )
+    {
+	request = strtok(NULL, ",");
+	if( request != NULL )
+	{
+	    stringParam = malloc(strlen(request)+1);
+	    strcpy( stringParam, request );
+	}
+	else
+	{
+	    returnValue = NOT_ENOUGH_PARAMETERS;
+	    write(*sockfd, &returnValue, sizeof(int32_t));
+	    int32_t length = 0;
+	    write(*sockfd, &length, sizeof(int32_t));
+	    return(returnValue);
+	}
+
+	int i = 0;
+	request = strtok(NULL, ",");
+	while( request != NULL && i < MAX_PARAMS )
+	{
+	    parameters[i] = atof(request);
+	    i++;
+	    strtok(NULL, ",");
+	}     
+
+	if( i == 0 )
+	{
+	    returnValue = NOT_ENOUGH_PARAMETERS;
+	    write(*sockfd, &returnValue, sizeof(int32_t));
+	    int32_t length = 0;
+	    write(*sockfd, &length, sizeof(int32_t));
+	    return(returnValue);
+	}
+    }
+    free(localCopy); 
+
+    switch(command)
+    {
+	case CMD_SET:	    returnValue = setWrapper(stringParam, parameters, sockfd, usbfd);
+			    free(stringParam);
+			    break;
+	case CMD_SCAN_1D:   returnValue = scan1DWrapper(sockfd, usbfd);
+			    break;
+	case CMD_SCAN_2D:   returnValue = scan2DWrapper(sockfd, usbfd);
+			    break;
+	case CMD_RESET:	    returnValue = resetWrapper(sockfd, usbfd);
+			    break;
+	case CMD_ABORT:	    returnValue = abortWrapper(sockfd, usbfd);
+			    break;
+	case CMD_MEAS:	    returnValue = measureWrapper(sockfd, usbfd);
+			    break;
+    }
+    return returnValue;
 }
 
 int
@@ -159,34 +285,4 @@ set_blocking (int fd, int should_block)
 
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
                 printf("error %d setting term attributes", errno);
-}
-
-int
-initServer(int *sockfd, int portno)
-{
-    struct sockaddr_in serv_addr;
-    *sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (*sockfd <= 0) 
-    {
-	fprintf(stderr, "! ERROR: Could not open socket\n");
-	fprintf(stderr, "!Error Message from system %s", strerror(errno));
-	perror("! ERROR Message from system");
-	return EXIT_FAILURE;
-    }
-	int iMode = 0;
-	ioctl(*sockfd, FIONBIO, &iMode);
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    fprintf(stdout, "Port for binding is %d\n", portno);
-    serv_addr.sin_port = htons(portno);
-    if (bind(*sockfd, (struct sockaddr *) &serv_addr,
-	sizeof(serv_addr)) < 0)
-    {
-	fprintf(stderr, "! ERROR: Could not open socket!\n");
-	perror("! ERROR Message from system");
-	return EXIT_FAILURE;
-    }
-    listen(*sockfd,5);
-    return EXIT_SUCCESS;
 }

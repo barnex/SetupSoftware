@@ -203,7 +203,7 @@ int gotoPosition(int fd, int *position)
 }
 
 int OneDScan(int fd, uint16_t *pixelList, int wait_time);
-
+/*
 int TwoDScan(int fd, uint16_t *pixelList, const char *filename)
 {
     uint8_t out[2];
@@ -246,4 +246,6 @@ int TwoDScan(int fd, uint16_t *pixelList, const char *filename)
     FILE * fileout = fopen( "tmp.gif", "w");
     createImage( fileout, pixelList, sqrt(index+1) );
     return 0;
+
 }
+*/

@@ -13,7 +13,6 @@
 #include <stdint.h>
 
 #include "mydefs.h"
-#include "image.h"
 
 int abortscan(int fd);
 int reset(int fd);
