@@ -80,7 +80,6 @@ int measureWrapper  (int *sockfd, int *usbfd)
 	write(*sockfd, &tmp, sizeof(int32_t));
 	tmp = 8*sizeof(float);
 	write(*sockfd, &tmp, sizeof(int32_t));
-	return(tmp);
 	
 	for(int i = 0; i < 16; i++ )
 	{
