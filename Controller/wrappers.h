@@ -13,6 +13,7 @@
 #define INT16_TO_FLOAT	3.0517578125e-5
 
 int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd);
+int getWrapper	    (char *stringParam, int *sockfd, int *usbfd);
 int scan1DWrapper   (int *sockfd, int *usbfd);
 int scan2DWrapper   (int *sockfd, int *usbfd);
 int resetWrapper    (int *sockfd, int *usbfd);

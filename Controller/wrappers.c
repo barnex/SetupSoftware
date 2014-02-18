@@ -28,6 +28,11 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
     return SUCCESS;
 }
 
+int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
+{
+    return SUCCESS;
+}
+
 int scan1DWrapper   (int *sockfd, int *usbfd)
 {
     return SUCCESS;

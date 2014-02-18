@@ -30,6 +30,7 @@
 #define CMD_RESET   4
 #define CMD_ABORT   5
 #define CMD_MEAS    6
+#define CMD_GET	    7
 
 #define MAX_PARAMS  4
 
@@ -172,7 +173,7 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
     }
 
     // If SET has been issued, the parameter name and respective value should have been received
-    if( command == CMD_SET )
+    if( command == CMD_SET || command == CMD_GET )
     {
 	request = strtok(NULL, ",");
 	if( request != NULL )
@@ -188,23 +189,26 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	    write(*sockfd, &length, sizeof(int32_t));
 	    return(returnValue);
 	}
-
-	int i = 0;
-	request = strtok(NULL, ",");
-	while( request != NULL && i < MAX_PARAMS )
+	
+	if( command == CMD_SET )
 	{
-	    parameters[i] = atof(request);
-	    i++;
-	    strtok(NULL, ",");
-	}     
+	    int i = 0;
+	    request = strtok(NULL, ",");
+	    while( request != NULL && i < MAX_PARAMS )
+	    {
+		parameters[i] = atof(request);
+		i++;
+		strtok(NULL, ",");
+	    }     
 
-	if( i == 0 )
-	{
-	    returnValue = NOT_ENOUGH_PARAMETERS;
-	    write(*sockfd, &returnValue, sizeof(int32_t));
-	    int32_t length = 0;
-	    write(*sockfd, &length, sizeof(int32_t));
-	    return(returnValue);
+	    if( i == 0 )
+	    {
+		returnValue = NOT_ENOUGH_PARAMETERS;
+		write(*sockfd, &returnValue, sizeof(int32_t));
+		int32_t length = 0;
+		write(*sockfd, &length, sizeof(int32_t));
+		return(returnValue);
+	    }
 	}
     }
     free(localCopy); 
@@ -223,6 +227,8 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	case CMD_ABORT:	    returnValue = abortWrapper(sockfd, usbfd);
 			    break;
 	case CMD_MEAS:	    returnValue = measureWrapper(sockfd, usbfd);
+			    break;
+	case CMD_GET:	    returnValue = getWrapper(stringParam, sockfd, usbfd);
 			    break;
     }
     return returnValue;
