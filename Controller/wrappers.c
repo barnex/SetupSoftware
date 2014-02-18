@@ -62,6 +62,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 	for(int i = 0; i < 8; i++ )
 	{
 	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
+	    printf("%d and %f\n", tmp, parameters[i/2]);
 	    if( i % 2 == 0 )
 	    {
 		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);

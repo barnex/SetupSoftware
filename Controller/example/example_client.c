@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     }
 
     memset(cmdString, 0, 256);
-    sprintf(cmdString, "SET,POSITION,0.5,0.5,0.5,0.5\n");
+    sprintf(cmdString, "SET,POSITION,0.1,0.2,0.3,0.4\n");
     write(sockfd, cmdString, strlen(cmdString));
     ret = readfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
     printf("ret: %d\tin[0]: %d\tin[1]: %d\n", ret, socketBuffer[0], socketBuffer[1]);
