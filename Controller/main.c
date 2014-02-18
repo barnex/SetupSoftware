@@ -205,7 +205,7 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	    {
 		parameters[i] = atof(request);
 		i++;
-		strtok(NULL, ",");
+		request = strtok(NULL, ",");
 	    }     
 
 	    if( i == 0 )
