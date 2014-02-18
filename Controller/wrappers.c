@@ -2,6 +2,14 @@
 
 static int readfull(int fd, uint8_t *buffer, int n)
 {
+    int readBytes = 0;
+    readBytes = read(fd, buffer, n);
+    while( readBytes < n && readBytes >= 0 )
+    {
+	readBytes += read(fd, &(buffer[readBytes]), n-readBytes);
+    }
+    return readBytes;
+    /*
     int ret = 0, i = 0;
     ret = read(fd, buffer, n);
     if( ret >= 0 && ret != n )
@@ -21,6 +29,7 @@ static int readfull(int fd, uint8_t *buffer, int n)
     {
         return ret;
     }
+    */
 }
 
 int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd)
