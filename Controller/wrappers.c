@@ -25,6 +25,112 @@ static int readfull(int fd, uint8_t *buffer, int n)
 
 int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd)
 {
+    uint8_t outputBuffer[10];
+    memset(outputBuffer, 0, 10); 
+
+    if( strstr(stringParam, "START") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_SET_START;
+	outputBuffer[1] = 8;
+	for(int i = 0; i < 8; i++ )
+	{
+	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
+	    if( i % 2 == 0 )
+	    {
+		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
+	    }
+	    else
+	    {
+		outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
+	    }
+	}
+	write( *usbfd, outputBuffer, 10 );
+    }
+    }else if(strstr(stringParam, "POSITION") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_GOTO;
+	outputBuffer[1] = 8;
+	for(int i = 0; i < 8; i++ )
+	{
+	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
+	    if( i % 2 == 0 )
+	    {
+		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
+	    }
+	    else
+	    {
+		outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
+	    }
+	}
+	write( *usbfd, outputBuffer, 10 );
+    }else if( strstr(stringParam, "IINC") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_SET_IINC;
+	outputBuffer[1] = 8;
+	for(int i = 0; i < 8; i++ )
+	{
+	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
+	    if( i % 2 == 0 )
+	    {
+		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
+	    }
+	    else
+	    {
+		outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
+	    }
+	}
+	write( *usbfd, outputBuffer, 10 );
+
+    }else if( strstr(stringParam, "JINC") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_SET_JINC;
+	outputBuffer[1] = 8;
+	for(int i = 0; i < 8; i++ )
+	{
+	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
+	    if( i % 2 == 0 )
+	    {
+		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
+	    }
+	    else
+	    {
+		outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
+	    }
+	}
+	write( *usbfd, outputBuffer, 10 );
+
+    }else if( strstr(stringParam, "TSETTLE") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_SET_TSETTLE;
+	outputBuffer[1] = 2;
+	uint32_t tmp = (uint32_t) parameters[0];
+	out[2] = (uint8_t) (tmp & 0xff);
+	out[1] = (uint8_t) ((tmp >> 8) & 0xff);
+	write(f *usbfd, outputBuffer, 4);
+
+    }else if( strstr(stringParam, "PIXELS") != NULL )
+    {
+	outputBuffer[0] = IN_CMD_SET_PIXELS;
+	outputBuffer[1] = 2;
+	uint32_t tmp = (uint32_t) parameters[0];
+	out[2] = (uint8_t) (tmp & 0xff);
+	out[1] = (uint8_t) ((tmp >> 8) & 0xff);
+	write(f *usbfd, outputBuffer, 4);
+
+    }else
+    {
+	int32_t tmp = UNKOWN_PARAMETER;
+	write(*sockfd, &tmp, sizeof(int32_t));
+	tmp = 0;
+	write(*sockfd, &tmp, sizeof(int32_t));
+	return( UNKNOWN_PARAMETER );
+    }
+
+    int32_t tmp = SUCCESS;
+    write(*sockfd, &tmp, sizeof(int32_t));
+    tmp = 0;
+    write(*sockfd, &tmp, sizeof(int32_t));
+
     return SUCCESS;
 }
 
