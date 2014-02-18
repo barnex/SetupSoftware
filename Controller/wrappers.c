@@ -149,6 +149,7 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 	USBBufferOut[1] = 0;
 	write( *usbfd, USBBufferOut, 2);
 	tmp = readfull( *usbfd, USBBufferIn, 10);
+	printf("tmp = %d\n", tmp);
 	if( (tmp == 10) && (USBBufferIn[1] == 8) )
 	{
 	    socketBuffer = SUCCESS;
