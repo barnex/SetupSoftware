@@ -3,9 +3,9 @@
 
 #include "../Libraries/io.h"
 #include "../Libraries/socket.h"
+#include "../Libraries/errors.h"
+#include "../Libraries/mydefs.h"
 
-#include "mydefs.h"
-#include "errors.h"
 #include "wrappers.h"
 
 #define CMD_SET	    1

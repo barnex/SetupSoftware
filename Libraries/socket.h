@@ -17,5 +17,6 @@
 
 int initServer( int *sockfd, int portno );
 int initClient( int *sockfd, int portno );
+int initRemoteClient( int *sockfd, char *hostname, int portno );
 
 #endif
