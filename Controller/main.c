@@ -23,7 +23,7 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd);
 
 int main(int argc, char **argv)
 {
-    int usbfd = 0, serverfd = 0, stop = 0;
+    int usbfd = 0, serverfd = 0;
     char socketBuffer[1024];
     initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
     initServer( &serverfd, 1000 );
@@ -35,7 +35,6 @@ int main(int argc, char **argv)
 	int ret = myRead( clientfd, socketBuffer, 1024 );
         while( ret > 0 )
         {
-	    printf("Received: %s\n", socketBuffer);
 	    handleRequest(socketBuffer, &clientfd, &usbfd);
             ret = myRead(clientfd, socketBuffer, 1024);
         }

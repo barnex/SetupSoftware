@@ -1,37 +1,5 @@
 #include "wrappers.h"
 
-static int readfull(int fd, uint8_t *buffer, int n)
-{
-    int readBytes = 0;
-    readBytes = read(fd, buffer, n);
-    while( readBytes < n && readBytes >= 0 )
-    {
-	readBytes += read(fd, &(buffer[readBytes]), n-readBytes);
-    }
-    return readBytes;
-    /*
-    int ret = 0, i = 0;
-    ret = read(fd, buffer, n);
-    if( ret >= 0 && ret != n )
-    {
-	i = ret;
-	while(i < n && ret >= 0)
-	{
-	    ret = read(fd, &(buffer[i]), n-i);
-	    i += ret;
-	}
-    }
-    if( ret >= 0 )
-    {
-	return i;
-    }
-    else
-    {
-        return ret;
-    }
-    */
-}
-
 int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd)
 {
     uint8_t outputBuffer[10];
@@ -157,7 +125,7 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 	USBBufferOut[0] = IN_CMD_GET_DAC;
 	USBBufferOut[1] = 0;
 	write( *usbfd, USBBufferOut, 2);
-	tmp = readfull( *usbfd, USBBufferIn, 10);
+	tmp = myReadfull( *usbfd, USBBufferIn, 10);
 	if( (tmp == 10) && (USBBufferIn[1] == 8) )
 	{
 	    socketBuffer = SUCCESS;
@@ -242,7 +210,7 @@ int measureWrapper  (int *sockfd, int *usbfd)
     USBBufferIn[1]  = 0;
 
     write(*usbfd, USBBufferOut, 2);
-    if( (readfull(*usbfd, USBBufferIn, 2) != 2) && (USBBufferIn[1] != 16) )
+    if( (myReadfull(*usbfd, USBBufferIn, 2) != 2) && (USBBufferIn[1] != 16) )
     {
 	    int32_t tmp = HARDWARE_COMM_ERR;
 	    char errorstring[1024];
@@ -258,7 +226,7 @@ int measureWrapper  (int *sockfd, int *usbfd)
 	    return( HARDWARE_COMM_ERR );
     }
 
-    if( readfull(*usbfd, USBBufferIn, 16) != 16 )
+    if( myReadfull(*usbfd, USBBufferIn, 16) != 16 )
     {
 	    int32_t tmp = HARDWARE_COMM_ERR;
 	    char errorstring[1024];

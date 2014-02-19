@@ -8,6 +8,7 @@
 
 #include "mydefs.h"
 #include "errors.h"
+#include "../Libraries/io.h"
 
 #define UINT16_TO_FLOAT	1.52587890625e-5
 #define INT16_TO_FLOAT	3.0517578125e-5
