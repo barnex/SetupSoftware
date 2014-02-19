@@ -306,7 +306,7 @@ int	idWrapper( int *sockfd )
     memset(idstring, 0, 1024);
     sprintf(idstring, "STM32 Controller interface\n");
     write(*sockfd, &tmp, sizeof(int32_t));
-    tmp = strlen(errorstring);
+    tmp = strlen(idstring);
     write(*sockfd, &tmp, sizeof(int32_t));
     write(*sockfd, idstring, strlen(idstring));
 
