@@ -98,6 +98,22 @@ int main(int argc, char **argv)
     write(sockfd, cmdString, strlen(cmdString));
     close(sockfd); 
 
+    
+    initSocket( &sockfd, "localhost", 3001);
+    memset(cmdString, 0, 256);
+    sprintf(cmdString, "MEAS\n");
+    write(sockfd, cmdString, strlen(cmdString));
+
+    ret = readfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
+
+    printf("ret: %d\tin[0]: %d\tin[1]: %d\n", ret, socketBuffer[0], socketBuffer[1]);
+
+    float floatbuffer;
+    memset(&floatbuffer, 0, sizeof(float));
+    ret = readfull(sockfd, &floatbuffer, socketBuffer[1]);
+    printf("%f\n", floatbuffer);
+    close(sockfd);
+
     return EXIT_SUCCESS;
 }
 
