@@ -19,5 +19,6 @@ int scan2DWrapper   (int *sockfd, int *usbfd);
 int resetWrapper    (int *sockfd, int *usbfd);
 int abortWrapper    (int *sockfd, int *usbfd);
 int measureWrapper  (int *sockfd, int *usbfd);
+int idWrapper	    (int *sockfd);
 
 #endif

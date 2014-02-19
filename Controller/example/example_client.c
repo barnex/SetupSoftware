@@ -43,7 +43,7 @@ static int readfull(int fd, void *buffer, int n)
 int main(int argc, char **argv)
 {
     int sockfd = 0;
-    initSocket( &sockfd, "dynalab.ugent.be", 2000);
+    initSocket( &sockfd, "localhost", 3000);
 
     char cmdString[256];
     int32_t socketBuffer[2] = {0, 0};

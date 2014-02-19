@@ -31,6 +31,7 @@
 #define CMD_ABORT   5
 #define CMD_MEAS    6
 #define CMD_GET	    7
+#define CMD_ID	    8
 
 #define MAX_PARAMS  4
 
@@ -168,6 +169,10 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	{
 	    command = CMD_MEAS;
 	}
+	else if( strstr(request, "ID") != NULL )
+	{
+	    command = CMD_ID;
+	}
 	else
 	{
 	    returnValue = UNKNOWN_COMMAND;
@@ -235,6 +240,8 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	case CMD_MEAS:	    returnValue = measureWrapper(sockfd, usbfd);
 			    break;
 	case CMD_GET:	    returnValue = getWrapper(stringParam, sockfd, usbfd);
+			    break;
+	case CMD_ID:	    returnValue = idWrapper(sockfd);
 			    break;
     }
     return returnValue;

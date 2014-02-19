@@ -173,7 +173,7 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 		else
 		{
 		    tmp |= USBBufferIn[i] << 8;
-		    output = INT16_TO_FLOAT * (float) tmp;
+		    output = ((float) tmp)/65536.0;
 		    write(*sockfd, &output, sizeof(float));
 		}
 	    }
@@ -295,5 +295,20 @@ int measureWrapper  (int *sockfd, int *usbfd)
 	    }
 	}
     }
+    return SUCCESS;
+}
+
+int	idWrapper( int *sockfd )
+{
+    int32_t tmp = SUCCESS;
+    char idstring[1024];
+
+    memset(idstring, 0, 1024);
+    sprintf(idstring, "STM32 Controller interface\n");
+    write(*sockfd, &tmp, sizeof(int32_t));
+    tmp = strlen(errorstring);
+    write(*sockfd, &tmp, sizeof(int32_t));
+    write(*sockfd, idstring, strlen(idstring));
+
     return SUCCESS;
 }
