@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     gpib_listener( gpib, _GPIB_LISTENER );
 #else
 #ifdef _USE_PROLOGIX
-    int *gpib = 0;
+    int *gpib = malloc(sizeof(int));
     initRemoteClient( gpib, "192.168.0.103", 1234 );    
 
     char buffer[256];
