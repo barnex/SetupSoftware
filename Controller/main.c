@@ -33,14 +33,12 @@ int main(int argc, char **argv)
 	// Listen for incoming calls
 	int clientfd = accept(serverfd, 0, 0);
 	int ret = myRead( clientfd, socketBuffer, 1024 );
-        while( ret > 0 && !stop )
+        while( ret > 0 )
         {
 	    printf("Received: %s\n", socketBuffer);
 	    handleRequest(socketBuffer, &clientfd, &usbfd);
             ret = myRead(clientfd, socketBuffer, 1024);
-            stop = ( strstr(socketBuffer, "STOP") != NULL );
         }
-        printf("Done, closing socket\n");
         close(clientfd);
     }
 
