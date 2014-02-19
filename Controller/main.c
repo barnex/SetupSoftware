@@ -56,8 +56,7 @@ int main(int argc, char **argv)
     set_blocking (fd, 0);                // set no blockin  
     printf("Terminal interface initialized\n");
 
-    int portno = atoi(argv[2]);
-    char *allowed_client = argv[1];
+    int portno = atoi(argv[1]);
     int sockfd, newsockfd;
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
@@ -99,7 +98,7 @@ int main(int argc, char **argv)
         getnameinfo((struct sockaddr *) &cli_addr, clilen,
             client_name, 256,  serv_name, 256, 0);
         printf("Client: %s, sockfd: %d\n", client_name, newsockfd);
-        if( strcmp(client_name, allowed_client) == 0 )
+        if( 1 )
         {
             printf("I have an allowed client\n");
             bzero(buffer, 256);
