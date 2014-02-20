@@ -2,7 +2,6 @@
 
 int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 {
-    assert( sizeof(float) == sizeof(fftw_real) );
     PaStream *stream	    = args->stream;
     PACallbackData *paArgs  = args->paArgs;
 
@@ -23,12 +22,17 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     printf("stream started\n");
     // Allocate some room for the FFT
     fftw_real *result = malloc(sizeof(fftw_real)*nSamples);
+    fftw_real *input  = malloc(sizeof(fftw_real)*nSamples);
     rfftw_plan p;
     p = rfftw_create_plan( nSamples, FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE );
     // We wait until enough data has been written and the mutex has become unlocked.
     printf("checking for enough data\n");
     pthread_mutex_lock( paArgs->lock );
     printf("enough data gathered\n");
+    for(int i = 0 ; i < nSamples; i++ )
+    {
+	input[i] = (fftw_real) paArgs->buffer[i];
+    }
 
     // Stop the stream and unlock the mutex
     Pa_StopStream( stream );
@@ -37,7 +41,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     printf("mutex unlocked\n");
 
     // Calculate the FFT
-    rfftw_one(p, (fftw_real *)paArgs->buffer, result);
+    rfftw_one(p, input, result);
     rfftw_destroy_plan(p);
     
     // Let the client know that we have succeeded and are ready to copy the data
@@ -64,6 +68,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     }
     printf("data copied\n"); 
     free(result); 
+    free(input);
     free(paArgs->buffer);
     
     return SUCCESS;
