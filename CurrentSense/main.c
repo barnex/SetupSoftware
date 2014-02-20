@@ -3,9 +3,8 @@
 
 #include "../Libraries/io.h"
 #include "../Libraries/socket.h"
-
-#include "mydefs.h"
-#include "errors.h"
+#include "../Libraries/mydefs.h"
+#include "../Libraries/errors.h"
 #include "wrappers.h"
 
 #define CMD_MEAS    1
