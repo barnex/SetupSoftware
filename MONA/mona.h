@@ -27,40 +27,26 @@ typedef struct{
 	char toggleFlag;
 	// A mutex to disable access if the callback function is called
 	pthread_mutex_t lock;
-} callbackData;
+} PACallbackData;
 
 typedef struct{
 	// A pointer to where to captured audio is stored
-	callbackData *paCallbackData;
+	PACallbackData *PACallbackArgs;
 	// A pointer to where the concatenated audio is stored
 	ringBuffer *input;
-	// A pointer to where to final FFT has to be stored
-	complex *result;
 	// The size of the final FFT in number of audio buffers
-	int fftsize;
-	// The callback function that gets called if all the FFT's are finished
-	void (* callback)(void *, fftw_real **fftresult, int length, int width);
-	// Arguments to this function
-	void *callbackArgs;
-} dataCopyThreadData;
+	int FFTsize;
+	// A mutex lock to disable killing the dataCopyThread until all data has been
+	//shipped to the client
+	pthread_mutex_t threadlock;	
+} CopyThreadData;
 
 typedef struct
 {
     fftw_real **data;
     int length;
     int width;
-    void *callbackArgs;
-    void (* callback)(void *callbackArgs, fftw_real **result, int length, int width);
-} fftthreadargs;
-
-typedef struct
-{
-    int *sock;
-    int finished;
-    int sentData;
-    float *areaOfInterest;
-    pthread_mutex_t lock;
-} finalCallbackArgs;
-
+    int sockfd;
+} FFTThreadData;
 
 #endif

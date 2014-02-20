@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     int usbfd = 0, serverfd = 0;
     char socketBuffer[1024];
     initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
-    initServer( &serverfd, 1000 );
+    initServer( &serverfd, atoi(argv[1]) );
 
     while(1)
     {

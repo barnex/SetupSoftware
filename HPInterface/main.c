@@ -16,10 +16,6 @@
 #define _GPIB_LISTENER 2
 #endif
 
-#ifndef _LISTEN_TO_PORT
-#define _LISTEN_TO_PORT 1001
-#endif
-
 #define CMD_SET	    1
 #define CMD_ID	    8
 
@@ -70,7 +66,7 @@ int main(int argc, char **argv)
 
     char socketBuffer[1024];
     int sockfd = 0;
-    initServer( &sockfd, _LISTEN_TO_PORT );
+    initServer( &sockfd, atoi(argv[1]) );
 
     while(1)
     {

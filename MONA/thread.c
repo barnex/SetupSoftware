@@ -7,15 +7,10 @@
  */
 void* FFTThread(void *args)
 {
-    fftthreadargs *data = (fftthreadargs *)args;
+    FFTThreadData *FFTThreadArgs = (FFTThreadData *)args;
 
 
-    if ( signal(SIGPIPE, pipe_catcher) == SIG_ERR)
-    {
-        printf("Could not register pipe catcher\n");
-    }
     // Calculate the FFT for each channel (FFTW with OpenMP if you please)
-
     int i = 0 ;
     fftw_real **result = malloc(sizeof(fftw_real *)*data->width);
     for( i = 0 ; i < data->width ; i++ )
@@ -27,10 +22,43 @@ void* FFTThread(void *args)
 	rfftw_destroy_plan(p);
     }
     
-    /* Print out the magnitude of the signal at 10kHz */
 
+    // Write the data to the socket given as an argument 
+    float Bandwidth = (float)SAMPLE_RATE / (float)(length);
+    char buffer[64];
+    bzero(buffer, 64);
+    int k = 0;
+    int start = (int) (args->areaOfInterest[0] / Bandwidth );
+    int stop = (int) ( args->areaOfInterest[1] / Bandwidth );
+    for( k = start ; k < stop; ++k )
+    {
+	bzero(buffer, 64);
+	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[0][k], result[0][length-k]);
+	write(*sock, buffer, 64);
+    }
+    bzero(buffer, 64);
+    sprintf(buffer, "EOL");
+    write(*sock, buffer, 64);
+
+    start = (int) (args->areaOfInterest[2] / Bandwidth );
+    stop = (int) ( args->areaOfInterest[3] / Bandwidth );
+    for( k = start ; k < stop; ++k )
+    {
+	bzero(buffer, 64);
+	sprintf(buffer, "%e\t%e\t%e\n", Bandwidth*((float)k), result[1][k], result[1][length-k]);
+	write(*sock, buffer, 64);
+    }
+    bzero(buffer, 64);
+    sprintf(buffer, "EOL");
+    write(*sock, buffer, 64);
+    
+    printf("Finished final callback\n");
+    // Show that the data has been sent
+    // Unlock the mutex, the thread can be safely terminated now
+    pthread_mutex_unlock( &(args->lock) );
+    
     // Use the callback function to return the results
-    data->callback(data->callbackArgs, result, data->length, data->width);
+    
     for( i = 0 ; i < data->width; i++ )
     {
 	free(result[i]);
