@@ -17,7 +17,7 @@ The "Libraries" folder contains certain functions and definitions that are commo
 Protocol definition:
 --------------------
 Each server will be run by regular user, using a port specified at runtime. Use SSH tunneling for authentication and
-security.
+security. Public key auth is recommended for automization.
 
 Commands given to a server are always in ASCII, always capital letters. When (multiple) arguments are given, they are seperated by comma's.
 For example, the set the position of the piezo stage halfway in each direction, the command will be (given to "Controller"):
