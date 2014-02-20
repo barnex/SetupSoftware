@@ -32,6 +32,8 @@ between 0 and 1, no unit.
 Each server will always reply with two int32_t values. The first holds the exit code, 1/SUCCESS if al went well. The second holds the number of bytes that will 
 be returned to the user. If something went wrong, the resulting error code can be looked up in "Libraries/errors.h".
 If you do not read all bytes present, they may be present in the input buffer when you read at a later point in time. After
-these two bytes come the rest of the data. Returns are binary, not ACII.
+these two bytes come the rest of the data. Returns are binary, not ASCII, unless the ID is requested.
+
+Each server will always reply to the "ID" command with their respective identification string.
 
 *Note: for list of command and parameters, please consult the source of the corresponding server
