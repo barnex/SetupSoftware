@@ -16,6 +16,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     paArgs->maxIndex = nSamples-1;
 
     pthread_mutex_unlock( paArgs->lock );
+    pthread_mutex_lock( paArgs->lock );
     printf("mutex unlocked\n");
     // Start the stream
     Pa_StartStream( stream );

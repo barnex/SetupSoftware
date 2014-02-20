@@ -30,8 +30,6 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
     // Default pointer conversion, no explicit check for size
     PACallbackData *data = (PACallbackData *)userData;
 
-    if( data->index < data->maxIndex )
-    {
 	// The number of samples that need to be copied
         int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
 	// Copy the data into the buffer
@@ -44,7 +42,6 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
 	    printf("I, MASTER OF THE UNIVERSE, have determined that enough bits and bytes have been collected!\n");
 	    pthread_mutex_unlock( data->lock );
 	}
-    }
 
     return 0;
 }
