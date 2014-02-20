@@ -37,3 +37,8 @@ these two bytes come the rest of the data. Returns are binary, not ASCII, unless
 Each server will always reply to the "ID" command with their respective identification string.
 
 *Note: for list of command and parameters, please consult the source of the corresponding server
+
+Hardware
+--------
+Design files for the specific electronics used for this projects are summarized in the "Hardware" folder. This may not
+always be the latest version.
