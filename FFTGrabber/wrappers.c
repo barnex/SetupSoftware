@@ -5,6 +5,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     PaStream *stream	    = args->stream;
     PACallbackData *paArgs  = args->paArgs;
 
+    printf("init meas\n");
     // First calculate the necessary number of samples to obtain the required bandwidth
     int nSamples = (int) ( (float)SAMPLE_RATE / parameters[0] );
     // Now round this up to the next largest power of two
@@ -15,25 +16,31 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     paArgs->maxIndex = nSamples-1;
 
     pthread_mutex_unlock( paArgs->lock );
+    printf("mutex unlocked\n");
     // Start the stream
     Pa_StartStream( stream );
+    printf("stream started\n");
     // Allocate some room for the FFT
     fftw_real *result = malloc(sizeof(fftw_real)*nSamples);
     rfftw_plan p;
     p = rfftw_create_plan( nSamples, FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE );
     // We wait until enough data has been written and the mutex has become unlocked.
+    printf("checking for enough data\n");
     while(1)
     {
 	pthread_mutex_lock( paArgs->lock );
 	if( paArgs->index >= paArgs->maxIndex )
 	{
+	    printf("enough data\n");
 	    break;
 	}
 	pthread_mutex_unlock( paArgs->lock );
     }
     // Stop the stream and unlock the mutex
     Pa_StopStream( stream );
+    printf("stopped stream\n");
     pthread_mutex_unlock( paArgs->lock );
+    printf("mutex unlocked\n");
 
     // Calculate the FFT
     rfftw_one(p, (fftw_real *)paArgs->buffer, result);
@@ -46,6 +53,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 
     float databuffer[3], bandwidth = 0;
     bandwidth = (float)SAMPLE_RATE / (float)nSamples;
+    printf("copying data\n");
     memset(databuffer, 0, 3*sizeof(float));
     databuffer[0] = 0.0;
     databuffer[1] = result[0];
@@ -60,10 +68,10 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 	databuffer[2] = result[nSamples-i];
 	write( *sockfd, databuffer, sizeof(float)*3);
     }
-    
+    printf("data copied\n"); 
     free(result); 
     free(paArgs->buffer);
-
+    
     return SUCCESS;
 }
 
