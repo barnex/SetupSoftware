@@ -14,8 +14,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     paArgs->index   = 0;
     paArgs->maxIndex = nSamples-1;
 
-    // Lock the mutex (block until all data has been received)
-    pthread_mutex_lock( paArgs->lock );
+    pthread_mutex_unlock( paArgs->lock );
     // Start the stream
     Pa_StartStream( stream );
     // Allocate some room for the FFT
@@ -23,7 +22,15 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     rfftw_plan p;
     p = rfftw_create_plan( nSamples, FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE );
     // We wait until enough data has been written and the mutex has become unlocked.
-    pthread_mutex_lock( paArgs->lock );
+    while(1)
+    {
+	pthread_mutex_lock( paArgs->lock );
+	if( paArgs->index >= paArgs->maxIndex )
+	{
+	    break;
+	}
+	pthread_mutex_unlock( paArgs->lock );
+    }
     // Stop the stream and unlock the mutex
     Pa_StopStream( stream );
     pthread_mutex_unlock( paArgs->lock );

@@ -103,6 +103,8 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
 {
     // Default pointer conversion, no explicit check for size
     PACallbackData *data = (PACallbackData *)userData;
+
+    pthread_mutex_lock( data->lock );
     
     // The number of samples that need to be copied
     int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
@@ -111,11 +113,8 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
     // Increase index with the number of samples copied
     data->index += nCopy;
 
-    if( data->index >= data->maxIndex )
-    {
-	// Free the mutex
-	pthread_mutex_unlock( data->lock );
-    }
+
+    pthread_mutex_unlock( data->lock );
 
     return 0;
 }
