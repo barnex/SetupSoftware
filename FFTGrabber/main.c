@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     handleArgs.stream = stream;
     handleArgs.paArgs = &paArgs;
 
-    Pa_StartStream( stream );
+    PaEror err = Pa_StartStream( stream );
     if( err != paNoError )
     {
 	printf( "An error occured while using the portaudio stream\n" );
