@@ -26,16 +26,9 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     p = rfftw_create_plan( nSamples, FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE );
     // We wait until enough data has been written and the mutex has become unlocked.
     printf("checking for enough data\n");
-    while(1)
-    {
-	pthread_mutex_lock( paArgs->lock );
-	if( paArgs->index >= paArgs->maxIndex )
-	{
-	    printf("enough data\n");
-	    break;
-	}
-	pthread_mutex_unlock( paArgs->lock );
-    }
+    pthread_mutex_lock( paArgs->lock );
+    printf("enough data gathered\n");
+
     // Stop the stream and unlock the mutex
     Pa_StopStream( stream );
     printf("stopped stream\n");

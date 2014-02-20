@@ -30,27 +30,21 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
     // Default pointer conversion, no explicit check for size
     PACallbackData *data = (PACallbackData *)userData;
 
-    printf("callback\n");
+    if( data->index < data->maxIndex )
+    {
+	// The number of samples that need to be copied
+        int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
+	// Copy the data into the buffer
+        memmove( &(data->buffer[data->index]), inputBuffer, nCopy*sizeof(float) );
+	// Increase index with the number of samples copied
+        data->index += nCopy;
 
-    pthread_mutex_lock( data->lock );
-    printf("callback LOCKED\n");
-    
-    // The number of samples that need to be copied
-    int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
-    // Copy the data into the buffer
-    memmove( &(data->buffer[data->index]), inputBuffer, nCopy*sizeof(float) );
-    // Increase index with the number of samples copied
-    data->index += nCopy;
-
-
-    pthread_mutex_unlock( data->lock );
-    printf("callback UNLOCKED\n");
+	if( data->index >= data->maxIndex )
+	    pthread_mutex_unlock( data->lock );
+    }
 
     return 0;
 }
-
-
-int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbackData *userData);
 
 int handleRequest(char *cmdbuffer, int *sockfd, handleData *args);
 
@@ -118,12 +112,6 @@ int main(int argc, char **argv)
 	
     }
 }
-
-int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbackData *userData)
-{
-    return EXIT_SUCCESS;
-}
-
 
 int handleRequest(char *cmdbuffer, int *sockfd, handleData *args)
 {
