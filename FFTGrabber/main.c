@@ -25,7 +25,30 @@
 static int myPACallback(const void *inputBuffer, void *outputBuffer,
 			unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo,
 			PaStreamCallbackFlags statusFlags,
-			void *userData );
+			void *userData )
+{
+    // Default pointer conversion, no explicit check for size
+    PACallbackData *data = (PACallbackData *)userData;
+
+    printf("callback\n");
+
+    pthread_mutex_lock( data->lock );
+    printf("callback LOCKED\n");
+    
+    // The number of samples that need to be copied
+    int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
+    // Copy the data into the buffer
+    memmove( &(data->buffer[data->index]), inputBuffer, nCopy*sizeof(float) );
+    // Increase index with the number of samples copied
+    data->index += nCopy;
+
+
+    pthread_mutex_unlock( data->lock );
+    printf("callback UNLOCKED\n");
+
+    return 0;
+}
+
 
 int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbackData *userData);
 
@@ -96,32 +119,6 @@ int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbac
     return EXIT_SUCCESS;
 }
 
-static int myPACallback(const void *inputBuffer, void *outputBuffer,
-			unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo *timeInfo,
-			PaStreamCallbackFlags statusFlags,
-			void *userData )
-{
-    // Default pointer conversion, no explicit check for size
-    PACallbackData *data = (PACallbackData *)userData;
-
-    printf("callback\n");
-
-    pthread_mutex_lock( data->lock );
-    printf("callback LOCKED\n");
-    
-    // The number of samples that need to be copied
-    int nCopy = min(framesPerBuffer, data->maxIndex - data->index);
-    // Copy the data into the buffer
-    memmove( &(data->buffer[data->index]), inputBuffer, nCopy*sizeof(float) );
-    // Increase index with the number of samples copied
-    data->index += nCopy;
-
-
-    pthread_mutex_unlock( data->lock );
-    printf("callback UNLOCKED\n");
-
-    return 0;
-}
 
 int handleRequest(char *cmdbuffer, int *sockfd, handleData *args)
 {
