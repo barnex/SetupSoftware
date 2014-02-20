@@ -23,7 +23,8 @@ Commands given to a server are always in ASCII, always capital letters. When (mu
 For example, the set the position of the piezo stage halfway in each direction, the command will be (given to "Controller"):
 SET,POSITION,0.5,0.5,0.5,0.0
 
-(The magnet will be powered off)
+Physical values (frequency, current, ...) will always be handled in SI-units. Piezo position and magnet current are limited
+between 0 and 1, no unit.
 
 Each server will always reply with two int32_t values. The first holds the exit code, 1/SUCCESS if al went well. The second holds the number of bytes that will 
 be returned to the user. If something went wrong, the resulting error code can be looked up in "Libraries/errors.h".
