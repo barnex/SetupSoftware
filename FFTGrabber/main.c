@@ -78,6 +78,13 @@ int main(int argc, char **argv)
     handleArgs.paArgs = &paArgs;
 
     Pa_StartStream( stream );
+    if( err != paNoError )
+    {
+	printf( "An error occured while using the portaudio stream\n" );
+	printf( "Error number: %d\n", err );
+	printf( "Error message: %s\n", Pa_GetErrorText( err ) );
+	assert( err == paNoError );
+    }
     char socketBuffer[1024];	
     while(1)
     {
@@ -116,7 +123,14 @@ int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbac
 	return(EXIT_FAILURE);
     }
 	
-    Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, framesPerBuffer, paNoFlag, myPACallback, userData);
+    err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, framesPerBuffer, paNoFlag, myPACallback, userData);
+    if( err != paNoError )
+    {
+	printf( "An error occured while using the portaudio stream\n" );
+	printf( "Error number: %d\n", err );
+	printf( "Error message: %s\n", Pa_GetErrorText( err ) );
+	assert( err == paNoError );
+    }
     return EXIT_SUCCESS;
 }
 
