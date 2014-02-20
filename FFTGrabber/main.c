@@ -77,6 +77,7 @@ int main(int argc, char **argv)
     handleArgs.stream = stream;
     handleArgs.paArgs = &paArgs;
 
+    Pa_StartStream( stream );
     char socketBuffer[1024];	
     while(1)
     {
