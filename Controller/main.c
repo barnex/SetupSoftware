@@ -9,7 +9,6 @@
 #include "wrappers.h"
 
 #define CMD_SET	    1
-#define CMD_SCAN_1D 2
 #define CMD_SCAN_2D 3
 #define CMD_RESET   4
 #define CMD_ABORT   5
@@ -65,10 +64,6 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	if( strstr(request, "SET") != NULL )
 	{
 	    command = CMD_SET;
-	}
-	else if( strstr(request, "SCAN_1D") != NULL )
-	{
-	    command = CMD_SCAN_1D;
 	}
 	else if( strstr(request, "GET") != NULL )
 	{
@@ -149,8 +144,6 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
     {
 	case CMD_SET:	    returnValue = setWrapper(stringParam, parameters, sockfd, usbfd);
 			    free(stringParam);
-			    break;
-	case CMD_SCAN_1D:   returnValue = scan1DWrapper(sockfd, usbfd);
 			    break;
 	case CMD_SCAN_2D:   returnValue = scan2DWrapper(sockfd, usbfd);
 			    break;

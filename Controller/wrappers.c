@@ -173,13 +173,10 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
     return SUCCESS;
 }
 
-int scan1DWrapper   (int *sockfd, int *usbfd)
-{
-    return SUCCESS;
-}
-
 int scan2DWrapper   (int *sockfd, int *usbfd)
 {
+    uint8_t USBBufferOut[2] = {OUT_CMD_START, 0};
+    write( *usbfd, USBBufferOut, 2 );
     return SUCCESS;
 }
 int resetWrapper    (int *sockfd, int *usbfd)
