@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     bzero( &inputParameters, sizeof(inputParameters));
 
     inputParameters.channelCount = 1;
-    inputParameters.device = deviceID;
+    inputParameters.device = 2;
     inputParameters.hostApiSpecificStreamInfo = NULL;
     inputParameters.sampleFormat = paFloat32;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo(0)->defaultLowInputLatency;
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 	return(EXIT_FAILURE);
     }
 	
-    err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, framesPerBuffer, paNoFlag, myPACallback, userData);
+    err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, 480, paNoFlag, myPACallback, (void *)&paArgs);
     if( err != paNoError )
     {
 	printf( "An error occured while using the portaudio stream\n" );
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     handleArgs.stream = stream;
     handleArgs.paArgs = &paArgs;
 
-    PaError err = Pa_StartStream( stream );
+    err = Pa_StartStream( stream );
     if( err != paNoError )
     {
 	printf( "An error occured while using the portaudio stream\n" );
