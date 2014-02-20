@@ -40,7 +40,10 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
         data->index += nCopy;
 
 	if( data->index >= data->maxIndex )
+	{
+	    printf("I, MASTER OF THE UNIVERSE, have determined that enough bits and bytes have been collected!\n");
 	    pthread_mutex_unlock( data->lock );
+	}
     }
 
     return 0;
