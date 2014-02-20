@@ -23,6 +23,9 @@ Commands given to a server are always in ASCII, always capital letters. When (mu
 For example, the set the position of the piezo stage halfway in each direction, the command will be (given to "Controller"):
 SET,POSITION,0.5,0.5,0.5,0.0
 
+To set the HP 8672A to 6.2GHz:
+SET,FREQ,6.2e9
+
 Physical values (frequency, current, ...) will always be handled in SI-units. Piezo position and magnet current are limited
 between 0 and 1, no unit.
 
