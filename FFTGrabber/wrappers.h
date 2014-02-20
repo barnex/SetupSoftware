@@ -8,6 +8,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <rfftw.h>
+#include <assert.h>
 
 #include "portaudio.h"
 

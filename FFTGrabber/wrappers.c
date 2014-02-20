@@ -2,6 +2,7 @@
 
 int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 {
+    assert( sizeof(float) == sizeof(fftw_real) );
     PaStream *stream	    = args->stream;
     PACallbackData *paArgs  = args->paArgs;
 
