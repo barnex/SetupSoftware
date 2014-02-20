@@ -43,6 +43,7 @@ int main(int argc, char **argv)
     paArgs.maxIndex = 0;
     paArgs.lock	    = malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init( paArgs.lock, NULL );
+    pthread_mutex_unlock( paArgs.lock );
     PaStream *stream = NULL;
 
     // We will be using device 2, which should be the Terratec card
