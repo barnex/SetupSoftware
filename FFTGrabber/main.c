@@ -103,14 +103,6 @@ int main(int argc, char **argv)
     handleArgs.stream = stream;
     handleArgs.paArgs = &paArgs;
 
-    err = Pa_StartStream( stream );
-    if( err != paNoError )
-    {
-	printf( "An error occured while using the portaudio stream\n" );
-	printf( "Error number: %d\n", err );
-	printf( "Error message: %s\n", Pa_GetErrorText( err ) );
-	assert( err == paNoError );
-    }
     char socketBuffer[1024];	
     while(1)
     {
