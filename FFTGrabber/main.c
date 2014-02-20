@@ -69,8 +69,34 @@ int main(int argc, char **argv)
     pthread_mutex_unlock( paArgs.lock );
     PaStream *stream = NULL;
 
-    // We will be using device 2, which should be the Terratec card
-    initPortaudio(stream, 2, 480, (void *)&paArgs);
+    // Initialize PortAudio
+    Pa_Initialize();
+
+    PaStreamParameters inputParameters;
+    bzero( &inputParameters, sizeof(inputParameters));
+
+    inputParameters.channelCount = 1;
+    inputParameters.device = deviceID;
+    inputParameters.hostApiSpecificStreamInfo = NULL;
+    inputParameters.sampleFormat = paFloat32;
+    inputParameters.suggestedLatency = Pa_GetDeviceInfo(0)->defaultLowInputLatency;
+
+
+    PaError err = Pa_IsFormatSupported( &inputParameters, NULL, SAMPLE_RATE);
+    if( err != paFormatIsSupported )
+    {
+	printf("Format not supported\n");
+	return(EXIT_FAILURE);
+    }
+	
+    err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, framesPerBuffer, paNoFlag, myPACallback, userData);
+    if( err != paNoError )
+    {
+	printf( "An error occured while using the portaudio stream\n" );
+	printf( "Error number: %d\n", err );
+	printf( "Error message: %s\n", Pa_GetErrorText( err ) );
+	assert( err == paNoError );
+    }
 
     // When we handle a request, this is used to pass along the PaStream and the callback data
     handleData handleArgs;
@@ -103,34 +129,6 @@ int main(int argc, char **argv)
 
 int initPortaudio(PaStream *stream, int deviceID, int framesPerBuffer, PACallbackData *userData)
 {
-    // Initialize PortAudio
-    Pa_Initialize();
-
-    PaStreamParameters inputParameters;
-    bzero( &inputParameters, sizeof(inputParameters));
-
-    inputParameters.channelCount = 1;
-    inputParameters.device = deviceID;
-    inputParameters.hostApiSpecificStreamInfo = NULL;
-    inputParameters.sampleFormat = paFloat32;
-    inputParameters.suggestedLatency = Pa_GetDeviceInfo(0)->defaultLowInputLatency;
-
-
-    PaError err = Pa_IsFormatSupported( &inputParameters, NULL, SAMPLE_RATE);
-    if( err != paFormatIsSupported )
-    {
-	printf("Format not supported\n");
-	return(EXIT_FAILURE);
-    }
-	
-    err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, framesPerBuffer, paNoFlag, myPACallback, userData);
-    if( err != paNoError )
-    {
-	printf( "An error occured while using the portaudio stream\n" );
-	printf( "Error number: %d\n", err );
-	printf( "Error message: %s\n", Pa_GetErrorText( err ) );
-	assert( err == paNoError );
-    }
     return EXIT_SUCCESS;
 }
 
