@@ -79,6 +79,7 @@ int	idWrapper( int *sockfd )
     char idstring[1024];
 
     memset(idstring, 0, 1024);
+
     sprintf(idstring, "Audio FFT interface\n");
     write(*sockfd, &tmp, sizeof(int32_t));
     tmp = strlen(idstring);
