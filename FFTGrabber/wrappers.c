@@ -54,7 +54,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     printf("copying data\n");
     memset(databuffer, 0, 3*sizeof(float));
     databuffer[0] = 0.0;
-    databuffer[1] = result[0];
+    databuffer[1] = (float) result[0];
     databuffer[2] = 0.0;
     write( *sockfd, databuffer, sizeof(float)*3);
 
@@ -62,8 +62,8 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     {
 	memset(databuffer, 0, 3*sizeof(float));
 	databuffer[0] = bandwidth * (float)i;
-	databuffer[1] = result[i];
-	databuffer[2] = result[nSamples-i];
+	databuffer[1] = (float) result[i];
+	databuffer[2] = (float) result[nSamples-i];
 	write( *sockfd, databuffer, sizeof(float)*3);
     }
     printf("data copied\n"); 
