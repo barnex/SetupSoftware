@@ -5,6 +5,7 @@
 
 
 #define SUCCESS			(int32_t) 1
+#define FINISHED		(int32_t) 2
 
 #define UNKNOWN_COMMAND		(int32_t) -1
 #define NOT_ENOUGH_PARAMETERS	(int32_t) -2

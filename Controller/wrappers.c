@@ -1,6 +1,6 @@
 #include "wrappers.h"
 
-static int readfloats( float *floatBuffer, int *usbfd)
+static int readfloats( float *floatBuffer, int *flagByte, int *usbfd)
 {
     uint8_t USBBufferIn[16];
     memset( USBBufferIn, 0, 16 );
@@ -8,8 +8,10 @@ static int readfloats( float *floatBuffer, int *usbfd)
 
     if( (myReadfull(*usbfd, USBBufferIn, 2) != 2) && (USBBufferIn[1] != 16) )
     {
-	    return( HARDWARE_COMM_ERR );
+	*flagByte = USBBufferIn[0];
+	return( HARDWARE_COMM_ERR );
     }
+    *flagByte = USBBufferIn[0];
 
     if( myReadfull(*usbfd, USBBufferIn, 16) != 16 )
     {
@@ -211,9 +213,42 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 
 int scan2DWrapper   (int *sockfd, int *usbfd)
 {
+    int32_t outputBuffer[2] = {0, 0};
     uint8_t USBBufferOut[2] = {OUT_CMD_START, 0};
+    float floatBuffer[8];
+    int ret = SUCCESS, flagByte = 0;
     write( *usbfd, USBBufferOut, 2 );
-    return SUCCESS;
+    while( ret == SUCCESS )
+    {
+	ret = readfloats( floatBuffer, &flagByte, usbfd );
+	if( ret == SUCCESS )
+	{
+	    outputBuffer[0] = SUCCESS;
+	    outputBuffer[1] = sizeof(float)*8;
+	    write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+	    write( *sockfd, floatBuffer, sizeof(float)*8);
+	}
+	else
+	{
+	    outputBuffer[0] = ret;
+	    outputBuffer[1] = 0;
+	    write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+	    return ret;
+	}
+	if( flagByte == OUT_CMD_LASTPIXEL )
+	{
+	    ret = FINISHED;
+	}
+    }
+
+    if( ret == FINISHED )
+    {
+	return SUCCESS;
+    }
+    else
+    {
+	return ret;
+    }
 }
 int resetWrapper    (int *sockfd, int *usbfd)
 {
@@ -236,12 +271,13 @@ int measureWrapper  (int *sockfd, int *usbfd)
 {
     uint8_t	USBBufferOut[2] = {IN_CMD_GET_CHAN, 0};
     int32_t	outputBuffer[2];
+    int		flagByte = 0;
     float floatBuffer[8];
     int ret = 0;
     // Ask the controller to measure once
     write( *usbfd, USBBufferOut, 2 );
     // (Try to) read the floats it returns
-    ret = readfloats( floatBuffer, usbfd);
+    ret = readfloats( floatBuffer, &flagByte, usbfd);
     // Write the result out to the socket
     if( ret == SUCCESS )
     {
