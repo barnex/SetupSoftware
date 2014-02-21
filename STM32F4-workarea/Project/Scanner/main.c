@@ -10,7 +10,7 @@
 #include "init.h"
 #include "adc.h"
 #include "dac.h"
-#include "mydefs.h"
+#include "../../../Libraries/mydefs.h"
 
 volatile int32_t    position[4];    // Current position, though signed int, strictly positive and smaller than 0xFFFF
 volatile int32_t    start[4];	    // The state position (see comment above)
@@ -347,7 +347,7 @@ int main()
         else if(state == STATE_START)
         {
             command_out.cmd = OUT_CMD_FIRSTPIXEL;
-            command_out.size = (uint8_t) 8;
+            command_out.size = (uint8_t) 16;
             // Set the start position
             scan_i = 0;
             scan_j = 0;

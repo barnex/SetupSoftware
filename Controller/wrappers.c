@@ -1,5 +1,41 @@
 #include "wrappers.h"
 
+static int readfloats( float *floatBuffer, int *usbfd)
+{
+    uint8_t USBBufferIn[16];
+    memset( USBBufferIn, 0, 16 );
+    int16_t valueBuffer = 0;
+
+    if( (myReadfull(*usbfd, USBBufferIn, 2) != 2) && (USBBufferIn[1] != 16) )
+    {
+	    return( HARDWARE_COMM_ERR );
+    }
+
+    if( myReadfull(*usbfd, USBBufferIn, 16) != 16 )
+    {
+	    return( HARDWARE_COMM_ERR );
+    }
+    else
+    {
+	for(int i = 0; i < 16; i++ )
+	{
+	    if( i % 2 == 0)
+	    {
+		valueBuffer = USBBufferIn[i];
+	    }
+	    else
+	    {
+		valueBuffer |= USBBufferIn[i] << 8;
+		//memcpy( &value, &valueBuffer, 2);
+		floatBuffer[i/2] = INT16_TO_FLOAT * (float)valueBuffer;
+		//float scaledValue = INT16_TO_FLOAT * (float)value;
+	    }
+	}
+    }
+    return SUCCESS;
+
+}
+
 int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd)
 {
     uint8_t outputBuffer[10];
@@ -198,69 +234,30 @@ int abortWrapper    (int *sockfd, int *usbfd)
 
 int measureWrapper  (int *sockfd, int *usbfd)
 {
-    uint8_t	USBBufferOut[2], USBBufferIn[18];
-    uint16_t	valueBuffer = 0;
-    int16_t	value;
-    memset(USBBufferOut, 0, 2);
-    memset(USBBufferIn, 0, 18);
-    USBBufferOut[0] = IN_CMD_GET_CHAN;
-    USBBufferIn[1]  = 0;
-
-    write(*usbfd, USBBufferOut, 2);
-    if( (myReadfull(*usbfd, USBBufferIn, 2) != 2) && (USBBufferIn[1] != 16) )
+    uint8_t	USBBufferOut[2] = {IN_CMD_GET_CHAN, 0};
+    int32_t	outputBuffer[2];
+    float floatBuffer[8];
+    int ret = 0;
+    // Ask the controller to measure once
+    write( *usbfd, USBBufferOut, 2 );
+    // (Try to) read the floats it returns
+    ret = readfloats( floatBuffer, usbfd);
+    // Write the result out to the socket
+    if( ret == SUCCESS )
     {
-	    int32_t tmp = HARDWARE_COMM_ERR;
-	    char errorstring[1024];
-
-	    memset(errorstring, 0, 1024);
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
-	    write(*sockfd, &tmp, sizeof(int32_t));
-	    tmp = strlen(errorstring);
-	    write(*sockfd, &tmp, sizeof(int32_t));
-
-	    write(*sockfd, errorstring, strlen(errorstring));
-
-	    return( HARDWARE_COMM_ERR );
-    }
-
-    if( myReadfull(*usbfd, USBBufferIn, 16) != 16 )
-    {
-	    int32_t tmp = HARDWARE_COMM_ERR;
-	    char errorstring[1024];
-
-	    memset(errorstring, 0, 1024);
-	    sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
-	    write(*sockfd, &tmp, sizeof(int32_t));
-	    tmp = strlen(errorstring);
-	    write(*sockfd, &tmp, sizeof(int32_t));
-
-	    write(*sockfd, errorstring, strlen(errorstring));
-
-	    return( HARDWARE_COMM_ERR );
+	outputBuffer[0] = SUCCESS;
+	outputBuffer[1] = sizeof(float)*8;
+	write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+	write( *sockfd, floatBuffer, sizeof(float)*8);
+	return SUCCESS;
     }
     else
     {
-	int32_t tmp = SUCCESS;
-	write(*sockfd, &tmp, sizeof(int32_t));
-	tmp = 8*sizeof(float);
-	write(*sockfd, &tmp, sizeof(int32_t));
-	
-	for(int i = 0; i < 16; i++ )
-	{
-	    if( i % 2 == 0)
-	    {
-		valueBuffer = USBBufferIn[i];
-	    }
-	    else
-	    {
-		valueBuffer |= USBBufferIn[i] << 8;
-		memcpy( &value, &valueBuffer, 2);
-		float scaledValue = INT16_TO_FLOAT * (float)value;
-		write(*sockfd, &scaledValue, sizeof(float));
-	    }
-	}
+	outputBuffer[0] = ret;
+	outputBuffer[1] = 0;
+	write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+	return ret;
     }
-    return SUCCESS;
 }
 
 int	idWrapper( int *sockfd )

@@ -17,7 +17,8 @@ MCU = cortex-m4
 MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -std=c99 -g
 STM32_INCLUDES = -I../../Libraries/CMSIS/Device/ST/STM32F4xx/Include/ \
 	-I../../Libraries/CMSIS/Include/ \
-	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/ -I./
+	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/ -I./ \
+	-I../../../Libraries/
 
 OPTIMIZE       = -O
 

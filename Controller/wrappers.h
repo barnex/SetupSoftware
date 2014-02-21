@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "../Libraries/mydefs.h"
+#include "../Libraries/errors.h"
 #include "../Libraries/io.h"
 
 #define UINT16_TO_FLOAT	1.52587890625e-5
