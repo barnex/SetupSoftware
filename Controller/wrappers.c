@@ -214,7 +214,7 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd)
 int scan2DWrapper   (int *sockfd, int *usbfd)
 {
     int32_t outputBuffer[2] = {0, 0};
-    uint8_t USBBufferOut[2] = {OUT_CMD_START, 0};
+    uint8_t USBBufferOut[2] = {IN_CMD_START, 0};
     float floatBuffer[8];
     int ret = SUCCESS, flagByte = 0;
     write( *usbfd, USBBufferOut, 2 );
