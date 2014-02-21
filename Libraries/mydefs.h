@@ -1,6 +1,11 @@
 #ifndef _MYDEFS_H
 #define _MYDEFS_H
 
+/*
+ * This file contains the definitions of the bytes used for communication with
+ * the STM32 Controller at the firmware level. (Firmware/serial level)
+ */
+
 #define STATE_ABORT             (uint8_t) 0
 #define STATE_ACTIVE            (uint8_t) 1
 #define STATE_IDLE              (uint8_t) 2

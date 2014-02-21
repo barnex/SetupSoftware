@@ -100,3 +100,13 @@ static void set_blocking (int fd, int should_block)
         if (tcsetattr (fd, TCSANOW, &tty) != 0)
                 printf("error %d setting term attributes", errno);
 }
+
+int myWrite( int fd, const char *format, va_list args )
+{
+    char buffer[1024];
+    memset(buffer, 0, 1024);
+    int ret = snprintf( buffer, 1024, format, args );
+    assert( (ret > 0) && (ret < 1024) );
+    write( fd, buffer, strlen(buffer) );
+    return SUCCESS;
+}

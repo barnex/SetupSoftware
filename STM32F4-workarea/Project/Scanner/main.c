@@ -80,7 +80,7 @@ void shipDataOut(uint16_t * buffer, uint32_t n)
 /*
  * Halts Timer2 and associated interrupt, which disables waking from STATE_IDLE
  */
-inline void halt()
+inline void stopTimer()
 {
     TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE); // Disable throwing interrupts
     TIM_Cmd(TIM2, DISABLE);                     // Disable timer completely
@@ -127,7 +127,7 @@ inline void parseInput()
      */
     else if( command_in.cmd == IN_CMD_RESET )
     {
-        halt();
+        stopTimer();
         previousState = state;
         state = STATE_RESET;
     }
@@ -136,7 +136,7 @@ inline void parseInput()
      */
     else if( command_in.cmd == IN_CMD_START )
     {
-        halt();
+        stopTimer();
         previousState = state;
         state = STATE_START;
     }
@@ -147,7 +147,7 @@ inline void parseInput()
      */
     else if (command_in.cmd == IN_CMD_GOTO && command_in.size >= 8 )
     {
-	halt();
+	stopTimer();
 	position[0] = (int32_t) USARTBuffer[0];
 	position[1] = (int32_t) USARTBuffer[1];
 	position[2] = (int32_t) USARTBuffer[2];
@@ -177,7 +177,7 @@ inline void parseInput()
      */ 
     else if ( command_in.cmd == IN_CMD_GET_CHAN )
     {
-	halt();
+	stopTimer();
         previousState = state;
 
 	command_out.cmd	    = OUT_CMD_CHAN;  // Let the user know we are sending out DAC values
@@ -190,7 +190,7 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_SET_START && command_in.size >= 8 )
     {
-	halt();
+	stopTimer();
         previousState = state;
 	state = STATE_IDLE;
 	start[0] = (int32_t) USARTBuffer[0];
@@ -203,7 +203,7 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_SET_TSETTLE && command_in.size >= 2)
     {
-	halt();
+	stopTimer();
         previousState = state;
 	state = STATE_IDLE;
 	t_settle = (uint32_t) USARTBuffer[0];
@@ -213,7 +213,7 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_SET_PIXELS && command_in.size >= 2)
     {
-	halt();
+	stopTimer();
         previousState = state;
 	state = STATE_IDLE;
 	pixels = (int32_t) USARTBuffer[0];
@@ -223,7 +223,7 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_SET_IINC && command_in.size >= 8)
     {
-	halt();
+	stopTimer();
         previousState = state;
 	state = STATE_IDLE;
 	i_inc[0] = (int32_t) USARTBuffer[0];
@@ -236,7 +236,7 @@ inline void parseInput()
      */
     else if ( command_in.cmd == IN_CMD_SET_JINC && command_in.size >= 8 )
     {
-	halt();
+	stopTimer();
         previousState = state;
 	state = STATE_IDLE;
 	j_inc[0] = (int32_t) USARTBuffer[0];
@@ -309,14 +309,15 @@ int main()
 	}
         else if( state == STATE_ABORT)
         {
-            halt();
+            stopTimer();
 	    state = STATE_IDLE;
         }
         else if(state == STATE_ACTIVE)
         {
             command_out.cmd = OUT_CMD_SCANNING;
+            command_out.size = (uint8_t) 16;
             GPIO_SetBits(GPIOD, 0xF000);
-            //readChannels((int16_t *)ADCBuffer);
+            readChannels((int16_t *)ADCBuffer);
             scan_i++;
             if( scan_i >= pixels )
             {
@@ -326,7 +327,7 @@ int main()
                 {
                     scan_j = 0;
                     command_out.cmd = OUT_CMD_LASTPIXEL;
-                    halt();
+                    stopTimer();
 		    state = STATE_IDLE;
                 }
             }
@@ -383,14 +384,6 @@ int main()
 	    
             readChannels((int16_t *)ADCBuffer);
             
-            //ADCBuffer[1] = 1;
-            //ADCBuffer[2] = 2;
-            //ADCBuffer[3] = 3;
-            //ADCBuffer[4] = 4;
-            //ADCBuffer[5] = 5;
-            //ADCBuffer[6] = 6;
-            //ADCBuffer[7] = 7;
-	  
 	    // And write it into the USART
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
 	    // Check if the state was not modified externally

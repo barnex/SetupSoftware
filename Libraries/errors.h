@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+/*
+ * This file contains the definitions of the error codes returned by
+ * the servers. (Socket level)
+ */
 
 #define SUCCESS			(int32_t) 1
 #define FINISHED		(int32_t) 2

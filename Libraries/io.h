@@ -14,10 +14,14 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <errno.h>
+#include <stdarg.h>
+#include "errors.h"
 
 int myReadfull( int fd, void *buffer, int nBytes );
 
 int myRead( int fd, void *buffer, int nBytes );
+
+int myWrite( int fd, const char *format, va_list args );
 
 int initSerial( int *fd, int baudrate, char *devname );
 
