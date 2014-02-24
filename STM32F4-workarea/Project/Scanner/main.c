@@ -301,9 +301,20 @@ int main()
 	    DACBuffer[3] = 0;
 	    position[3] = 0;
 	    setDACS( (uint16_t*) DACBuffer);
-    
-	    USART_puts(USART3, "Init complete\r\n");
-	    
+
+	    // Set start to zero
+	    memset(start, 0, sizeof(int32_t)*4);
+	    // Set increase to zero
+	    memset(i_inc, 0, sizeof(int32_t)*4);
+	    memset(j_inc, 0, sizeof(int32_t)*4);
+	    // Set indices to zero
+	    scan_i = 0;
+	    scan_j = 0;
+	    // Set pixels to zero
+	    pixels = 0;
+	    // Set t_settle to 2ms (bare minimum)
+	    t_settle = 2;
+
 	    previousState = state;
 	    state = STATE_IDLE;
 	}

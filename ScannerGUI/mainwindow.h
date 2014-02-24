@@ -21,6 +21,7 @@ private:
     Ui::MainWindow *ui;
 private slots:
     void setValues( float *values );
+    void updateParams(float *start, float *current, float *xscan, float *yscan, float pixels, float t_settle);
 };
 
 #endif // MAINWINDOW_H

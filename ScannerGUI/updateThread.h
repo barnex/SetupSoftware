@@ -4,28 +4,17 @@
 #include <QDebug>
 #include <QMutex>
 #include <QTimer>
- #include <QTcpSocket>
- #include <QIODevice>
-
-#include <stdint.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "myIO.h"
-
-#include "../Libraries/errors.h"
+#include "controller.h"
 
 class updateThread : public QThread
 {
     Q_OBJECT
 public:
-    int sockfd;
-    QTcpSocket *controller;
-    int initSocket(int portno);
-    int closeSocket();
+    void setController(Controller *);
 signals:
     void sendValues(float *values);
 private:
+    Controller *controller;
     void run();
 private slots:
     void timerHit();

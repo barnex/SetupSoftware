@@ -59,3 +59,79 @@ void MainWindow::setValues(float *values)
     QTextStream(&entry) << values[7] << " V";
     ui->channel0_out_7->setText(entry);
 }
+
+void MainWindow::updateParams(float *start, float *current, float *xscan, float *yscan, float pixels, float t_settle)
+{
+    QString entry = "";
+    QTextStream(&entry) << start[0];
+    ui->start_x->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << start[1];
+    ui->start_y->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << start[2];
+    ui->start_z->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << start[3];
+    ui->start_aux->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << current[0];
+    ui->current_x->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << current[1];
+    ui->current_y->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << current[2];
+    ui->current_z->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << current[3];
+    ui->current_aux->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << xscan[0];
+    ui->scanx_x->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << xscan[1];
+    ui->scanx_y->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << xscan[2];
+    ui->scanx_z->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << xscan[3];
+    ui->scanx_aux->setText(entry);
+
+
+    entry = "";
+    QTextStream(&entry) << yscan[0];
+    ui->scany_x->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << yscan[1];
+    ui->scany_y->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << yscan[2];
+    ui->scany_z->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << yscan[3];
+    ui->scany_aux->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << pixels;
+    ui->pixels->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << t_settle;
+    ui->tsettle->setText(entry);
+}

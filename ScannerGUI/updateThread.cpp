@@ -10,34 +10,18 @@ void updateThread::run()
     timer.stop();
 }
 
+void updateThread::setController(Controller * ctrlr)
+{
+    controller = ctrlr;
+}
+
 void updateThread::timerHit()
 {
-    int32_t bufferIn[2] = {0, 0};
+    float values[8];
 
-    char cmdString[1024];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "MEAS\n");
-
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(controller, (void*) bufferIn, sizeof(int32_t)*2);
-
-    if( bufferIn[0] == SUCCESS)
+    if( controller->getStatus() != CONTROLLER_BUSY )
     {
-        float values[8];
-        myReadfull(controller, (void *)values, sizeof(float)*8);
+        controller->singleMeasurement(values);
         emit sendValues(values);
     }
-}
-
-int updateThread::initSocket(int portno)
-{
-    controller = new QTcpSocket();
-    controller->connectToHost("localhost", portno, QIODevice::ReadWrite);
-    return 1;
-}
-
-int updateThread::closeSocket()
-{
-    controller->disconnectFromHost();
-    return 1;
 }

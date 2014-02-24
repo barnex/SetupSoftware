@@ -6,9 +6,9 @@ TEMPLATE = app
 SOURCES += main.cpp \
     mainwindow.cpp \
     updateThread.cpp \
-    myIO.cpp
+    controller.cpp
 HEADERS += mainwindow.h \
     updateThread.h \
-    myIO.h
+    controller.h
 FORMS += mainwindow.ui
 QT += network
