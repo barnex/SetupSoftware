@@ -24,3 +24,38 @@ void MainWindow::changeEvent(QEvent *e)
         break;
     }
 }
+
+void MainWindow::setValues(float *values)
+{
+    QString entry;
+    QTextStream(&entry) << values[0] << " V";
+    ui->channel0_out_0->setText(entry);
+
+    entry = "";
+    QTextStream(&entry) << values[1] << " V";
+    ui->channel0_out_1->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[2] << " V";
+    ui->channel0_out_2->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[3] << " V";
+    ui->channel0_out_3->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[4] << " V";
+    ui->channel0_out_4->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[5] << " V";
+    ui->channel0_out_5->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[6] << " V";
+    ui->channel0_out_6->setText(entry);
+
+        entry = "";
+    QTextStream(&entry) << values[7] << " V";
+    ui->channel0_out_7->setText(entry);
+}

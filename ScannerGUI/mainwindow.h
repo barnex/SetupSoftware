@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTextStream>
 
 namespace Ui {
     class MainWindow;
@@ -18,6 +19,8 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+private slots:
+    void setValues( float *values );
 };
 
 #endif // MAINWINDOW_H
