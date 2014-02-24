@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <QIODevice>
 #include "../Libraries/errors.h"
+#include <QDebug>
 
 #define CONTROLLER_BUSY    1
 #define CONTROLLER_IDLE    2

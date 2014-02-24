@@ -18,6 +18,7 @@ int Controller::init(int portno)
     // Request the current position of the piezo and set as current position
     memset(currentPosition, 0, sizeof(float)*4);
     getCurrentPosition( currentPosition );
+    //qDebug() << currentPosition[0] << currentPosition[1] << currentPosition[2];
     // Set this as the start position
     memmove( startPosition, currentPosition, sizeof(float)*4);
     char cmdString[1024];
@@ -90,6 +91,7 @@ int Controller::singleMeasurement(float *results)
 
 int Controller::getCurrentPosition( float *pos )
 {
+    status = CONTROLLER_BUSY;
     int32_t bufferIn[2] = {0, 0};
     char cmdString[1024];
     memset(cmdString, 0, 1024);
@@ -100,10 +102,45 @@ int Controller::getCurrentPosition( float *pos )
     if(bufferIn[0] == SUCCESS)
     {
         myReadfull((void*) pos, sizeof(float)*4);
+        qDebug() << pos[0] << pos[1] << pos[2];
+        status = CONTROLLER_IDLE;
         return SUCCESS;
     }
     else
     {
+        status = CONTROLLER_IDLE;
         return -1;
     }
+}
+
+int Controller::getIInc(float *iinc)
+{
+    memmove(iinc, IInc, sizeof(float)*4);
+    return 1;
+}
+
+int Controller::getJInc(float *jinc)
+{
+    memmove(jinc, JInc, sizeof(float)*4);
+    return 1;
+}
+
+
+int Controller::getStartPosition(float *pos)
+{
+    memmove(pos, startPosition, sizeof(float)*4);
+    return 1;
+}
+
+
+int Controller::getPixels(int *pix)
+{
+    memmove(pix, &pixels, sizeof(int));
+    return 1;
+}
+
+int Controller::getTSettle(int *pix)
+{
+    memmove(pix, &t_settle, sizeof(int));
+    return 1;
 }

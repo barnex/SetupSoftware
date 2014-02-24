@@ -1,4 +1,5 @@
 #include <QtGui/QApplication>
+#include <QDebug>
 #include "mainwindow.h"
 #include "updateThread.h"
 #include "controller.h"
@@ -15,11 +16,10 @@ int main(int argc, char *argv[])
     myThread.setController( controller );
     QObject::connect(&myThread, SIGNAL(sendValues(float *)), &w, SLOT(setValues(float *)), Qt::QueuedConnection);
 
-
-
     float start[4], current[4], xscan[4], yscan[4];
     int pixels, t_settle;
     controller->getCurrentPosition(current);
+    qDebug() << current[0] << current[1] << current[2] << current[3];
     controller->getStartPosition(start);
     controller->getIInc(xscan);
     controller->getJInc(yscan);
