@@ -8,14 +8,24 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     updateThread myThread;
     Controller *controller = new Controller();
+    controller->init(5000);
 
     MainWindow w;
 
     myThread.setController( controller );
     QObject::connect(&myThread, SIGNAL(sendValues(float *)), &w, SLOT(setValues(float *)), Qt::QueuedConnection);
-    QObject::connect(&myThread, SIGNAL(paramsChanged(float *)), &w, SLOT(updateParams(float *)), Qt::QueuedConnection);
-    controller->init(5000);
 
+
+
+    float start[4], current[4], xscan[4], yscan[4];
+    int pixels, t_settle;
+    controller->getCurrentPosition(current);
+    controller->getStartPosition(start);
+    controller->getIInc(xscan);
+    controller->getJInc(yscan);
+    controller->getPixels(&pixels);
+    controller->getTSettle(&t_settle);
+    w.updateParamsp(start, current, xscan, yscan, pixels, t_settle);
     myThread.start();
 
     w.show();

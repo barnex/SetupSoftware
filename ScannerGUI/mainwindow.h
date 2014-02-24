@@ -13,6 +13,7 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void updateParamsp(float *start, float *current, float *xscan, float *yscan, int pixels, int t_settle);
 
 protected:
     void changeEvent(QEvent *e);
@@ -21,7 +22,7 @@ private:
     Ui::MainWindow *ui;
 private slots:
     void setValues( float *values );
-    void updateParams(float *start, float *current, float *xscan, float *yscan, float pixels, float t_settle);
+    void updateParams(float *start, float *current, float *xscan, float *yscan, int pixels, int t_settle);
 };
 
 #endif // MAINWINDOW_H
