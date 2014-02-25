@@ -10,6 +10,9 @@
 #include "../Libraries/errors.h"
 #include "../Libraries/io.h"
 
+#include <fcntl.h>
+#include <unistd.h>
+
 #define UINT16_TO_FLOAT	1.52587890625e-5
 #define INT16_TO_FLOAT	3.0517578125e-5
 

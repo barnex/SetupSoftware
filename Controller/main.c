@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 	int ret = myRead( clientfd, socketBuffer, 1024 );
         while( ret > 0 )
         {
+	    printf("inbound: %s\n", socketBuffer);
 	    handleRequest(socketBuffer, &clientfd, &usbfd);
             ret = myRead(clientfd, socketBuffer, 1024);
         }

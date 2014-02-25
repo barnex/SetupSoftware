@@ -152,14 +152,20 @@ void scan2D( int sockfd, FILE *destination, configuration *cfg )
 
 void init( int sockfd, configuration *cfg)
 {
+    int32_t dmp[2] = {0, 0};
     // Set start
     myWrite( sockfd, "SET,START,%f,%f,%f,%f\n", cfg->start[0], cfg->start[1], cfg->start[2], cfg->start[3]);
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scanx
     myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", cfg->scanx[0], cfg->scanx[1], cfg->scanx[2], cfg->scanx[3]);
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scany
     myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", cfg->scany[0], cfg->scany[1], cfg->scany[2], cfg->scany[3]);
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set pixels
     myWrite( sockfd, "SET,PIXELS,%f\n", (float)cfg->pixels );
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set settle time
     myWrite( sockfd, "SET,TSETTLE,%f\n", (float)cfg->tsettle );
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
 }

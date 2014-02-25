@@ -223,6 +223,7 @@ int scan2DWrapper   (int *sockfd, int *usbfd)
     {
 	memset(sockBuffer, 0, 256);
 	printf("Checking for abort...\n");
+	fcntl( *sockfd, F_SETFL, O_NONBLOCK );
 	ret = read( *sockfd, sockBuffer, 256 );
 	printf("Done checking for abort...\n");
 	if( ret > 0 && (strstr(sockBuffer, "ABORT") != NULL) )
