@@ -223,7 +223,7 @@ int scan2DWrapper   (int *sockfd, int *usbfd)
     {
 	memset(sockBuffer, 0, 256);
 	ret = read( *sockfd, sockBuffer, 256 );
-	if( strstr(sockBuffer, "ABORT") != NULL )
+	if( ret > 0 && (strstr(sockBuffer, "ABORT") != NULL) )
 	{
 	    // Call the abort wrapper
 	    abortWrapper(sockfd, usbfd);
