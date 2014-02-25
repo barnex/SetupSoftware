@@ -1,11 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, Controller *ctrlr) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    controller = ctrlr;
 }
 
 MainWindow::~MainWindow()
@@ -27,9 +28,69 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::setButtonClicked()
 {
+    float buffer[4];
+
+    // First read the current position and send to the controller
+    memset(buffer, 0, sizeof(float)*4);
+    buffer[0] = ui->current_x->text().toFloat();
+    buffer[1] = ui->current_y->text().toFloat();
+    buffer[2] = ui->current_z->text().toFloat();
+    buffer[3] = ui->current_aux->text().toFloat();
+    controller->setCurrentPosition(buffer);
+
+    // Start position
+    memset(buffer, 0, sizeof(float)*4);
+    buffer[0] = ui->start_x->text().toFloat();
+    buffer[1] = ui->start_y->text().toFloat();
+    buffer[2] = ui->start_z->text().toFloat();
+    buffer[3] = ui->start_aux->text().toFloat();
+    controller->setStartPosition(buffer);
+
+    // Scan-x vector
+    memset(buffer, 0, sizeof(float)*4);
+    buffer[0] = ui->scanx_x->text().toFloat();
+    buffer[1] = ui->scanx_y->text().toFloat();
+    buffer[2] = ui->scanx_z->text().toFloat();
+    buffer[3] = ui->scanx_aux->text().toFloat();
+    controller->setIInc(buffer);
+
+    // Scan-y vector
+    memset(buffer, 0, sizeof(float)*4);
+    buffer[0] = ui->scany_x->text().toFloat();
+    buffer[1] = ui->scany_y->text().toFloat();
+    buffer[2] = ui->scany_z->text().toFloat();
+    buffer[3] = ui->scany_aux->text().toFloat();
+    controller->setJInc(buffer);
+
+    // Pixels
+    int iBuffer = 0;
+    iBuffer = ui->pixels->text().toInt();
+    controller->setPixels(&iBuffer);
+
+    // Settle time
+    iBuffer = 0;
+    iBuffer = ui->tsettle->text().toInt();
+    if(iBuffer < 2)
+    {
+        iBuffer = 2;
+    }
+    controller->setTSettle(&iBuffer);
+}
+
+void MainWindow::resetButtonClicked()
+{
     qDebug() << "Clicked a button!";
 }
 
+void MainWindow::abortButtonClicked()
+{
+    qDebug() << "Clicked a button!";
+}
+
+void MainWindow::scanButtonClicked()
+{
+    qDebug() << "Clicked a button!";
+}
 void MainWindow::setValues(float *values)
 {
     QString entry;

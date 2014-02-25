@@ -25,30 +25,36 @@ int Controller::init(int portno)
     // Set this as the start position
     memmove( startPosition, currentPosition, sizeof(float)*4);
     char cmdString[1024];
+    int32_t dmp[2];
     memset(cmdString, 0, 1024);
     sprintf(cmdString, "SET,START,%f,%f,%f,%f\n", startPosition[0], startPosition[1], startPosition[2], startPosition[3]);
     controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
 
     // set all other values to zero and let the controller know
     memset(IInc, 0, sizeof(float)*4);
     memset(cmdString, 0, 1024);
     sprintf(cmdString,"SET,IINC,0.0,0.0,0.0,0.0\n");
     controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
 
     memset(JInc, 0, sizeof(float)*4);
     memset(cmdString, 0, 1024);
     sprintf(cmdString,"SET,JINC,0.0,0.0,0.0,0.0\n");
     controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
 
     pixels = 0;
     memset(cmdString, 0, 1024);
     sprintf(cmdString,"SET,PIXELS,0.0\n");
     controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
 
     t_settle = 2;
     memset(cmdString, 0, 1024);
     sprintf(cmdString,"SET,TSETTLE,2.0\n");
     controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
 
     return SUCCESS;
 }
@@ -152,4 +158,76 @@ int Controller::getTSettle(int *tsettle)
 {
     memmove(tsettle, &t_settle, sizeof(int));
     return 1;
+}
+
+int Controller::setStartPosition(float * pos)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,START,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+    lock->unlock();
+}
+
+int Controller::setCurrentPosition(float * pos)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,POSITION,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+        lock->unlock();
+}
+
+int Controller::setIInc(float * pos)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,IINC,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+        lock->unlock();
+}
+
+int Controller::setJInc(float * pos)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,JINC,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+        lock->unlock();
+}
+
+int Controller::setPixels(int * pixls)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,PIXELS,%f", (float) *pixls);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+        lock->unlock();
+}
+
+int Controller::setTSettle(int * t_settle)
+{
+    lock->lock();
+    char cmdString[1024];
+    int32_t dmp[2];
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "SET,TSETTLE,%f", (float) *t_settle);
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
+        lock->unlock();
 }

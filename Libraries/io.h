@@ -21,7 +21,7 @@ int myReadfull( int fd, void *buffer, int nBytes );
 
 int myRead( int fd, void *buffer, int nBytes );
 
-int myWrite( int fd, const char *format, va_list args );
+int myWrite( int fd, const char *format, ...);
 
 int initSerial( int *fd, int baudrate, char *devname );
 

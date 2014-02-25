@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue Feb 25 09:02:15 2014
+** Created: Tue Feb 25 10:11:27 2014
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -23,6 +23,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
+#include <qwt_plot.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -73,6 +74,7 @@ public:
     QPushButton *scanButton;
     QPushButton *abortButton;
     QPushButton *resetButton;
+    QwtPlot *qwtPlot;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -81,7 +83,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(871, 420);
+        MainWindow->resize(871, 769);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         channel0_out_0 = new QLineEdit(centralWidget);
@@ -262,6 +264,9 @@ public:
         resetButton = new QPushButton(centralWidget);
         resetButton->setObjectName(QString::fromUtf8("resetButton"));
         resetButton->setGeometry(QRect(490, 320, 90, 29));
+        qwtPlot = new QwtPlot(centralWidget);
+        qwtPlot->setObjectName(QString::fromUtf8("qwtPlot"));
+        qwtPlot->setGeometry(QRect(160, 390, 401, 311));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -276,6 +281,9 @@ public:
 
         retranslateUi(MainWindow);
         QObject::connect(setButton, SIGNAL(clicked()), MainWindow, SLOT(setButtonClicked()));
+        QObject::connect(scanButton, SIGNAL(clicked()), MainWindow, SLOT(scanButtonClicked()));
+        QObject::connect(abortButton, SIGNAL(clicked()), MainWindow, SLOT(abortButtonClicked()));
+        QObject::connect(resetButton, SIGNAL(clicked()), MainWindow, SLOT(resetButtonClicked()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -291,10 +299,28 @@ public:
         label_6->setText(QApplication::translate("MainWindow", "Y Scan Vector:", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("MainWindow", "Pixels:", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("MainWindow", "Settle time per pixel:", 0, QApplication::UnicodeUTF8));
+        start_x->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        start_y->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        start_z->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        start_aux->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        current_aux->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        current_y->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        current_z->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        current_x->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("MainWindow", "x-axis", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("MainWindow", "y-axis", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("MainWindow", "z-axis", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("MainWindow", "auxiliary", 0, QApplication::UnicodeUTF8));
+        scanx_aux->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scanx_y->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scanx_z->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scanx_x->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scany_aux->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scany_y->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scany_z->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        scany_x->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        pixels->setText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
+        tsettle->setText(QApplication::translate("MainWindow", "2", 0, QApplication::UnicodeUTF8));
         label_13->setText(QApplication::translate("MainWindow", "ms", 0, QApplication::UnicodeUTF8));
         setButton->setText(QApplication::translate("MainWindow", "Set", 0, QApplication::UnicodeUTF8));
         scanButton->setText(QApplication::translate("MainWindow", "Scan", 0, QApplication::UnicodeUTF8));

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Tue Feb 25 09:04:07 2014
+** Created: Tue Feb 25 09:21:38 2014
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_MainWindow[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,13 +33,17 @@ static const uint qt_meta_data_MainWindow[] = {
  // slots: signature, parameters, type, tag, flags
       19,   12,   11,   11, 0x08,
       37,   11,   11,   11, 0x08,
+      56,   11,   11,   11, 0x08,
+      77,   11,   11,   11, 0x08,
+      98,   11,   11,   11, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0values\0setValues(float*)\0"
-    "setButtonClicked()\0"
+    "setButtonClicked()\0resetButtonClicked()\0"
+    "abortButtonClicked()\0scanButtonClicked()\0"
 };
 
 const QMetaObject MainWindow::staticMetaObject = {
@@ -73,9 +77,12 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: setValues((*reinterpret_cast< float*(*)>(_a[1]))); break;
         case 1: setButtonClicked(); break;
+        case 2: resetButtonClicked(); break;
+        case 3: abortButtonClicked(); break;
+        case 4: scanButtonClicked(); break;
         default: ;
         }
-        _id -= 2;
+        _id -= 5;
     }
     return _id;
 }

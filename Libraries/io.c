@@ -101,11 +101,14 @@ static void set_blocking (int fd, int should_block)
                 printf("error %d setting term attributes", errno);
 }
 
-int myWrite( int fd, const char *format, va_list args )
+int myWrite( int fd, const char *format, ...)
 {
     char buffer[1024];
     memset(buffer, 0, 1024);
-    int ret = snprintf( buffer, 1024, format, args );
+    va_list vl;
+    va_start( vl, format );
+    int ret = snprintf( buffer, 1024, format, vl );
+    va_end(vl);
     assert( (ret > 0) && (ret < 1024) );
     write( fd, buffer, strlen(buffer) );
     return SUCCESS;

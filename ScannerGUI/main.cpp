@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     Controller *controller = new Controller();
     controller->init(5000);
 
-    MainWindow w;
+    MainWindow w(NULL, controller);
 
     myThread.setController( controller );
     QObject::connect(&myThread, SIGNAL(sendValues(float *)), &w, SLOT(setValues(float *)), Qt::QueuedConnection);

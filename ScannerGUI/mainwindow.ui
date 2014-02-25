@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>871</width>
-    <height>420</height>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -249,6 +249,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -261,6 +264,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -275,6 +281,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -287,6 +296,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -301,6 +313,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -313,6 +328,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -327,6 +345,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -339,6 +360,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -417,6 +441,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -429,6 +456,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -443,6 +473,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -455,6 +488,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -469,6 +505,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -481,6 +520,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -495,6 +537,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -507,6 +552,9 @@
       <width>71</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>
@@ -521,6 +569,9 @@
       <height>28</height>
      </rect>
     </property>
+    <property name="text">
+     <string>0</string>
+    </property>
     <property name="readOnly">
      <bool>false</bool>
     </property>
@@ -533,6 +584,9 @@
       <width>101</width>
       <height>28</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>2</string>
     </property>
     <property name="readOnly">
      <bool>false</bool>

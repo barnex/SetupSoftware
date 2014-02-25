@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTextStream>
 #include <QDebug>
+#include "controller.h"
 
 namespace Ui {
     class MainWindow;
@@ -12,7 +13,7 @@ namespace Ui {
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = 0, Controller *ctrlr = NULL);
     ~MainWindow();
     void updateStart( float *start);
     void updateCurrent( float *current );
@@ -26,6 +27,8 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+    Controller *controller;
+
 private slots:
     void setValues( float *values );
     void setButtonClicked();
