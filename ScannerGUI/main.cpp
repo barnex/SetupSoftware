@@ -25,12 +25,11 @@ int main(int argc, char *argv[])
     controller->getJInc(yscan);
     controller->getPixels(&pixels);
     controller->getTSettle(&t_settle);
-    w.updateParamsp(start, current, xscan, yscan, pixels, t_settle);
+    //w.updateParamsp(start, current, xscan, yscan, pixels, t_settle);
     myThread.start();
 
     w.show();
     a.exec();
-    myThread.wait();
     free( controller );
     return 0;
 }

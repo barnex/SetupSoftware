@@ -3,6 +3,7 @@
 Controller::Controller(void)
 {
     controller = new QTcpSocket();
+    lock = new QMutex();
 
     status = CONTROLLER_IDLE;
 }
@@ -10,6 +11,8 @@ Controller::Controller(void)
 Controller::~Controller()
 {
     controller->close();
+    free(controller);
+    free(lock);
 }
 
 int Controller::init(int portno)
@@ -70,6 +73,7 @@ int Controller::getStatus()
 
 int Controller::singleMeasurement(float *results)
 {
+    lock->lock();
     int32_t bufferIn[2] = {0, 0};
     char cmdString[1024];
     memset(cmdString, 0, 1024);
@@ -81,16 +85,19 @@ int Controller::singleMeasurement(float *results)
     if( bufferIn[0] == SUCCESS)
     {
         myReadfull((void *)results, sizeof(float)*8);
+        lock->unlock();
         return SUCCESS;
     }
     else
     {
+        lock->unlock();
         return -1;
     }
 }
 
 int Controller::getCurrentPosition( float *pos )
 {
+    lock->lock();
     status = CONTROLLER_BUSY;
     int32_t bufferIn[2] = {0, 0};
     char cmdString[1024];
@@ -104,10 +111,12 @@ int Controller::getCurrentPosition( float *pos )
         myReadfull((void*) pos, sizeof(float)*4);
         qDebug() << pos[0] << pos[1] << pos[2];
         status = CONTROLLER_IDLE;
+        lock->unlock();
         return SUCCESS;
     }
     else
     {
+        lock->unlock();
         status = CONTROLLER_IDLE;
         return -1;
     }
@@ -139,8 +148,8 @@ int Controller::getPixels(int *pix)
     return 1;
 }
 
-int Controller::getTSettle(int *pix)
+int Controller::getTSettle(int *tsettle)
 {
-    memmove(pix, &t_settle, sizeof(int));
+    memmove(tsettle, &t_settle, sizeof(int));
     return 1;
 }

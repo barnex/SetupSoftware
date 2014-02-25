@@ -25,6 +25,11 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
+void MainWindow::setButtonClicked()
+{
+    qDebug() << "Clicked a button!";
+}
+
 void MainWindow::setValues(float *values)
 {
     QString entry;
@@ -60,6 +65,7 @@ void MainWindow::setValues(float *values)
     ui->channel0_out_7->setText(entry);
 }
 
+/*
 void MainWindow::updateParams(float *start, float *current, float *xscan, float *yscan, int pixels, int t_settle)
 {
     QString entry = "";
@@ -210,3 +216,4 @@ void MainWindow::updateParamsp(float *start, float *current, float *xscan, float
     QTextStream(&entry) << t_settle;
     ui->tsettle->setText(entry);
 }
+*/

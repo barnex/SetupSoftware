@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include <QIODevice>
+#include <QMutex>
 #include "../Libraries/errors.h"
 #include <QDebug>
 
@@ -13,6 +14,7 @@ class Controller
 {
 private:
     QTcpSocket *controller;
+    QMutex *lock;
     int     status;
     float   startPosition[4];
     float   currentPosition[4];

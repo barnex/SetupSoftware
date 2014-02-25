@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>891</width>
-    <height>494</height>
+    <width>871</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -148,7 +148,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>60</y>
+      <y>100</y>
       <width>68</width>
       <height>18</height>
      </rect>
@@ -164,7 +164,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>100</y>
+      <y>60</y>
       <width>68</width>
       <height>18</height>
      </rect>
@@ -244,104 +244,104 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>60</y>
+      <y>100</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="start_y">
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>60</y>
+      <y>100</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="start_z">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>60</y>
+      <y>100</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="start_aux">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>60</y>
+      <y>100</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="current_aux">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>100</y>
+      <y>60</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="current_y">
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>100</y>
+      <y>60</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="current_z">
     <property name="geometry">
      <rect>
       <x>600</x>
-      <y>100</y>
+      <y>60</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="current_x">
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>100</y>
+      <y>60</y>
       <width>71</width>
       <height>28</height>
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_9">
@@ -418,7 +418,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scanx_y">
@@ -431,7 +431,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scanx_z">
@@ -444,7 +444,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scanx_x">
@@ -457,7 +457,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scany_aux">
@@ -470,7 +470,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scany_y">
@@ -483,7 +483,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scany_z">
@@ -496,7 +496,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="scany_x">
@@ -509,7 +509,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="pixels">
@@ -522,7 +522,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="tsettle">
@@ -535,7 +535,7 @@
      </rect>
     </property>
     <property name="readOnly">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_13">
@@ -656,7 +656,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>891</width>
+     <width>871</width>
      <height>26</height>
     </rect>
    </property>
@@ -673,5 +673,76 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>setButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>206</x>
+     <y>371</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>103</x>
+     <y>327</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scanButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>scanButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>369</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>abortButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>abortButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>782</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>resetButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>resetButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>779</x>
+     <y>335</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>setButtonClicked()</slot>
+  <slot>scanButtonClicked()</slot>
+  <slot>abortButtonClicked()</slot>
+  <slot>resetButtonClicked()</slot>
+ </slots>
 </ui>

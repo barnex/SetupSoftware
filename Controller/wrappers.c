@@ -216,10 +216,24 @@ int scan2DWrapper   (int *sockfd, int *usbfd)
     int32_t outputBuffer[2] = {0, 0};
     uint8_t USBBufferOut[2] = {IN_CMD_START, 0};
     float floatBuffer[8];
+    char sockBuffer[256];
     int ret = SUCCESS, flagByte = 0;
     write( *usbfd, USBBufferOut, 2 );
     while( ret == SUCCESS )
     {
+	memset(sockBuffer, 0, 256);
+	ret = read( *sockfd, sockBuffer, 256 );
+	if( strstr(sockBuffer, "ABORT") != NULL )
+	{
+	    // Call the abort wrapper
+	    abortWrapper(sockfd, usbfd);
+	    // Let the user know that abort has succeeded
+	    outputBuffer[0] = SUCCESS;
+	    outputBuffer[1] = 0;
+	    write( *sockfd, outputBuffer, sizeof(int32_t)*2);\
+	    // Scan 2D has not finished succesfully
+	    return -1;
+	}
 	ret = readfloats( floatBuffer, &flagByte, usbfd );
 	if( ret == SUCCESS )
 	{
