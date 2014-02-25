@@ -23,7 +23,7 @@ void scan2D( int sockfd, FILE *destination, configuration *cfg );
 int main(int argc, char **argv)
 {
     configuration config;
-    if( argc != 1 )
+    if( argc != 3 )
     {
 	printf("Please specify config file and target file\n");
 	return EXIT_FAILURE;

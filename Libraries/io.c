@@ -107,7 +107,7 @@ int myWrite( int fd, const char *format, ...)
     memset(buffer, 0, 1024);
     va_list vl;
     va_start( vl, format );
-    int ret = snprintf( buffer, 1024, format, vl );
+    int ret = vsnprintf( buffer, 1024, format, vl );
     va_end(vl);
     assert( (ret > 0) && (ret < 1024) );
     write( fd, buffer, strlen(buffer) );
