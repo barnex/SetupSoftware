@@ -5,12 +5,15 @@
 #include "misc.h"
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include <string.h>
 
 #include "init.h"
 #include "adc.h"
 #include "dac.h"
 #include "../../../Libraries/mydefs.h"
+
+#define SIGN(x) (x > 0 ? 1 : (x < 0 ? -1 : 0))
 
 volatile int32_t    position[4];    // Current position, though signed int, strictly positive and smaller than 0xFFFF
 volatile int32_t    start[4];	    // The state position (see comment above)
@@ -145,13 +148,9 @@ inline void parseInput()
      *  copy the values from the USART into the position
      *  and move into the GOTO state (and later update the real position)
      */
-    else if (command_in.cmd == IN_CMD_GOTO && command_in.size >= 8 )
+    else if (command_in.cmd == IN_CMD_GOTO)
     {
 	stopTimer();
-	position[0] = (int32_t) USARTBuffer[0];
-	position[1] = (int32_t) USARTBuffer[1];
-	position[2] = (int32_t) USARTBuffer[2];
-	position[3] = (int32_t) USARTBuffer[3];
 	previousState = state;
 	state = STATE_GOTO;
     }
@@ -303,10 +302,10 @@ int main()
 	    setDACS( (uint16_t*) DACBuffer);
 
 	    // Set start to zero
-	    memset(start, 0, sizeof(int32_t)*4);
+	    memset((char*)start, 0, sizeof(int32_t)*4);
 	    // Set increase to zero
-	    memset(i_inc, 0, sizeof(int32_t)*4);
-	    memset(j_inc, 0, sizeof(int32_t)*4);
+	    memset((char*)i_inc, 0, sizeof(int32_t)*4);
+	    memset((char*)j_inc, 0, sizeof(int32_t)*4);
 	    // Set indices to zero
 	    scan_i = 0;
 	    scan_j = 0;
@@ -321,7 +320,8 @@ int main()
         else if( state == STATE_ABORT)
         {
             stopTimer();
-	    state = STATE_IDLE;
+			previousState = state;
+	    	state = STATE_IDLE;
         }
         else if(state == STATE_ACTIVE)
         {
@@ -339,18 +339,18 @@ int main()
                     scan_j = 0;
                     command_out.cmd = OUT_CMD_LASTPIXEL;
                     stopTimer();
-		    state = STATE_IDLE;
                 }
             }
             if( state == STATE_ACTIVE )
             {
-		getPosition();
+				getPosition();
                 setDACS((uint16_t *) DACBuffer);
-		// If we are still in the active state (and user has not called for ABORT)...
+				// If we are still in the active state (and user has not called for ABORT)...
                 init_Timer(t_settle);
-		state = STATE_IDLE;
             }
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
+			previousState = state;
+			state = STATE_IDLE;
         }
         else if(state == STATE_IDLE)
         {
@@ -367,13 +367,36 @@ int main()
             setDACS((uint16_t *) DACBuffer);
             // Start the timer to allow the stage to settle
             if( state == STATE_START )
-	    {
-		init_Timer(t_settle);
-		state = STATE_IDLE;
-	    }
-	}
-	else if( state == STATE_GOTO )
-	{
+	    	{
+				init_Timer(t_settle);
+	    	}
+			previousState = state;
+			state = STATE_IDLE;
+		}
+		else if( state == STATE_GOTO )
+		{
+		// Check the distance between the current position
+		// and the start position
+		int32_t displacement[4] = {0, 0, 0, 0};
+		for(int i = 0; i < 4; i++)
+		{
+			displacement[i] = position[i] - start[i];
+		}
+	
+		for(int i = 0; i < 4; i++ )
+		{
+			if( displacement[i]  > -650 && displacement[i] < 650 )
+			{
+				// If the distance to go is smaller than 10% of the total
+				// available range, go there in one step	
+				position[i] = start[i];
+			}
+			else
+			{
+				position[i] += SIGN(displacement[i])*650;
+
+			}
+		}
 	    // Copy and cast the data into the buffer
 	    DACBuffer[0] = (uint16_t) position[0];
 	    DACBuffer[1] = (uint16_t) position[1]; 
@@ -384,8 +407,11 @@ int main()
 	    // Check if the state was not modified externally
 	    if( state == STATE_GOTO )
 	    {
-		state = STATE_IDLE;
+			// Wait for 10ms to go to the next point
+			init_Timer(10);
 	    }
+			previousState = state;
+			state = STATE_IDLE;
 
 	}
 	else if( state == STATE_SINGLE_MEAS )
@@ -397,20 +423,16 @@ int main()
             
 	    // And write it into the USART
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
-	    // Check if the state was not modified externally
-	    if( state == STATE_SINGLE_MEAS )
-	    {
+			previousState = state;
 		state = STATE_IDLE;
-	    }
 
 	}
 	else if( state == STATE_SEND_POS )
 	{
 	    shipDataOut((uint16_t *)USARTBuffer, (uint32_t) 4);
-	    if( state == STATE_SEND_POS )
-	    {
-		state = previousState; // Return to the previous state, before we started sending out data
-	    }
+			uint8_t tmp = previousState;
+			previousState = state;
+			state = tmp; // Return to the previous state, before we started sending out data
 	}
 
     }
@@ -432,7 +454,14 @@ void TIM2_IRQHandler(void)
 	// If we were waiting (and not ABORT) then we proceed to the next pixel    
         if( state == STATE_IDLE )
         {
-            state = STATE_ACTIVE;
+			if( previousState == STATE_ACTIVE )
+			{
+            	state = STATE_ACTIVE;
+			}
+			else if( previousState == STATE_GOTO )
+			{
+				state = STATE_GOTO;
+			}
         }
     }
 }
