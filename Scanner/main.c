@@ -38,9 +38,9 @@ int main(int argc, char **argv)
     FILE * dest = fopen(argv[2], "w");
 
     int sockfd = 0;
-    initClient( &sockfd, 5000);
+    initClient( &sockfd, 5001);
     init( sockfd, &config );
-    scan2D( sockfd, dest, &config );
+    //scan2D( sockfd, dest, &config );
     close( sockfd );
     fclose(dest);
     return EXIT_SUCCESS;
@@ -167,5 +167,7 @@ void init( int sockfd, configuration *cfg)
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set settle time
     myWrite( sockfd, "SET,TSETTLE,%f\n", (float)cfg->tsettle );
+    myReadfull( sockfd, dmp, sizeof(int32_t)*2);
+    myWrite( sockfd, "GOTO\n");
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
 }

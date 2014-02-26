@@ -509,7 +509,7 @@ TIM2_IRQHandler(void)
 	// If we were waiting (and not ABORT) then we proceed to the next
 	// pixel 
 	if (state == STATE_IDLE) {
-	    if (previousState == STATE_ACTIVE) {
+	    if ( (previousState == STATE_ACTIVE) || (previousState == STATE_START) ) {
 		previousState = state;
 		state = STATE_ACTIVE;
 	    }
