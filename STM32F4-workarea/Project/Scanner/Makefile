@@ -14,20 +14,18 @@ DEFS = -DUSE_STDPERIPH_DRIVER -DSTM32F4XX -DHSE_VALUE=8000000
 STARTUP = ../../Libraries/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc_ride7/startup_stm32f40xx.s
 
 MCU = cortex-m4
-MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -std=c99 -g
+MCFLAGS = -mcpu=$(MCU) -mthumb -mlittle-endian -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb-interwork -std=c99
 STM32_INCLUDES = -I../../Libraries/CMSIS/Device/ST/STM32F4xx/Include/ \
 	-I../../Libraries/CMSIS/Include/ \
-	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/ -I./ \
-	-I../../../Libraries/
+	-I../../Libraries/STM32F4xx_StdPeriph_Driver/inc/
 
-OPTIMIZE       = -O
+OPTIMIZE       = -Os
 
 CFLAGS	= $(MCFLAGS)  $(OPTIMIZE)  $(DEFS) -I. -I./ $(STM32_INCLUDES)  -Wl,-T,stm32_flash.ld
 AFLAGS	= $(MCFLAGS) 
 #-mapcs-float use float regs. small increase in code size
 
-SRC = main.c \
-    *.c \
+SRC = *.c \
 	stm32f4xx_it.c \
 	system_stm32f4xx.c \
 	../../Libraries/STM32F4xx_StdPeriph_Driver/src/misc.c \

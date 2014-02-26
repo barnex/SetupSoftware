@@ -11,7 +11,7 @@
 #include "init.h"
 #include "adc.h"
 #include "dac.h"
-#include "../../../Libraries/mydefs.h"
+#include "mydefs.h"
 
 #define SIGN(x) (x > 0 ? 1 : (x < 0 ? -1 : 0))
 volatile int32_t position[4];	// Current position, though signed int,
