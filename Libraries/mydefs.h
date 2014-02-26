@@ -47,4 +47,6 @@
 #define USART_STATE_TIMEOUT	(uint8_t) 3
 #define USART_STATE_FINISHED	(uint8_t) 4
 
+#define STATE_MACHINE_INITPOS	(int32_t) 1
+
 #endif
