@@ -17,6 +17,7 @@
 volatile int32_t position[4];	// Current position, though signed int,
 				// strictly positive and smaller than
 				// 0xFFFF
+volatile int32_t gotoTarget[4];	// Current position, though signed int,
 volatile int32_t start[4];	// The state position (see comment above)
 volatile int32_t i_inc[4];	// The smaller increase vector (")
 volatile int32_t j_inc[4];	// The larger increase vector (")
@@ -36,7 +37,7 @@ volatile uint16_t USARTBuffer[16];	// The values that have been
 					// read/written from/to the USART
 volatile uint8_t usart_state;	// The current state of the USART state
 				// machine
-volatile int32_t state_machine_flags;
+volatile int32_t gotoFlags;
 
 /*
  * Before shipping data out, set command_out.size and command_out.cmd to make
@@ -117,14 +118,10 @@ stopTimer()
 inline void
 getPosition()
 {
-    position[0] = start[0] + scan_i * i_inc[0] + scan_j * j_inc[0];
-    DACBuffer[0] = (uint16_t) position[0];
-    position[1] = start[1] + scan_i * i_inc[1] + scan_j * j_inc[1];
-    DACBuffer[1] = (uint16_t) position[1];
-    position[2] = start[2] + scan_i * i_inc[2] + scan_j * j_inc[2];
-    DACBuffer[2] = (uint16_t) position[2];
-    position[3] = start[3] + scan_i * i_inc[3] + scan_j * j_inc[3];
-    DACBuffer[3] = (uint16_t) position[3];
+    gotoTarget[0] = start[0] + scan_i * i_inc[0] + scan_j * j_inc[0];
+    gotoTarget[1] = start[1] + scan_i * i_inc[1] + scan_j * j_inc[1];
+    gotoTarget[2] = start[2] + scan_i * i_inc[2] + scan_j * j_inc[2];
+    gotoTarget[3] = start[3] + scan_i * i_inc[3] + scan_j * j_inc[3];
 }
 
 /*
@@ -173,7 +170,9 @@ parseInput()
     else if (command_in.cmd == IN_CMD_GOTO) {
 	stopTimer();
 	previousState = state;
-	state_machine_flags = 0;
+	
+	memmove((char *)gotoTarget, (char *)start, sizeof(int32_t)*4);
+	gotoFlags = RETURN_IDLE; // When GOTO is done, don't do anything
 	state = STATE_GOTO;
     }
 
@@ -295,8 +294,8 @@ main()
 	 *      it returns to the STATE_IDLE.
 	 * STATE_GOTO: Adjusts the position to the user's request and goes to the STATE_IDLE
 	 */
-	if (state == STATE_RESET) {
-
+	if (state == STATE_RESET) 
+	{
 	    /*
 	     * This is important and you should understand the following:
 	     * PriorityGroup_4 ALLOWS FOR ONLY PREEMPTIVE INTERRUPTS AND NO SUB-GROUPINGS
@@ -338,106 +337,93 @@ main()
 
 	    // Set t_settle to 2ms (bare minimum)
 	    t_settle = 2;
-	    state_machine_flags = 0;
+	    gotoFlags = RETURN_IDLE;
 	    previousState = state;
 	    state = STATE_IDLE;
 	}
-
-	else if (state == STATE_ABORT) {
+	else if (state == STATE_ABORT)
+	{
 	    stopTimer();
 	    previousState = state;
 	    state = STATE_IDLE;
 	}
-
-	else if (state == STATE_ACTIVE) {
+	else if (state == STATE_ACTIVE)
+	{
 	    command_out.cmd = OUT_CMD_SCANNING;
 	    command_out.size = (uint8_t) 16;
 	    GPIO_SetBits(GPIOD, 0xF000);
 	    readChannels((int16_t *) ADCBuffer);
 	    scan_i++;
-	    if (scan_i >= pixels) {
+	    if (scan_i >= pixels)
+	    {
+		// At this point, we got a carriage return. This can possibly
+		// jerk the stage a bit to much (large piezo displacement which
+		// can lead to nasty things). Therefore we gently move to the
+		// beginning of the next line.
 		scan_i = 0;
 		scan_j++;
+		// Done scanning ...
 		if (scan_j >= pixels) {
 		    scan_j = 0;
 		    command_out.cmd = OUT_CMD_LASTPIXEL;
-		    stopTimer();
 		}
 	    }
-	    if (state == STATE_ACTIVE) {
-		getPosition();
-		setDACS((uint16_t *) DACBuffer);
-
-		// If we are still in the active state (and user has not
-		// called for ABORT)...
-		init_Timer(t_settle);
-	    }
+	    // After calculating the new indices, calculate the new position.
+	    // GOTO will move the stage there.
+	    getPosition();
+	    // Transmit the data over the USART to the user
 	    shipDataOut((uint16_t *) ADCBuffer, (uint32_t) 8);
+	    //Save this state as the previous
 	    previousState = state;
-	    if (command_out.cmd == OUT_CMD_LASTPIXEL) {
-		state_machine_flags = 0;
-		state = STATE_GOTO;
-	    }
-
-	    else {
+	    // If this was the last pixel, we stop here
+	    if( command_out.cmd == OUT_CMD_LASTPIXEL )
+	    {
+		stopTimer();
 		state = STATE_IDLE;
 	    }
+	    // Else we call "GOTO" to move the stage
+	    else if(state == STATE_ACTIVE)
+	    {
+		gotoFlags = RETURN_ACTIVE;
+		state = STATE_GOTO;
+	    }
 	}
-
-	else if (state == STATE_IDLE) {
-
+	else if (state == STATE_IDLE) 
+	{
 	    // NOP
 	}
-
-	else if (state == STATE_START) {
-	    if ((position[0] != start[0])
-		|| (position[1] != start[1])
-		|| (position[2] != start[2]) || (position[3] != start[3])) {
-		state_machine_flags = STATE_MACHINE_INITPOS;
-		previousState = state;
-		state = STATE_GOTO;
-	    }
-
-	    else {
-		command_out.cmd = OUT_CMD_FIRSTPIXEL;
-		command_out.size = (uint8_t) 16;
-
-		// Set the start position
-		scan_i = 0;
-		scan_j = 0;
-		getPosition();
-		setDACS((uint16_t *) DACBuffer);
-
-		// Start the timer to allow the stage to settle
-		if (state == STATE_START) {
-		    init_Timer(t_settle);
-		}
-		previousState = state;
-		state = STATE_IDLE;
-	    }
+	else if (state == STATE_START)
+	{
+	    // If the current position is not exactly the starting position
+	    // me move into the "GOTO" state
+	    scan_i = 0; // Reset i and j indices
+	    scan_j = 0;
+	    getPosition(); // Set the new target position
+	    gotoFlags = RETURN_ACTIVE; // After GOTO is finished, return to ACTIVE
+	    previousState = state;
+	    state = STATE_GOTO;
 	}
-
-	else if (state == STATE_GOTO) {
-
+	else if (state == STATE_GOTO)
+	{
 	    // Check the distance between the current position
 	    // and the start position
 	    int32_t displacement = 0;
 	    int32_t notDone = 0;
 
 	    for (int i = 0; i < 4; i++) {
-		displacement = start[i] - position[i];
+		displacement = gotoTarget[i] - position[i];
 		if( (displacement > -650) && (displacement < 650))
 		{
 		    // If the distance to go is smaller than 10% of the
 		    // total
 		    // available range, go there in one step 
-		    position[i] = start[i];
+		    position[i] = gotoTarget[i];
 		}
 		else
 		{
 		    position[i] += SIGN(displacement) * 650;
 		}
-		notDone += (start[i]-position[i])*SIGN(start[i]-position[i]);
+		notDone += (gotoTarget[i]-position[i])*SIGN(gotoTarget[i]-position[i]);
 	    }
 
 	    // Copy and cast the data into the buffer
@@ -452,22 +438,32 @@ main()
 	    // Check if we haven't arrived at the endpoint
 	    if(notDone && (state == STATE_GOTO))
 	    {
-		// Wait for 10ms to go to the next point
-		    init_Timer(10);
+		// Wait for ...ms to go to the next point
+		init_Timer(t_settle);
 	    }
-
+	   
+	    // Default to idle and save previous state 
 	    previousState = state;
 	    state = STATE_IDLE;
 
-	    if(!notDone && (state_machine_flags == STATE_MACHINE_INITPOS) )
+	    // Should we have moved into position, we may return to another 
+	    // state of the state machine, depending on the "gotoFlag"-status
+	    if( !notDone )
 	    {
-		//If we are done, and we where originally coming from STATE_START
-		// go back to STATE_START
-		state_machine_flags = 0;
-		state = STATE_START;
+		switch(gotoFlags)
+		{
+		    case RETURN_START:	state = STATE_START;
+					break;
+		    case RETURN_ACTIVE: state = STATE_ACTIVE;
+					break;
+		    case RETURN_IDLE:	break;
+		    default:		break;
+		}
 	    }
-	} else if (state == STATE_SINGLE_MEAS) {
-
+	    
+	}
+	else if (state == STATE_SINGLE_MEAS)
+	{
 	    // Read data from the ADC
 	    memset((void *) ADCBuffer, 0, 8 * sizeof(int16_t));
 	    readChannels((int16_t *) ADCBuffer);
@@ -477,8 +473,8 @@ main()
 	    previousState = state;
 	    state = STATE_IDLE;
 	}
-
-	else if (state == STATE_SEND_POS) {
+	else if (state == STATE_SEND_POS)
+	{
 	    shipDataOut((uint16_t *) USARTBuffer, (uint32_t) 4);
 	    uint8_t         tmp = previousState;
 	    previousState = state;

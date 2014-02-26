@@ -255,6 +255,10 @@ void init_Timer(uint32_t t_settle)
     TIM_TimeBaseInitTypeDef TIM2Init;
     TIM2Init.TIM_Prescaler = 41999;
     TIM2Init.TIM_CounterMode = TIM_CounterMode_Up;
+    if( t_settle < 2 )
+    {
+	t_settle = 2; // See below
+    }
     TIM2Init.TIM_Period = (t_settle - 1) << 1;
     TIM2Init.TIM_ClockDivision = TIM_CKD_DIV4;
     TIM2Init.TIM_RepetitionCounter = 0;

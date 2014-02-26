@@ -15,7 +15,6 @@
 #define STATE_SEND_POS		(uint8_t) 6
 #define STATE_RESET		(uint8_t) 7
 
-#define OUT_CMD_FIRSTPIXEL      (uint8_t) 1
 #define OUT_CMD_LASTPIXEL       (uint8_t) 2
 #define OUT_CMD_SCANNING        (uint8_t) 3
 #define OUT_CMD_DAC             (uint8_t) 4
@@ -47,6 +46,8 @@
 #define USART_STATE_TIMEOUT	(uint8_t) 3
 #define USART_STATE_FINISHED	(uint8_t) 4
 
-#define STATE_MACHINE_INITPOS	(int32_t) 1
+#define RETURN_IDLE		(int32_t) 0
+#define RETURN_START		(int32_t) 1
+#define RETURN_ACTIVE		(int32_t) 2
 
 #endif
