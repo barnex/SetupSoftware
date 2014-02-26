@@ -173,6 +173,7 @@ parseInput()
     else if (command_in.cmd == IN_CMD_GOTO) {
 	stopTimer();
 	previousState = state;
+	state_machine_flags = 0;
 	state = STATE_GOTO;
     }
 
@@ -374,6 +375,7 @@ main()
 	    shipDataOut((uint16_t *) ADCBuffer, (uint32_t) 8);
 	    previousState = state;
 	    if (command_out.cmd == OUT_CMD_LASTPIXEL) {
+		state_machine_flags = 0;
 		state = STATE_GOTO;
 	    }
 
