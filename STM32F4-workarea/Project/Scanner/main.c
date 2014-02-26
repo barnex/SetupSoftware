@@ -339,6 +339,7 @@ int main()
                     scan_j = 0;
                     command_out.cmd = OUT_CMD_LASTPIXEL;
                     stopTimer();
+
                 }
             }
             if( state == STATE_ACTIVE )
@@ -350,7 +351,16 @@ int main()
             }
             shipDataOut((uint16_t *)ADCBuffer, (uint32_t) 8);
 			previousState = state;
-			state = STATE_IDLE;
+
+			if( command_out.cmd == OUT_CMD_LASTPIXEL )
+			{
+				state = STATE_GOTO;
+			}
+			else
+			{
+				state = STATE_IDLE;
+
+			}
         }
         else if(state == STATE_IDLE)
         {
@@ -404,12 +414,17 @@ int main()
 	    DACBuffer[3] = (uint16_t) position[3]; 
 	    // Update the DAC values
             setDACS((uint16_t *) DACBuffer);
-	    // Check if the state was not modified externally
-	    if( state == STATE_GOTO )
-	    {
-			// Wait for 10ms to go to the next point
-			init_Timer(10);
-	    }
+
+	    // Check if we haven't arrived at the endpoint
+		if( (displacement[0] != 0) || (displacement[1] != 0) || (displacement[2] != 0)
+			|| (displacement[3] != 0) )
+		{
+	    	if( state == STATE_GOTO )
+	    	{
+				// Wait for 10ms to go to the next point
+				init_Timer(10);
+	    	}
+		}
 			previousState = state;
 			state = STATE_IDLE;
 
