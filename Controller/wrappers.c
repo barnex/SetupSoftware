@@ -61,23 +61,6 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 	}
 	write( *usbfd, outputBuffer, 10 );
     }
-    else if(strstr(stringParam, "POSITION") != NULL )
-    {
-	outputBuffer[0] = IN_CMD_GOTO;
-	outputBuffer[1] = 8;
-	for(int i = 0; i < 8; i++ )
-	{
-	    uint32_t tmp = (uint32_t) ( 65535.0 * parameters[i/2] );
-	    if( i % 2 == 0 )
-	    {
-		outputBuffer[i+2] = (uint8_t) (tmp & 0xff);
-	    }
-	    else
-	    {
-		outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
-	    }
-	}
-	write( *usbfd, outputBuffer, 10 );
     }else if( strstr(stringParam, "IINC") != NULL )
     {
 	outputBuffer[0] = IN_CMD_SET_IINC;
@@ -140,6 +123,19 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 	write(*sockfd, &tmp, sizeof(int32_t));
 	return( UNKNOWN_PARAMETER );
     }
+
+    int32_t tmp = SUCCESS;
+    write(*sockfd, &tmp, sizeof(int32_t));
+    tmp = 0;
+    write(*sockfd, &tmp, sizeof(int32_t));
+
+    return SUCCESS;
+}
+
+int gotoWrapper		(int *sockfd, int *usbfd)
+{
+	uint8_t outputBuffer[2] = {IN_CMD_GOTO, 0};
+	write( *usbfd, outputBuffer, 2);
 
     int32_t tmp = SUCCESS;
     write(*sockfd, &tmp, sizeof(int32_t));

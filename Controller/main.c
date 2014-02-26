@@ -15,6 +15,7 @@
 #define CMD_MEAS    6
 #define CMD_GET	    7
 #define CMD_ID	    8
+#define CMD_GOTO
 
 #define MAX_PARAMS  4
 
@@ -86,6 +87,10 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 	{
 	    command = CMD_MEAS;
 	}
+	else if( strstr(request, "GOTO") != NULL )
+	{
+	    command = CMD_GOTO;
+	}
 	else if( strstr(request, "ID") != NULL )
 	{
 	    command = CMD_ID;
@@ -156,6 +161,8 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd)
 			    break;
 	case CMD_GET:	    returnValue = getWrapper(stringParam, sockfd, usbfd);
 			    break;
+	case CMD_GOTO:	returnValue = gotoWrapper(sockfd, usbfd);
+					break;
 	case CMD_ID:	    returnValue = idWrapper(sockfd);
 			    break;
     }
