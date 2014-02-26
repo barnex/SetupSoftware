@@ -475,6 +475,7 @@ int main()
 		{
 		    if( state_machine_flags == STATE_MACHINE_INITPOS )
 		    {
+			state_machine_flags = 0;
 			state = STATE_START;
 		    }
 	    }
