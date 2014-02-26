@@ -421,14 +421,12 @@ main()
 
 	    // Check the distance between the current position
 	    // and the start position
-	    int32_t         displacement[4] = {
-		0, 0, 0, 0
-	    };
+	    int32_t displacement = 0;
+	    int32_t notDone = 0;
+
 	    for (int i = 0; i < 4; i++) {
-		displacement[i] = position[i] - start[i];
-	    } 
-	    for (int i = 0; i < 4; i++) {
-		if (displacement[i] > -650 && displacement[i] < 650)
+		displacement = start[i] - position[i];
+		if( (displacement > -650) && (displacement < 650))
 		{
 		    // If the distance to go is smaller than 10% of the
 		    // total
@@ -437,8 +435,9 @@ main()
 		}
 		else
 		{
-		    position[i] += SIGN(displacement[i]) * 650;
+		    position[i] += SIGN(displacement) * 650;
 		}
+		notDone += (start[i]-position[i])*SIGN(start[i]-position[i]);
 	    }
 
 	    // Copy and cast the data into the buffer
@@ -451,23 +450,21 @@ main()
 	    setDACS((uint16_t *) DACBuffer);
 
 	    // Check if we haven't arrived at the endpoint
-	    if ((displacement[0] != 0) || (displacement[1] != 0)
-		|| (displacement[2] != 0) || (displacement[3] != 0)) {
-		if (state == STATE_GOTO) {
-
-		    // Wait for 10ms to go to the next point
+	    if(notDone && (state == STATE_GOTO))
+	    {
+		// Wait for 10ms to go to the next point
 		    init_Timer(10);
-		}
 	    }
+
 	    previousState = state;
 	    state = STATE_IDLE;
 
-	    if ((displacement[0] != 0) || (displacement[1] != 0)
-		|| (displacement[2] != 0) || (displacement[3] != 0)) {
-		if (state_machine_flags == STATE_MACHINE_INITPOS) {
-		    state_machine_flags = 0;
-		    state = STATE_START;
-		}
+	    if(!notDone && (state_machine_flags == STATE_MACHINE_INITPOS) )
+	    {
+		//If we are done, and we where originally coming from STATE_START
+		// go back to STATE_START
+		state_machine_flags = 0;
+		state = STATE_START;
 	    }
 	} else if (state == STATE_SINGLE_MEAS) {
 
@@ -513,10 +510,12 @@ TIM2_IRQHandler(void)
 	// pixel 
 	if (state == STATE_IDLE) {
 	    if (previousState == STATE_ACTIVE) {
+		previousState = state;
 		state = STATE_ACTIVE;
 	    }
 
 	    else if (previousState == STATE_GOTO) {
+		previousState = state;
 		state = STATE_GOTO;
 	    }
 	}
