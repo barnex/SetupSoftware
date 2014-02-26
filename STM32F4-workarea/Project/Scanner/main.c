@@ -311,15 +311,10 @@ main()
 	    init_USART(115200);
 	    init_ADC();
 	    init_DAC();
-	    DACBuffer[0] = 0;
 	    position[0] = 0;
-	    DACBuffer[1] = 0;
 	    position[1] = 0;
-	    DACBuffer[2] = 0;
 	    position[2] = 0;
-	    DACBuffer[3] = 0;
 	    position[3] = 0;
-	    setDACS((uint16_t *) DACBuffer);
 
 	    // Set start to zero
 	    memset((char *) start, 0, sizeof(int32_t) * 4);
@@ -339,7 +334,7 @@ main()
 	    t_settle = 2;
 	    gotoFlags = RETURN_IDLE;
 	    previousState = state;
-	    state = STATE_IDLE;
+	    state = STATE_GOTO;
 	}
 	else if (state == STATE_ABORT)
 	{
