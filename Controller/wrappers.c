@@ -61,7 +61,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 	}
 	write( *usbfd, outputBuffer, 10 );
     }
-    }else if( strstr(stringParam, "IINC") != NULL )
+    else if( strstr(stringParam, "IINC") != NULL )
     {
 	outputBuffer[0] = IN_CMD_SET_IINC;
 	outputBuffer[1] = 8;
