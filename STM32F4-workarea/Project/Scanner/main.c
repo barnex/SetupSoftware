@@ -412,7 +412,7 @@ main()
 
 	    for (int i = 0; i < 4; i++) {
 		displacement = gotoTarget[i] - position[i];
-		if( (displacement > -650) && (displacement < 650))
+		if( (displacement > -65) && (displacement < 65))
 		{
 		    // If the distance to go is smaller than 10% of the
 		    // total
@@ -421,7 +421,7 @@ main()
 		}
 		else
 		{
-		    position[i] += SIGN(displacement) * 650;
+		    position[i] += SIGN(displacement) * 65;
 		}
 		notDone += (gotoTarget[i]-position[i])*SIGN(gotoTarget[i]-position[i]);
 	    }
