@@ -15,7 +15,7 @@
 #define CMD_MEAS    6
 #define CMD_GET	    7
 #define CMD_ID	    8
-#define CMD_GOTO
+#define CMD_GOTO	9
 
 #define MAX_PARAMS  4
 
