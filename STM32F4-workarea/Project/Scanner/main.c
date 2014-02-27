@@ -373,20 +373,19 @@ main()
 	    getPosition();
 	    // Transmit the data over the USART to the user
 	    shipDataOut((uint16_t *) ADCBuffer, (uint32_t) 8);
-	    //Save this state as the previous
-	    previousState = state;
-	    // If this was the last pixel, we stop here
+	    // If this was the last pixel
 	    if( command_out.cmd == OUT_CMD_LASTPIXEL )
 	    {
 		stopTimer();
-		state = STATE_IDLE;
+		gotoFlags = RETURN_IDLE; // After return to the starting point stay idle
 	    }
-	    // Else we call "GOTO" to move the stage
 	    else if(state == STATE_ACTIVE)
 	    {
-		gotoFlags = RETURN_ACTIVE;
-		state = STATE_GOTO;
+		gotoFlags = RETURN_ACTIVE; // Go to the next point and return here
 	    }
+	    //Save this state as the previous
+	    previousState = state;
+	    state = STATE_GOTO;
 	}
 	else if (state == STATE_IDLE) 
 	{

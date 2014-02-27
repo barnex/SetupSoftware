@@ -38,9 +38,9 @@ int main(int argc, char **argv)
     FILE * dest = fopen(argv[2], "w");
 
     int sockfd = 0;
-    initClient( &sockfd, 5001);
+    initClient( &sockfd, 5000);
     init( sockfd, &config );
-    //scan2D( sockfd, dest, &config );
+    scan2D( sockfd, dest, &config );
     close( sockfd );
     fclose(dest);
     return EXIT_SUCCESS;

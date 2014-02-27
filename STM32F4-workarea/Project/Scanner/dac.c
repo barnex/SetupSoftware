@@ -30,7 +30,7 @@ void setDACS(uint16_t *values)
     for(int i = 0; i < 4; i++)
     {
 	setDAC(i, values[i]);
-	uint32_t j = (0xff << 1);
+	volatile uint32_t j = 0xff;
 	while(j--);
     }
     /*
