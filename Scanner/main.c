@@ -2,6 +2,8 @@
 #include "../Libraries/io.h"
 #include "../Libraries/errors.h"
 #include "ini.h"
+#include <signal.h>
+#include <assert.h>
 
 typedef struct
 {
@@ -12,13 +14,23 @@ typedef struct
     int tsettle;
 } configuration;
 
+int sockfd;
+
+void catchSigint(int signum)
+{
+    printf("Caught signal. Aborting scan...\n");
+    char cmdString[] = "ABORT\n";
+    write( sockfd, cmdString, strlen(cmdString) );
+    printf("Aborted scan.\n");
+}
+
 static int handler(void *user, const char *section, const char *name,
     const char *value);
 
 
-void init( int sockfd, configuration *cfg );
+void init( configuration *cfg );
 
-void scan2D( int sockfd, FILE *destination, configuration *cfg );
+void scan2D( FILE *destination, configuration *cfg );
 
 int main(int argc, char **argv)
 {
@@ -35,12 +47,15 @@ int main(int argc, char **argv)
 	return EXIT_FAILURE;
     }
 
+    assert( signal( SIGINT, catchSigint ) != SIG_ERR );;
+
     FILE * dest = fopen(argv[2], "w");
 
-    int sockfd = 0;
+    sockfd = 0;
+
     initClient( &sockfd, 5000);
-    init( sockfd, &config );
-    scan2D( sockfd, dest, &config );
+    init( &config );
+    scan2D( dest, &config );
     close( sockfd );
     fclose(dest);
     return EXIT_SUCCESS;
@@ -116,7 +131,7 @@ static int handler(void *user, const char *section, const char *name,
     return 1;
 }
 
-void scan2D( int sockfd, FILE *destination, configuration *cfg )
+void scan2D( FILE *destination, configuration *cfg )
 {
     char cmdString[] = "SCAN_2D\n";
     int ret = 0, i = 0, enabled = 1;
@@ -150,7 +165,7 @@ void scan2D( int sockfd, FILE *destination, configuration *cfg )
 
 }
 
-void init( int sockfd, configuration *cfg)
+void init(configuration *cfg)
 {
     int32_t dmp[2] = {0, 0};
     // Set start
