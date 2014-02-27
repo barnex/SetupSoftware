@@ -20,7 +20,7 @@ int Controller::init(int portno)
     controller->connectToHost("localhost", portno, QIODevice::ReadWrite);
     // Request the current position of the piezo and set as current position
     memset(currentPosition, 0, sizeof(float)*4);
-    getCurrentPosition( currentPosition );
+    getPosition( currentPosition );
     //qDebug() << currentPosition[0] << currentPosition[1] << currentPosition[2];
     // Set this as the start position
     memmove( startPosition, currentPosition, sizeof(float)*4);
@@ -72,36 +72,7 @@ int Controller::myReadfull(void *buffer, int nbytes )
     return bytesread;
 }
 
-int Controller::getStatus()
-{
-    return status;
-}
-
-int Controller::singleMeasurement(float *results)
-{
-    lock->lock();
-    int32_t bufferIn[2] = {0, 0};
-    char cmdString[1024];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "MEAS\n");
-
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull((void*) bufferIn, sizeof(int32_t)*2);
-
-    if( bufferIn[0] == SUCCESS)
-    {
-        myReadfull((void *)results, sizeof(float)*8);
-        lock->unlock();
-        return SUCCESS;
-    }
-    else
-    {
-        lock->unlock();
-        return -1;
-    }
-}
-
-int Controller::getCurrentPosition( float *pos )
+int Controller::getPosition( float *pos )
 {
     lock->lock();
     status = CONTROLLER_BUSY;
@@ -128,39 +99,7 @@ int Controller::getCurrentPosition( float *pos )
     }
 }
 
-int Controller::getIInc(float *iinc)
-{
-    memmove(iinc, IInc, sizeof(float)*4);
-    return 1;
-}
-
-int Controller::getJInc(float *jinc)
-{
-    memmove(jinc, JInc, sizeof(float)*4);
-    return 1;
-}
-
-
-int Controller::getStartPosition(float *pos)
-{
-    memmove(pos, startPosition, sizeof(float)*4);
-    return 1;
-}
-
-
-int Controller::getPixels(int *pix)
-{
-    memmove(pix, &pixels, sizeof(int));
-    return 1;
-}
-
-int Controller::getTSettle(int *tsettle)
-{
-    memmove(tsettle, &t_settle, sizeof(int));
-    return 1;
-}
-
-int Controller::setStartPosition(float * pos)
+int Controller::setPosition(float * pos)
 {
     lock->lock();
     char cmdString[1024];
@@ -169,65 +108,10 @@ int Controller::setStartPosition(float * pos)
     sprintf(cmdString, "SET,START,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
     controller->write(cmdString, strlen(cmdString));
     myReadfull(dmp, sizeof(int32_t)*2);
+    memset(cmdString, 0, 1024);
+    sprintf(cmdString, "GOTO\n");
+    controller->write(cmdString, strlen(cmdString));
+    myReadfull(dmp, sizeof(int32_t)*2);
     lock->unlock();
-}
-
-int Controller::setCurrentPosition(float * pos)
-{
-    lock->lock();
-    char cmdString[1024];
-    int32_t dmp[2];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "SET,POSITION,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(dmp, sizeof(int32_t)*2);
-        lock->unlock();
-}
-
-int Controller::setIInc(float * pos)
-{
-    lock->lock();
-    char cmdString[1024];
-    int32_t dmp[2];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "SET,IINC,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(dmp, sizeof(int32_t)*2);
-        lock->unlock();
-}
-
-int Controller::setJInc(float * pos)
-{
-    lock->lock();
-    char cmdString[1024];
-    int32_t dmp[2];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "SET,JINC,%f,%f,%f,%f\n", pos[0], pos[1], pos[2], pos[3]);
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(dmp, sizeof(int32_t)*2);
-        lock->unlock();
-}
-
-int Controller::setPixels(int * pixls)
-{
-    lock->lock();
-    char cmdString[1024];
-    int32_t dmp[2];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "SET,PIXELS,%f", (float) *pixls);
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(dmp, sizeof(int32_t)*2);
-        lock->unlock();
-}
-
-int Controller::setTSettle(int * t_settle)
-{
-    lock->lock();
-    char cmdString[1024];
-    int32_t dmp[2];
-    memset(cmdString, 0, 1024);
-    sprintf(cmdString, "SET,TSETTLE,%f", (float) *t_settle);
-    controller->write(cmdString, strlen(cmdString));
-    myReadfull(dmp, sizeof(int32_t)*2);
-        lock->unlock();
+    return 1;
 }

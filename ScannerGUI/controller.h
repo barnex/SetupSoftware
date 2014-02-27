@@ -27,22 +27,9 @@ public:
     Controller();
     ~Controller();
     int init(int portno);
-    int getStatus();
-    int singleMeasurement(float *results);
     // Basic getters
-    int getStartPosition(float *pos);
-    int getCurrentPosition (float *pos);
-    int getIInc(float *iinc);
-    int getJInc(float *jinc);
-    int getPixels(int *pixels);
-    int getTSettle(int *t_settle);
-    // and setters
-    int setStartPosition( float *pos );
-    int setCurrentPosition (float *pos);
-    int setIInc(float *iinc);
-    int setJInc(float *jinc);
-    int setPixels(int *pixels);
-    int setTSettle(int *t_settle);
+    int setPosition(float *pos);
+    int getPosition (float *pos);
 };
 
 #endif // CONTROLLER_H
