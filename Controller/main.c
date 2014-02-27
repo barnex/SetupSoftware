@@ -8,6 +8,9 @@
 
 #include "wrappers.h"
 
+#include <signal.h>
+#include <assert.h>
+
 #define CMD_SET	    1
 #define CMD_SCAN_2D 3
 #define CMD_RESET   4
@@ -21,12 +24,19 @@
 
 int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd);
 
+void catchBrokenpipe( int signum )
+{
+    printf("Broken pipe. Will ignore\n");
+}
+
 int main(int argc, char **argv)
 {
     int usbfd = 0, serverfd = 0;
     char socketBuffer[1024];
     initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
     initServer( &serverfd, atoi(argv[1]) );
+
+    assert(signal( SIGPIPE, SIG_IGN)!=SIG_ERR);
 
     while(1)
     {

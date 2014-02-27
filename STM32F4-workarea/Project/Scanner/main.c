@@ -39,6 +39,8 @@ volatile uint8_t usart_state;	// The current state of the USART state
 				// machine
 volatile int32_t gotoFlags;
 
+volatile int32_t scanDirection; //Scan with increase scan_i or decreasing scan_i
+
 /*
  * Before shipping data out, set command_out.size and command_out.cmd to make
  * clear to the user what he is about to receive. On the receiving hand, parseInput
@@ -335,6 +337,9 @@ main()
 	    // Set pixels to zero
 	    pixels = 0;
 
+	    // Set scan direction to positive
+	    scanDirection = 1;
+
 	    // Set t_settle to 2ms (bare minimum)
 	    t_settle = 2;
 	    gotoFlags = RETURN_IDLE;
@@ -353,18 +358,17 @@ main()
 	    command_out.size = (uint8_t) 16;
 	    GPIO_SetBits(GPIOD, 0xF000);
 	    readChannels((int16_t *) ADCBuffer);
-	    scan_i++;
-	    if (scan_i >= pixels)
+	    scan_i += scanDirection;
+	    if (scan_i >= pixels || scan_i < 0)
 	    {
-		// At this point, we got a carriage return. This can possibly
-		// jerk the stage a bit to much (large piezo displacement which
-		// can lead to nasty things). Therefore we gently move to the
-		// beginning of the next line.
-		scan_i = 0;
+		// Invert the scan direction
+		scanDirection *= -1;
+		scan_i += scanDirection;
 		scan_j++;
 		// Done scanning ...
 		if (scan_j >= pixels) {
 		    scan_j = 0;
+		    scan_i = 0;
 		    command_out.cmd = OUT_CMD_LASTPIXEL;
 		}
 	    }
@@ -397,6 +401,7 @@ main()
 	    // me move into the "GOTO" state
 	    scan_i = 0; // Reset i and j indices
 	    scan_j = 0;
+	    scanDirection = 1;
 	    getPosition(); // Set the new target position
 	    gotoFlags = RETURN_ACTIVE; // After GOTO is finished, return to ACTIVE
 	    previousState = state;
