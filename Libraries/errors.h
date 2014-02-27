@@ -8,6 +8,7 @@
  * the servers. (Socket level)
  */
 
+#define	FAILURE			(int32_t) -1
 #define SUCCESS			(int32_t) 1
 #define FINISHED		(int32_t) 2
 

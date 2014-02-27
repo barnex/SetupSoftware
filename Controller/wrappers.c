@@ -240,8 +240,18 @@ int scan2DWrapper   (int *sockfd, int *usbfd)
 	{
 	    outputBuffer[0] = SUCCESS;
 	    outputBuffer[1] = sizeof(float)*8;
-	    write( *sockfd, outputBuffer, sizeof(int32_t)*2);
-	    write( *sockfd, floatBuffer, sizeof(float)*8);
+	    if( write( *sockfd, outputBuffer, sizeof(int32_t)*2) <= 0)
+	    {
+		// Call the abort wrapper
+		abortWrapper(sockfd, usbfd);
+		return FAILURE;
+	    }
+	    else if( write( *sockfd, floatBuffer, sizeof(float)*8) <= 0 )
+	    {
+		// Call the abort wrapper
+		abortWrapper(sockfd, usbfd);
+		return FAILURE;
+	    }
 	}
 	else
 	{
