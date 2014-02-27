@@ -137,6 +137,7 @@ void scan2D( FILE *destination, configuration *cfg )
     int ret = 0, i = 0, enabled = 1;
     int32_t socketBuffer[2] = {0, 0};
     float floatBuffer[8];
+    int scan_i = 0, scan_j = 0, direction = 1;
 
     write( sockfd, cmdString, strlen(cmdString) );
 
@@ -148,7 +149,7 @@ void scan2D( FILE *destination, configuration *cfg )
 	{
 	    memset(floatBuffer, 0, 8*sizeof(float));
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
-	    fprintf(destination, "%d\t%d", i/(cfg->pixels), i % (cfg->pixels));
+	    fprintf(destination, "%d\t%d", scan_i, scan_j);
 	    for(int j = 0; j < 8; j++ )
 	    {
 		fprintf(destination, "\t%e", floatBuffer[j]);
@@ -160,7 +161,14 @@ void scan2D( FILE *destination, configuration *cfg )
 	{
 	    return;
 	}
-	i++;	
+	i++;
+	scan_i += direction;
+	if( scan_i == cfg->pixels )
+	{
+	    direction *= -1;
+	    scan_i += direction;
+	    scan_j++;
+	}
     }
 
 }
