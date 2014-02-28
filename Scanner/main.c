@@ -163,7 +163,7 @@ void scan2D( FILE *destination, configuration *cfg )
 	}
 	i++;
 	scan_i += direction;
-	if( scan_i == cfg->pixels )
+	if( scan_i == cfg->pixels || scan_i < 0 )
 	{
 	    direction *= -1;
 	    scan_i += direction;

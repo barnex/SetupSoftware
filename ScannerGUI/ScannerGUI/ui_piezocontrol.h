@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'piezocontrol.ui'
 **
-** Created: Fri Feb 28 09:47:45 2014
+** Created: Fri Feb 28 11:03:53 2014
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
