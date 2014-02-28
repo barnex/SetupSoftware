@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     w.setController(&c);
     float position[4] = {0.0, 0.0, 0.0, 0.0};
     c.init(5000);
-    //c.getPosition(position);
+    c.getPosition(position);
     w.setPosition(position[0], position[1], position[2]);
     w.show();
     return a.exec();

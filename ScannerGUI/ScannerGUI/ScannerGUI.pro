@@ -7,8 +7,8 @@ TEMPLATE = app
 SOURCES += main.cpp \
     piezocontrol.cpp \
     controller.cpp \
-    socket.c \
-    io.c
+    socket.cpp \
+    io.cpp
 HEADERS += piezocontrol.h \
     controller.h \
     socket.h \
