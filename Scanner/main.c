@@ -3,6 +3,7 @@
 #include "../Libraries/errors.h"
 #include "ini.h"
 #include <signal.h>
+#include <math.h>
 #include <assert.h>
 
 typedef struct
@@ -138,6 +139,8 @@ void scan2D( FILE *destination, configuration *cfg )
     int32_t socketBuffer[2] = {0, 0};
     float floatBuffer[8];
     int scan_i = 0, scan_j = 0, direction = 1;
+    float magScanX = sqrt(cfg->scanx[0]*cfg->scanx[0] + cfg->scanx[1]*cfg->scanx[1] + cfg->scanx[2]*cfg->scanx[2] + cfg->scanx[3]*cfg->scanx[3] );
+    float magScanY = sqrt(cfg->scany[0]*cfg->scany[0] + cfg->scany[1]*cfg->scany[1] + cfg->scany[2]*cfg->scany[2] + cfg->scany[3]*cfg->scany[3] );
 
     write( sockfd, cmdString, strlen(cmdString) );
 
@@ -149,7 +152,7 @@ void scan2D( FILE *destination, configuration *cfg )
 	{
 	    memset(floatBuffer, 0, 8*sizeof(float));
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
-	    fprintf(destination, "%d\t%d", scan_i, scan_j);
+	    fprintf(destination, "%f\t%f", magScanX * (float)scan_i, magScanY * (float)scan_j);
 	    for(int j = 0; j < 8; j++ )
 	    {
 		fprintf(destination, "\t%e", floatBuffer[j]);
