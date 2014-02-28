@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'piezocontrol.h'
 **
-** Created: Thu Feb 27 16:27:06 2014
+** Created: Fri Feb 28 09:47:46 2014
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,18 +23,39 @@ static const uint qt_meta_data_PiezoControl[] = {
        4,       // revision
        0,       // classname
        0,    0, // classinfo
-       0,    0, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
        0,       // signalCount
 
+ // slots: signature, parameters, type, tag, flags
+      14,   13,   13,   13, 0x0a,
+      34,   13,   13,   13, 0x0a,
+      49,   13,   13,   13, 0x0a,
+      66,   13,   13,   13, 0x0a,
+      88,   13,   13,   13, 0x0a,
+     110,   13,   13,   13, 0x0a,
+     127,   13,   13,   13, 0x0a,
+     145,   13,   13,   13, 0x0a,
+     168,   13,   13,   13, 0x0a,
+     188,   13,   13,   13, 0x0a,
+     203,   13,   13,   13, 0x0a,
+     220,   13,   13,   13, 0x0a,
+     242,   13,   13,   13, 0x0a,
+
        0        // eod
 };
 
 static const char qt_meta_stringdata_PiezoControl[] = {
-    "PiezoControl\0"
+    "PiezoControl\0\0x_up_fast_clicked()\0"
+    "x_up_clicked()\0x_down_clicked()\0"
+    "x_down_fast_clicked()\0y_left_fast_clicked()\0"
+    "y_left_clicked()\0y_right_clicked()\0"
+    "y_right_fast_clicked()\0z_up_fast_clicked()\0"
+    "z_up_clicked()\0z_down_clicked()\0"
+    "z_down_fast_clicked()\0abort_clicked()\0"
 };
 
 const QMetaObject PiezoControl::staticMetaObject = {
@@ -64,6 +85,25 @@ int PiezoControl::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QMainWindow::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: x_up_fast_clicked(); break;
+        case 1: x_up_clicked(); break;
+        case 2: x_down_clicked(); break;
+        case 3: x_down_fast_clicked(); break;
+        case 4: y_left_fast_clicked(); break;
+        case 5: y_left_clicked(); break;
+        case 6: y_right_clicked(); break;
+        case 7: y_right_fast_clicked(); break;
+        case 8: z_up_fast_clicked(); break;
+        case 9: z_up_clicked(); break;
+        case 10: z_down_clicked(); break;
+        case 11: z_down_fast_clicked(); break;
+        case 12: abort_clicked(); break;
+        default: ;
+        }
+        _id -= 13;
+    }
     return _id;
 }
 QT_END_MOC_NAMESPACE

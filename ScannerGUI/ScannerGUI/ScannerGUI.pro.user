@@ -58,6 +58,7 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
    <value key="QtVersionId" type="int">0</value>
    <value key="ToolChain" type="int">0</value>
+   <value key="addQDumper" type=""></value>
    <value key="buildConfiguration" type="int">2</value>
   </valuemap>
  </data>
@@ -66,6 +67,7 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <value key="QtVersionId" type="int">0</value>
+   <value key="addQDumper" type=""></value>
    <value key="buildConfiguration" type="int">0</value>
   </valuemap>
  </data>
@@ -84,7 +86,6 @@
     <value type="QString">KDEDIRS=/usr</value>
     <value type="QString">KDE_IS_PRELINKED=1</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LANGUAGE=</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib64/qtcreator:</value>
     <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
     <value type="QString">LOADEDMODULES=</value>
@@ -116,7 +117,7 @@
     <value type="QString">CONFIG+=debug</value>
    </valuelist>
    <value key="abstractProcess.command" type="QString">/usr/bin/qmake-qt4</value>
-   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.enabled" type="bool">false</value>
    <value key="abstractProcess.workingDirectory" type="QString">/home/mathias/SetupSoftware/ScannerGUI/ScannerGUI</value>
   </valuemap>
  </data>
@@ -135,7 +136,6 @@
     <value type="QString">KDEDIRS=/usr</value>
     <value type="QString">KDE_IS_PRELINKED=1</value>
     <value type="QString">LANG=en_US.UTF-8</value>
-    <value type="QString">LANGUAGE=</value>
     <value type="QString">LD_LIBRARY_PATH=/usr/lib64/qtcreator:</value>
     <value type="QString">LESSOPEN=|/usr/bin/lesspipe.sh %s</value>
     <value type="QString">LOADEDMODULES=</value>

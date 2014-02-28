@@ -6,7 +6,7 @@ TARGET = ScannerGUI
 TEMPLATE = app
 SOURCES += main.cpp \
     piezocontrol.cpp \
-    ../controller.cpp
+    controller.cpp
 HEADERS += piezocontrol.h \
-    ../controller.h
+    controller.h
 FORMS += piezocontrol.ui
