@@ -97,27 +97,27 @@ static int handler(void *user, const char *section, const char *name,
     {
         pconfig->start[3] = atof(value);
     }
-    else if( MATCH("scan", "width_x") )
+    else if( MATCH("scan", "width_i") )
     {
         pconfig->width_x = atof(value);
     }
-    else if( MATCH("scan", "width_y") )
+    else if( MATCH("scan", "width_j") )
     {
         pconfig->width_y = atof(value);
     }
-    else if( MATCH("scan", "x_axis") )
+    else if( MATCH("scan", "i_axis") )
     {
         pconfig->x_axis = atoi(value);
     }
-    else if( MATCH("scan", "y_axis") )
+    else if( MATCH("scan", "j_axis") )
     {
         pconfig->y_axis = atoi(value);
     }
-    else if( MATCH("others", "pixels_x") )
+    else if( MATCH("others", "pixels_i") )
     {
 	pconfig->pixels_x = atoi(value);
     }
-    else if( MATCH("others", "pixels_y") )
+    else if( MATCH("others", "pixels_j") )
     {
 	pconfig->pixels_y = atoi(value);
     }
