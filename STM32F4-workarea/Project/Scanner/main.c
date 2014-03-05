@@ -25,7 +25,8 @@ volatile int32_t scan_i;	// The current small index of the scan
 				// (<pixels)
 volatile int32_t scan_j;	// The current large index of the scan
 				// (<pixels)
-volatile int32_t pixels;	// The number of pixels in the image
+volatile int32_t pixels_i;	// The number of pixels in the image
+volatile int32_t pixels_j;	// The number of pixels in the image
 volatile uint32_t t_settle;	// The number of milliseconds to let the
 				// DAC/stage settle
 volatile uint8_t state;		// The current state of the main state
@@ -239,7 +240,8 @@ parseInput()
 	stopTimer();
 	previousState = state;
 	state = STATE_IDLE;
-	pixels = (int32_t) USARTBuffer[0];
+	pixels_i = (int32_t) USARTBuffer[0];
+	pixels_j = (int32_t) USARTBuffer[1];
     }
 
     /*
@@ -335,7 +337,8 @@ main()
 	    scan_j = 0;
 
 	    // Set pixels to zero
-	    pixels = 0;
+	    pixels_i = 0;
+	    pixels_j = 0;
 
 	    // Set scan direction to positive
 	    scanDirection = 1;
@@ -359,7 +362,7 @@ main()
 	    GPIO_SetBits(GPIOD, 0xF000);
 	    readChannels((int16_t *) ADCBuffer);
 	    scan_i += scanDirection;
-	    if (scan_i >= pixels || scan_i < 0)
+	    if (scan_i >= pixels_i || scan_i < 0)
 	    {
 		// Invert the scan direction
 		//scanDirection *= -1;
@@ -367,7 +370,7 @@ main()
 		scan_i = 0;
 		scan_j++;
 		// Done scanning ...
-		if (scan_j >= pixels) {
+		if (scan_j >= pixels_j) {
 		    scan_j = 0;
 		    scan_i = 0;
 		    command_out.cmd = OUT_CMD_LASTPIXEL;

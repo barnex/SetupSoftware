@@ -109,11 +109,14 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
     }else if( strstr(stringParam, "PIXELS") != NULL )
     {
 	outputBuffer[0] = IN_CMD_SET_PIXELS;
-	outputBuffer[1] = 2;
-	uint32_t tmp = (uint32_t) parameters[0];
+	outputBuffer[1] = 4;
+	uint16_t tmp = (uint16_t) parameters[0];
 	outputBuffer[2] = (uint8_t) (tmp & 0xff);
 	outputBuffer[3] = (uint8_t) ((tmp >> 8) & 0xff);
-	write( *usbfd, outputBuffer, 4);
+	tmp = (uint16_t) parameters[1];
+	outputBuffer[4] = (uint8_t) (tmp & 0xff);
+	outputBuffer[5] = (uint8_t) ((tmp >> 8) & 0xff);
+	write( *usbfd, outputBuffer, 6);
 
     }else
     {

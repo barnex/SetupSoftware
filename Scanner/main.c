@@ -9,9 +9,12 @@
 typedef struct
 {
     float start[4];
-    float scanx[4];
-    float scany[4];
-    int pixels;
+    float width_x;
+    float width_y;
+    int x_axis;
+    int y_axis;
+    int pixels_x;
+    int pixels_y;
     int tsettle;
 } configuration;
 
@@ -52,6 +55,16 @@ int main(int argc, char **argv)
 
     FILE * dest = fopen(argv[2], "w");
 
+    FILE *configfile = fopen(argv[1], "r");
+    char line[256];
+    memset(line, 256, 0);
+    while( fscanf( configfile, "%s", line ) > 0 )
+    {
+	fprintf(dest, "#%s\n", line );
+	memset(line, 256, 0);
+    }
+	
+
     sockfd = 0;
 
     initClient( &sockfd, 5000);
@@ -84,42 +97,29 @@ static int handler(void *user, const char *section, const char *name,
     {
         pconfig->start[3] = atof(value);
     }
-    else if( MATCH("scanx", "x") )
+    else if( MATCH("scan", "width_x") )
     {
-        pconfig->scanx[0] = atof(value);
+        pconfig->width_x = atof(value);
     }
-    else if( MATCH("scanx", "y") )
+    else if( MATCH("scan", "width_y") )
     {
-        pconfig->scanx[1] = atof(value);
+        pconfig->width_y = atof(value);
     }
-    else if( MATCH("scanx", "z") )
+    else if( MATCH("scan", "x_axis") )
     {
-        pconfig->scanx[2] = atof(value);
+        pconfig->x_axis = atoi(value);
     }
-    else if( MATCH("scanx", "aux") )
+    else if( MATCH("scan", "y_axis") )
     {
-        pconfig->scanx[3] = atof(value);
+        pconfig->y_axis = atoi(value);
     }
-
-    else if( MATCH("scany", "x") )
+    else if( MATCH("others", "pixels_x") )
     {
-        pconfig->scany[0] = atof(value);
+	pconfig->pixels_x = atoi(value);
     }
-    else if( MATCH("scany", "y") )
+    else if( MATCH("others", "pixels_y") )
     {
-        pconfig->scany[1] = atof(value);
-    }
-    else if( MATCH("scany", "z") )
-    {
-        pconfig->scany[2] = atof(value);
-    }
-    else if( MATCH("scany", "aux") )
-    {
-        pconfig->scany[3] = atof(value);
-    }
-    else if( MATCH("others", "pixels") )
-    {
-	pconfig->pixels = atoi(value);
+	pconfig->pixels_y = atoi(value);
     }
     else if( MATCH("others", "tsettle") )
     {
@@ -139,12 +139,12 @@ void scan2D( FILE *destination, configuration *cfg )
     int32_t socketBuffer[2] = {0, 0};
     float floatBuffer[8];
     int scan_i = 0, scan_j = 0, direction = 1;
-    float magScanX = sqrt(cfg->scanx[0]*cfg->scanx[0] + cfg->scanx[1]*cfg->scanx[1] + cfg->scanx[2]*cfg->scanx[2] + cfg->scanx[3]*cfg->scanx[3] );
-    float magScanY = sqrt(cfg->scany[0]*cfg->scany[0] + cfg->scany[1]*cfg->scany[1] + cfg->scany[2]*cfg->scany[2] + cfg->scany[3]*cfg->scany[3] );
+    float iinc = cfg->width_x / (float)cfg->pixels_x;
+    float jinc = cfg->width_y / (float)cfg->pixels_y;
 
     write( sockfd, cmdString, strlen(cmdString) );
 
-    while( ( i < cfg->pixels * cfg->pixels ) && enabled )
+    while( ( i < cfg->pixels_x * cfg->pixels_y ) && enabled )
     {
 	memset(socketBuffer, 0, 2*sizeof(int32_t));
 	ret = myReadfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
@@ -152,7 +152,8 @@ void scan2D( FILE *destination, configuration *cfg )
 	{
 	    memset(floatBuffer, 0, 8*sizeof(float));
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
-	    fprintf(destination, "%f\t%f", magScanX * (float)scan_i, magScanY * (float)scan_j);
+	    fprintf(destination, "%f\t%f",  cfg->start[cfg->x_axis] + iinc*(float)scan_i,
+					    cfg->start[cfg->y_axis] + jinc*(float)scan_j);
 	    for(int j = 0; j < 8; j++ )
 	    {
 		fprintf(destination, "\t%e", floatBuffer[j]);
@@ -166,7 +167,7 @@ void scan2D( FILE *destination, configuration *cfg )
 	}
 	i++;
 	scan_i += direction;
-	if( scan_i == cfg->pixels || scan_i < 0 )
+	if( scan_i == cfg->pixels_x || scan_i < 0 )
 	{
 	    //direction *= -1;
 	    //scan_i += direction;
@@ -184,13 +185,17 @@ void init(configuration *cfg)
     myWrite( sockfd, "SET,START,%f,%f,%f,%f\n", cfg->start[0], cfg->start[1], cfg->start[2], cfg->start[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scanx
-    myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", cfg->scanx[0], cfg->scanx[1], cfg->scanx[2], cfg->scanx[3]);
+    float scanx[4] = {0.0, 0.0, 0.0, 0.0};
+    scanx[cfg->x_axis] = cfg->width_x / (float) cfg->pixels_x;
+    myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", scanx[0], scanx[1], scanx[2], scanx[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scany
-    myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", cfg->scany[0], cfg->scany[1], cfg->scany[2], cfg->scany[3]);
+    float scany[4] = {0.0, 0.0, 0.0, 0.0};
+    scany[cfg->y_axis] = cfg->width_y / (float) cfg->pixels_y;
+    myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", scany[0], scany[1], scany[2], scany[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set pixels
-    myWrite( sockfd, "SET,PIXELS,%f\n", (float)cfg->pixels );
+    myWrite( sockfd, "SET,PIXELS,%f,%f\n", (float)cfg->pixels_x, (float)cfg->pixels_y );
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set settle time
     myWrite( sockfd, "SET,TSETTLE,%f\n", (float)cfg->tsettle );
