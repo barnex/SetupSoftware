@@ -362,8 +362,9 @@ main()
 	    if (scan_i >= pixels || scan_i < 0)
 	    {
 		// Invert the scan direction
-		scanDirection *= -1;
-		scan_i += scanDirection;
+		//scanDirection *= -1;
+		//scan_i += scanDirection;
+		scan_i = 0;
 		scan_j++;
 		// Done scanning ...
 		if (scan_j >= pixels) {

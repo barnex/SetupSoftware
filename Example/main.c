@@ -20,9 +20,9 @@ int main(int argc, char **argv)
 	if( returnValue[1] == sizeof(float)*8 )
 	{
 	    myReadfull( sockfd, (void *)measurement, sizeof(float)*8 );
-	    for(int i = 0; i < 8; i++ )
+	    for(int i = 0; i < 4; i++ )
 	    {
-		printf("%e\t", measurement[i]);
+		printf("%f\t", measurement[i]);
 	    }
 	    printf("\n");
 	}
