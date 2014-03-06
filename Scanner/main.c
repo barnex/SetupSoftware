@@ -13,12 +13,12 @@
 typedef struct
 {
     float start[4];
-    float width_x;
-    float width_y;
-    int x_axis;
-    int y_axis;
-    int pixels_x;
-    int pixels_y;
+    float width_i;
+    float width_j;
+    int i_axis;
+    int j_axis;
+    int pixels_i;
+    int pixels_j;
     int tsettle;
     char savedir[1024];
     int socket;
@@ -125,29 +125,29 @@ static int handler(void *user, const char *section, const char *name,
     {
         pconfig->start[3] = atof(value);
     }
-    else if( MATCH("scan", "width_x") )
+    else if( MATCH("scan", "width_i") )
     {
-        pconfig->width_x = atof(value);
+        pconfig->width_i = atof(value);
     }
-    else if( MATCH("scan", "width_y") )
+    else if( MATCH("scan", "width_j") )
     {
-        pconfig->width_y = atof(value);
+        pconfig->width_j = atof(value);
     }
-    else if( MATCH("scan", "x_axis") )
+    else if( MATCH("scan", "i_axis") )
     {
-        pconfig->x_axis = atoi(value);
+        pconfig->i_axis = atoi(value);
     }
-    else if( MATCH("scan", "y_axis") )
+    else if( MATCH("scan", "j_axis") )
     {
-        pconfig->y_axis = atoi(value);
+        pconfig->j_axis = atoi(value);
     }
-    else if( MATCH("others", "pixels_x") )
+    else if( MATCH("others", "pixels_i") )
     {
-	pconfig->pixels_x = atoi(value);
+	pconfig->pixels_i = atoi(value);
     }
-    else if( MATCH("others", "pixels_y") )
+    else if( MATCH("others", "pixels_j") )
     {
-	pconfig->pixels_y = atoi(value);
+	pconfig->pixels_j = atoi(value);
     }
     else if( MATCH("others", "tsettle") )
     {
