@@ -87,10 +87,11 @@ int main(int argc, char **argv)
     sprintf(filename, "%s/%s_%.4d.dat",config.savedir, date, lastIndex+1);
     FILE * dest = fopen(filename, "w");
 
-    fprintf(dest, "#start %f, %f, %f, %f\n", config.start[0], config.start[1], config.start[2], config.start[3]);
+    fprintf(dest, "#start %f, %f, %f, %f um^4\n", config.start[0], config.start[1], config.start[2], config.start[3]);
+    fprintf(dest, "#width_i %f um, width_j %f um, pixels_i %d, pixels_j %d, tsettle %d\n", config.width_i,
+	config.width_j, config.pixels_i, config.pixels_j, config.tsettle);
 
 
-    /*	
 
     sockfd = 0;
 
@@ -98,7 +99,6 @@ int main(int argc, char **argv)
     init( &config );
     scan2D( dest, &config );
     close( sockfd );
-    */
     fclose(dest);
     return EXIT_SUCCESS;
 }
@@ -175,12 +175,12 @@ void scan2D( FILE *destination, configuration *cfg )
     int32_t socketBuffer[2] = {0, 0};
     float floatBuffer[8];
     int scan_i = 0, scan_j = 0, direction = 1;
-    float iinc = cfg->width_x / (float)cfg->pixels_x;
-    float jinc = cfg->width_y / (float)cfg->pixels_y;
+    float iinc = cfg->width_i / (float)cfg->pixels_i;
+    float jinc = cfg->width_j / (float)cfg->pixels_j;
 
     write( sockfd, cmdString, strlen(cmdString) );
 
-    while( ( i < cfg->pixels_x * cfg->pixels_y ) && enabled )
+    while( ( i < cfg->pixels_i * cfg->pixels_j ) && enabled )
     {
 	memset(socketBuffer, 0, 2*sizeof(int32_t));
 	ret = myReadfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
@@ -188,8 +188,8 @@ void scan2D( FILE *destination, configuration *cfg )
 	{
 	    memset(floatBuffer, 0, 8*sizeof(float));
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
-	    fprintf(destination, "%f\t%f",  cfg->start[cfg->x_axis] + iinc*(float)scan_i,
-					    cfg->start[cfg->y_axis] + jinc*(float)scan_j);
+	    fprintf(destination, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
+					    cfg->start[cfg->j_axis] + jinc*(float)scan_j);
 	    for(int j = 0; j < 8; j++ )
 	    {
 		fprintf(destination, "\t%e", floatBuffer[j]);
@@ -203,7 +203,7 @@ void scan2D( FILE *destination, configuration *cfg )
 	}
 	i++;
 	scan_i += direction;
-	if( scan_i == cfg->pixels_x || scan_i < 0 )
+	if( scan_i == cfg->pixels_i || scan_i < 0 )
 	{
 	    //direction *= -1;
 	    //scan_i += direction;
@@ -221,17 +221,17 @@ void init(configuration *cfg)
     myWrite( sockfd, "SET,START,%f,%f,%f,%f\n", cfg->start[0]/20.0, cfg->start[1]/20.0, cfg->start[2]/20.0, cfg->start[3]/20.0);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scanx
-    float scanx[4] = {0.0, 0.0, 0.0, 0.0};
-    scanx[cfg->x_axis] = cfg->width_x /(20.0 * (float) cfg->pixels_x);
-    myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", scanx[0], scanx[1], scanx[2], scanx[3]);
+    float scani[4] = {0.0, 0.0, 0.0, 0.0};
+    scani[cfg->i_axis] = cfg->width_i /(20.0 * (float) cfg->pixels_i);
+    myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", scani[0], scani[1], scani[2], scani[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scany
-    float scany[4] = {0.0, 0.0, 0.0, 0.0};
-    scany[cfg->y_axis] = cfg->width_y / (20.0 * (float) cfg->pixels_y);
-    myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", scany[0], scany[1], scany[2], scany[3]);
+    float scanj[4] = {0.0, 0.0, 0.0, 0.0};
+    scanj[cfg->j_axis] = cfg->width_j / (20.0 * (float) cfg->pixels_j);
+    myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", scanj[0], scanj[1], scanj[2], scanj[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set pixels
-    myWrite( sockfd, "SET,PIXELS,%f,%f\n", (float)cfg->pixels_x, (float)cfg->pixels_y );
+    myWrite( sockfd, "SET,PIXELS,%f,%f\n", (float)cfg->pixels_i, (float)cfg->pixels_j );
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set settle time
     myWrite( sockfd, "SET,TSETTLE,%f\n", (float)cfg->tsettle );
