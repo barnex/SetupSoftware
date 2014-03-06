@@ -5,6 +5,10 @@
 #include <signal.h>
 #include <math.h>
 #include <assert.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
 
 typedef struct
 {
@@ -16,6 +20,8 @@ typedef struct
     int pixels_x;
     int pixels_y;
     int tsettle;
+    char savedir[1024];
+    int socket;
 } configuration;
 
 int sockfd;
@@ -39,31 +45,52 @@ void scan2D( FILE *destination, configuration *cfg );
 int main(int argc, char **argv)
 {
     configuration config;
-    if( argc != 3 )
+    memset(&config, 0, sizeof(configuration));
+    char *homeDir = getenv("HOME");
+    assert(homeDir);
+    char cfgfile[1024];
+    memset(cfgfile, 0, 1024);
+    sprintf(cfgfile, "%s/scanner.ini", homeDir );
+
+    ini_parse(cfgfile, handler, &config);
+
+    assert( signal( SIGINT, catchSigint ) != SIG_ERR );
+    time_t current_time = time(NULL);
+    char date[128];
+    memset(date, 0, 128);
+    strftime( date, 128, "%d_%m_%Y", localtime( &current_time ) );
+
+    int tmp = 0;
+    int lastIndex = 0;
+    DIR *d;
+    struct dirent *dir;
+    printf("%s\n", config.savedir);
+    d = opendir(config.savedir);
+    char pattern[1024];
+    memset(pattern, 0, 1024);
+    sprintf(pattern, "%s_%%d.dat", date);
+    printf("%s\n", pattern);
+    if(d)
     {
-	printf("Please specify config file and target file\n");
-	return EXIT_FAILURE;
+	while((dir = readdir(d)) != NULL)
+	{
+	    if ( sscanf(dir->d_name, pattern, &tmp) > 0 )
+	    {
+		lastIndex = (tmp > lastIndex) ? tmp : lastIndex;
+	    }
+        }
+	closedir(d);
     }
 
-    if( ini_parse(argv[1], handler, &config) )
-    {
-        printf("Could not load \"%s\" as config file\n", argv[1]);
-	return EXIT_FAILURE;
-    }
+    char filename[1024];
+    memset(filename, 0, 1024);
+    sprintf(filename, "%s/%s_%.4d.dat",config.savedir, date, lastIndex+1);
+    FILE * dest = fopen(filename, "w");
 
-    assert( signal( SIGINT, catchSigint ) != SIG_ERR );;
+    fprintf(dest, "#start %f, %f, %f, %f\n", config.start[0], config.start[1], config.start[2], config.start[3]);
 
-    FILE * dest = fopen(argv[2], "w");
 
-    FILE *configfile = fopen(argv[1], "r");
-    char line[256];
-    memset(line, 256, 0);
-    while( fscanf( configfile, "%s", line ) > 0 )
-    {
-	fprintf(dest, "#%s\n", line );
-	memset(line, 256, 0);
-    }
-	
+    /*	
 
     sockfd = 0;
 
@@ -71,6 +98,7 @@ int main(int argc, char **argv)
     init( &config );
     scan2D( dest, &config );
     close( sockfd );
+    */
     fclose(dest);
     return EXIT_SUCCESS;
 }
@@ -124,6 +152,14 @@ static int handler(void *user, const char *section, const char *name,
     else if( MATCH("others", "tsettle") )
     {
 	pconfig->tsettle = atoi(value);
+    }
+    else if( MATCH("others", "socket") )
+    {
+	pconfig->socket = atoi(value);
+    }
+    else if( MATCH("others", "save_dir") )
+    {
+	memmove(pconfig->savedir, value, strlen(value));
     }
     else
     {   
@@ -182,16 +218,16 @@ void init(configuration *cfg)
 {
     int32_t dmp[2] = {0, 0};
     // Set start
-    myWrite( sockfd, "SET,START,%f,%f,%f,%f\n", cfg->start[0], cfg->start[1], cfg->start[2], cfg->start[3]);
+    myWrite( sockfd, "SET,START,%f,%f,%f,%f\n", cfg->start[0]/20.0, cfg->start[1]/20.0, cfg->start[2]/20.0, cfg->start[3]/20.0);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scanx
     float scanx[4] = {0.0, 0.0, 0.0, 0.0};
-    scanx[cfg->x_axis] = cfg->width_x / (float) cfg->pixels_x;
+    scanx[cfg->x_axis] = cfg->width_x /(20.0 * (float) cfg->pixels_x);
     myWrite( sockfd, "SET,IINC,%f,%f,%f,%f\n", scanx[0], scanx[1], scanx[2], scanx[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set scany
     float scany[4] = {0.0, 0.0, 0.0, 0.0};
-    scany[cfg->y_axis] = cfg->width_y / (float) cfg->pixels_y;
+    scany[cfg->y_axis] = cfg->width_y / (20.0 * (float) cfg->pixels_y);
     myWrite( sockfd, "SET,JINC,%f,%f,%f,%f\n", scany[0], scany[1], scany[2], scany[3]);
     myReadfull( sockfd, dmp, sizeof(int32_t)*2);
     // Set pixels
