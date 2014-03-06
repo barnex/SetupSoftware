@@ -190,11 +190,15 @@ void scan2D( FILE *destination, configuration *cfg )
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
 	    fprintf(destination, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
 					    cfg->start[cfg->j_axis] + jinc*(float)scan_j);
+	    fprintf(stdout, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
+					    cfg->start[cfg->j_axis] + jinc*(float)scan_j);
 	    for(int j = 0; j < 8; j++ )
 	    {
 		fprintf(destination, "\t%e", floatBuffer[j]);
+		fprintf(stdout, "\t%e", floatBuffer[j]);
 	    }
 	    fprintf(destination, "\n");
+	    fprintf(stdout, "\n");
 	    fflush(destination);
 	}
 	else
