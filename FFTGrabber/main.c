@@ -67,11 +67,19 @@ int main(int argc, char **argv)
     // Initialize PortAudio
     Pa_Initialize();
 
+    int numDevices = Pa_GetDeviceCount();
+    const PaDeviceInfo *deviceInfo;
+    for(int i = 0; i< numDevices; i++ )
+    {
+	deviceInfo = Pa_GetDeviceInfo(i);
+	printf("%d = %s\n", i, deviceInfo->name );
+    }
+
     PaStreamParameters inputParameters;
     bzero( &inputParameters, sizeof(inputParameters));
 
     inputParameters.channelCount = 1;
-    inputParameters.device = 2;
+    inputParameters.device = 3;
     inputParameters.hostApiSpecificStreamInfo = NULL;
     inputParameters.sampleFormat = paFloat32;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo(0)->defaultLowInputLatency;

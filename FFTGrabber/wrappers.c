@@ -2,6 +2,7 @@
 
 int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 {
+    printf("# Started sampling\n");
     PaStream *stream	    = args->stream;
     PACallbackData *paArgs  = args->paArgs;
 
@@ -38,12 +39,15 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     Pa_StopStream( stream );
     
     pthread_mutex_unlock( paArgs->lock );
+
+    printf("# Stopped sampling, starting FFT\n");
    
 
     // Calculate the FFT
     rfftw_one(p, input, result);
     rfftw_destroy_plan(p);
-    
+   
+    printf("# Finished FFT, starting sending\n"); 
     // Let the client know that we have succeeded and are ready to copy the data
     int32_t socketbuffer[2] = { SUCCESS, (nSamples/2)*sizeof(float)*3 };
     write(*sockfd, socketbuffer, sizeof(int32_t)*2);
@@ -65,6 +69,8 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 	databuffer[2] = (float) result[nSamples-i];
 	write( *sockfd, databuffer, sizeof(float)*3);
     }
+
+    printf("# Finished sending\n");
 
     free(result); 
     free(input);

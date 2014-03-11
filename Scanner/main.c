@@ -64,12 +64,10 @@ int main(int argc, char **argv)
     int lastIndex = 0;
     DIR *d;
     struct dirent *dir;
-    printf("%s\n", config.savedir);
     d = opendir(config.savedir);
     char pattern[1024];
     memset(pattern, 0, 1024);
     sprintf(pattern, "%s_%%d.dat", date);
-    printf("%s\n", pattern);
     if(d)
     {
 	while((dir = readdir(d)) != NULL)
@@ -85,11 +83,13 @@ int main(int argc, char **argv)
     char filename[1024];
     memset(filename, 0, 1024);
     sprintf(filename, "%s/%s_%.4d.dat",config.savedir, date, lastIndex+1);
+    printf("Writing data to: %s\n", filename);
     FILE * dest = fopen(filename, "w");
 
     fprintf(dest, "#start %f, %f, %f, %f um^4\n", config.start[0], config.start[1], config.start[2], config.start[3]);
     fprintf(dest, "#width_i %f um, width_j %f um, pixels_i %d, pixels_j %d, tsettle %d\n", config.width_i,
 	config.width_j, config.pixels_i, config.pixels_j, config.tsettle);
+    fprintf(dest, "#i axis %d, j axis %d\n", config.i_axis, config.j_axis);
 
 
 
@@ -190,6 +190,11 @@ void scan2D( FILE *destination, configuration *cfg )
 	    ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
 	    fprintf(destination, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
 					    cfg->start[cfg->j_axis] + jinc*(float)scan_j);
+	    for(int j = 0; j < 100; j++)
+	    {
+		fprintf(stdout, " ");
+	    }
+	    fprintf(stdout, "\r");
 	    fprintf(stdout, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
 					    cfg->start[cfg->j_axis] + jinc*(float)scan_j);
 	    for(int j = 0; j < 8; j++ )
@@ -198,7 +203,7 @@ void scan2D( FILE *destination, configuration *cfg )
 		fprintf(stdout, "\t%e", floatBuffer[j]);
 	    }
 	    fprintf(destination, "\n");
-	    fprintf(stdout, "\n");
+	    fprintf(stdout, "\r");
 	    fflush(destination);
 	}
 	else
