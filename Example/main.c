@@ -9,24 +9,20 @@ int main(int argc, char **argv)
 {
     int sockfd = 0;
 
-    initClient( &sockfd, 5000);
+    initClient( &sockfd, 5001);
 
     int32_t returnValue[2] = {0, 0};
     float   measurement[8];
-    while(1)
-    {
-	myWrite( sockfd, "MEAS\n" );
+	myWrite( sockfd, "MEAS,0.1\n" );
 	myReadfull( sockfd, (void *)returnValue, sizeof(int32_t)*2 );
-	if( returnValue[1] == sizeof(float)*8 )
+	int i = 0;
+	float resultfft[3] = {0.0, 0.0, 0.0};
+	while( i < returnValue[1]/(sizeof(float)*3) )
 	{
-	    myReadfull( sockfd, (void *)measurement, sizeof(float)*8 );
-	    for(int i = 0; i < 4; i++ )
-	    {
-		printf("%f\t", measurement[i]);
-	    }
-	    printf("\n");
+	    myReadfull( sockfd, (void *)resultfft, sizeof(float)*3 );
+	    printf("%e\t%e\t%e\n", resultfft[0], resultfft[1], resultfft[2]);
+	    i++;
 	}
-    }
     close( sockfd );
     return EXIT_SUCCESS;
 }
