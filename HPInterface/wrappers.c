@@ -19,42 +19,72 @@ void getFrequencyString(double frequency, char *cmdString)
     }
 }
 
-void getPowerString(double power, char *cmdString)
+void getPowerString(double power, int enable, int internal, char *cmdString)
 {
-    // empty
+    memset(cmdString, 0, 256);
+    char rangeString[] = "0123456789:;";
+    char vernierString[] = "013456789:;<=";
+    char argument;
+    if(!enable)
+    {
+        argument = '0';
+    }
+    else
+    {
+        if(power > 3.0)
+        {
+            if(internal)
+            {
+                argument = '3';
+            }
+            else
+            {
+                argument = '7';
+            }
+        }
+        else
+        {
+            if(internal)
+            {
+                argument = '1';
+            }
+            else
+            {
+                argument = '5';
+            }
+        }
+    }
+
+    if( power > 3.0 )
+    {
+        int range = (int)power / -10;
+        int vernier = (-1) * (int) (power + 10.0*(double) range - 12.0);
+	printf("%d\n", vernier);
+        sprintf(cmdString, "K%cL%cO%c", rangeString[range], vernierString[vernier], argument);
+
+    }
+    else
+    {
+        int range = (int)power / -10;
+        int vernier = (-1) * (int)( power + 10.0*(double)range  - 2.0);
+	printf("%d\n", vernier);
+        sprintf(cmdString, "K%cL%cO%c", rangeString[range], vernierString[vernier], argument);
+    }
 }
 
-#ifdef _USE_ARDUINO
-int setWrapper( char *stringParam, float value, int *sockfd, gpibio *gpib)
-#else
-#ifdef _USE_PROLOGIX
-int setWrapper( char *stringParam, float value, int *sockfd, int *gpibsock )
-#endif
-#endif
+int setWrapper( char *stringParam, float *value, int *sockfd, gpibio *gpib)
 {
     if( strstr(stringParam, "FREQ") != NULL )
     {
 	char cmdString[256];
-	getFrequencyString(value, cmdString);
-#ifdef _USE_ARDUINO
+	getFrequencyString(value[0], cmdString);
 	gpib_write( gpib, strlen(cmdString), cmdString);
-#else
-#ifdef _USE_PROLOGIX
-	write( *gpibsock, cmdString, strlen(cmdString) );
-#endif
-#endif
     }
     else if(strstr(stringParam, "POW") != NULL )
     {
 	char cmdString[256];
-	getPowerString(value, cmdString);
-#ifdef _USE_ARDUINO
+	getPowerString(value[0], (int)value[1], (int)value[2], cmdString)
 	gpib_write( gpib, strlen(cmdString), cmdString);
-#else
-#ifdef _USE_PROLOGIX
-	write( *gpibsock, cmdString, strlen(cmdString) );
-#endif
-#endif
     }
     else
     {
@@ -79,13 +109,7 @@ int	idWrapper( int *sockfd )
     char idstring[1024];
 
     memset(idstring, 0, 1024);
-#ifdef _USE_ARDUINO
     sprintf(idstring, "Arduino GPIB HP 8672A controller\n");
-#else
-#ifdef _USE_PROLOGIX
-    sprintf(idstring, "Prologix GPIB HP 8672A controller\n");
-#endif
-#endif
     write(*sockfd, &tmp, sizeof(int32_t));
     tmp = strlen(idstring);
     write(*sockfd, &tmp, sizeof(int32_t));

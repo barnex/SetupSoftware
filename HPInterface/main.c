@@ -19,7 +19,7 @@
 #define CMD_SET	    1
 #define CMD_ID	    8
 
-#define MAX_PARAMS  1
+#define MAX_PARAMS  3
 
 #ifdef _USE_ARDUINO
 int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib);
@@ -169,7 +169,7 @@ int handleRequest( char *cmdbuffer, int *clientfd, int *gpib)
 
     switch(command)
     {
-	case CMD_SET:	    returnValue = setWrapper(stringParam, parameters[0], clientfd, gpib);
+	case CMD_SET:	    returnValue = setWrapper(stringParam, parameters, clientfd, gpib);
 			    free(stringParam);
 			    break;
 	case CMD_ID:	    returnValue = idWrapper(clientfd);
