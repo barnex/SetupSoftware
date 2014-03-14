@@ -4,7 +4,7 @@ int measureWrapper  (int *sockfd, int *usbfd)
 {
     uint8_t	USBBufferOut[2], USBBufferIn[2];
     uint16_t	valueBuffer = 0;
-    int16_t	value;
+    uint16_t	value;
     memset(USBBufferOut, 0, 2);
     memset(USBBufferIn, 0, 8);
     USBBufferOut[0] = 251; //Largest prime smaller than 0xff
@@ -28,15 +28,14 @@ int measureWrapper  (int *sockfd, int *usbfd)
     }
     else
     {
-	int32_t tmp = SUCCESS;
-	write(*sockfd, &tmp, sizeof(int32_t));
-	tmp = sizeof(float);
-	write(*sockfd, &tmp, sizeof(int32_t));
+	int32_t tmp[2] = {SUCCESS, sizeof(float)};
+	write(*sockfd, tmp, sizeof(int32_t)*2);
 	
-	valueBuffer = USBBufferIn[0];
-	valueBuffer |= USBBufferIn[1] << 8;
-    	memcpy( &value, &valueBuffer, 2);
-    	float scaledValue = 1.526e-8 * (float)value;
+	valueBuffer = USBBufferIn[1];
+	valueBuffer |= USBBufferIn[0] << 8;
+    	//memcpy( &value, &valueBuffer, 2);
+    	float scaledValue = 1.526e-5 * (float)valueBuffer;
+	printf("measured %f mA,  %d \n", scaledValue, valueBuffer );
     	write(*sockfd, &scaledValue, sizeof(float));
     }
     return SUCCESS;
