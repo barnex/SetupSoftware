@@ -97,7 +97,7 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
 	    stdNoise += (amplitude[i] - avgNoise)*(amplitude[i] - avgNoise);
 	}
     } 
-    stdNoise /= (float)N;
+    stdNoise /= (float)(N-1);
     stdNoise = sqrt(stdNoise);
 
     if( amplitude[peakIndex+1] > avgNoise + 3.0*stdNoise )
