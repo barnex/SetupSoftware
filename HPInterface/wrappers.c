@@ -83,7 +83,7 @@ int setWrapper( char *stringParam, float *value, int *sockfd, gpibio *gpib)
     else if(strstr(stringParam, "POW") != NULL )
     {
 	char cmdString[256];
-	getPowerString(value[0], (int)value[1], (int)value[2], cmdString)
+	getPowerString(value[0], (int)value[1], (int)value[2], cmdString);
 	gpib_write( gpib, strlen(cmdString), cmdString);
     }
     else
