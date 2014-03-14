@@ -13,7 +13,7 @@
 #include "main.h"
 #include "wrappers.h"
 
-#define MAX_PARAMS  1
+#define MAX_PARAMS  2
 
 #define CMD_MEAS    1
 #define CMD_ID	    2
@@ -161,12 +161,16 @@ int handleRequest(char *cmdbuffer, int *sockfd, handleData *args)
     // If SET has been issued, the parameter name and respective value should have been received
     if( command == CMD_MEAS )
     {
+	int i = 0;
 	request = strtok(NULL, ",");
-	if( request != NULL )
+	while( request != NULL && i < MAX_PARAMS )
 	{
-	    parameters[0] = atof(request);
-	}
-	else
+	    parameters[i] = atof(request);
+	    i++;
+	    request = strtok(NULL, ",");
+	}     
+
+	if( i == 0 )
 	{
 	    returnValue = NOT_ENOUGH_PARAMETERS;
 	    write(*sockfd, &returnValue, sizeof(int32_t));

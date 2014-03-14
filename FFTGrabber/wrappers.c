@@ -47,33 +47,78 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args)
     rfftw_one(p, input, result);
     rfftw_destroy_plan(p);
    
-    printf("# Finished FFT, starting sending\n"); 
-    // Let the client know that we have succeeded and are ready to copy the data
-    int32_t socketbuffer[2] = { SUCCESS, (nSamples/2)*sizeof(float)*3 };
-    write(*sockfd, socketbuffer, sizeof(int32_t)*2);
+    printf("# Finished FFT, looking for peak\n"); 
 
 
-    float databuffer[3], bandwidth = 0;
+    float bandwidth = 0, *amplitude;
     bandwidth = (float)SAMPLE_RATE / (float)nSamples;
-    memset(databuffer, 0, 3*sizeof(float));
-    databuffer[0] = 0.0;
-    databuffer[1] = (float) result[0];
-    databuffer[2] = 0.0;
-    write( *sockfd, databuffer, sizeof(float)*3);
+    amplitude = malloc(sizeof(float)*(1 + nSamples/2));
+    memset(amplitude, 0, sizeof(float)*(1 + nSamples/2));
 
+    amplitude[0] = fabs( result[0] );
     for(int i = 1; i < nSamples/2; i++ )
     {
-	memset(databuffer, 0, 3*sizeof(float));
-	databuffer[0] = bandwidth * (float)i;
-	databuffer[1] = (float) result[i];
-	databuffer[2] = (float) result[nSamples-i];
-	write( *sockfd, databuffer, sizeof(float)*3);
+	amplitude[i] = sqrt( (float)(result[i]*result[i] + result[nSamples-i]*result[nSamples-i]) );
     }
 
+    float signalStrength = 0.0;
+    float peakFrequency = parameters[1];
+    int peakIndex = 0;
+    int startIndex = (int) (0.99*peakFrequency / bandwidth);
+    int stopIndex = (int) (1.01*peakFrequency / bandwidth);
+    for(int i = startIndex; i < stopIndex; i++ )
+    {
+	if( amplitude[i] > signalStrength )
+	{
+	    signalStrength = amplitude[i];
+	    peakIndex = i;
+	}
+    }
+
+    float noise = 0.0;
+    int N = 0;
+    startIndex = (int)(0.95*peakFrequency / bandwidth );
+    stopIndex = (int)(1.05*peakFrequency / bandwidth );
+    for(int i = startIndex; i < stopIndex; i++ )
+    {
+	if( i > peakIndex+1 || i < peakIndex-1 )
+	{
+	    noise += amplitude[i];
+	    N++;
+	}
+    } 
+
+    float avgNoise = noise / (float)N;
+    float stdNoise = 0.0;
+    for(int i = startIndex; i < stopIndex; i++ )
+    {
+	if( i > peakIndex+1 || i < peakIndex-1 )
+	{
+	    stdNoise += (amplitude[i] - avgNoise)*(amplitude[i] - avgNoise);
+	}
+    } 
+    stdNoise /= (float)N;
+    stdNoise = sqrt(stdNoise);
+
+    if( amplitude[peakIndex+1] > avgNoise + 3.0*stdNoise )
+    {
+	signalStrength += amplitude[peakIndex+1];
+    }
+    if( amplitude[peakIndex-1] > avgNoise + 3.0*stdNoise )
+    {
+	signalStrength += amplitude[peakIndex-1];
+    }
+    // Let the client know that we have succeeded and are ready to copy the data
+    int32_t socketbuffer[2] = { SUCCESS, sizeof(float)*3 };
+    write(*sockfd, socketbuffer, sizeof(int32_t)*2);
+    float outputBuffer[3] = { bandwidth*(float)peakIndex, signalStrength, avgNoise };
+    write(*sockfd, outputBuffer, sizeof(float)*3);
+    
     printf("# Finished sending\n");
 
     free(result); 
     free(input);
+    free(amplitude);
     free(paArgs->buffer);
     
     return SUCCESS;
