@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 	    usleep(100000.0); // Sleep 100ms before lowering the current further
 	}
 
-	fprintf(dest, "\n");
+	//fprintf(dest, "\n");
 
 	freqCurrent += freqStep;
     }
