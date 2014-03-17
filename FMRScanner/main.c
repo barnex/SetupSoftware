@@ -42,11 +42,6 @@ typedef struct
 
 int sockfd;
 
-void catchSigint(int signum)
-{
-    printf("Caught signal. Aborting scan...\n");
-}
-
 static int handler(void *user, const char *section, const char *name,
     const char *value);
 
@@ -62,7 +57,6 @@ int main(int argc, char **argv)
 
     ini_parse(cfgfile, handler, &config);
 
-    assert( signal( SIGINT, catchSigint ) != SIG_ERR );
     time_t current_time = time(NULL);
     char date[128];
     memset(date, 0, 128);
@@ -177,11 +171,11 @@ int main(int argc, char **argv)
 
     while( freqCurrent <= freqStop )
     {
-	myWrite( HPRxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 + config.offset );
-	myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-	assert(returnBuffer[0] == SUCCESS);
-	myWrite( HPTxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 );
+	myWrite( HPTxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 + config.offset );
 	myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+	assert(returnBuffer[0] == SUCCESS);
+	myWrite( HPRxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 );
+	myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	assert(returnBuffer[0] == SUCCESS);
 	currentField = fieldStart;
 
