@@ -144,7 +144,7 @@ int main(int argc, char **argv)
     float buffer[4] = {0.0, 0.0, 0.0, 0.0};
     int32_t returnBuffer[2] = {0, 0};
     myWrite( fieldSocket, "GET,POSITION\n" );
-    myReadfull( fieldSocket, (void *)returnBuffer, sizeof(int32_t) );
+    myReadfull( fieldSocket, (void *)returnBuffer, sizeof(int32_t)*2 );
     assert(returnBuffer[0] == SUCCESS);
     assert(returnBuffer[1] == sizeof(float)*4);
     myReadfull( fieldSocket, (void *)buffer, sizeof(float)*4);
@@ -169,7 +169,11 @@ int main(int argc, char **argv)
 
     // We first set the output power of the signal generators (only internal levelling is currently used)
     myWrite( HPRxSocket, "SET,POW,7.0,1.0,1.0\n" );
+    myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+    assert(returnBuffer[0] == SUCCESS);
     myWrite( HPTxSocket, "SET,POW,%f,1.0,1.0\n", config.power );
+    myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+    assert(returnBuffer[0] == SUCCESS);
 
     while( freqCurrent <= freqStop )
     {
@@ -220,7 +224,7 @@ int main(int argc, char **argv)
 	// Ramp down the field
 	while(currentField > fieldStart )
 	{
-	    buffer[3] = currentField / 455.0; // Mystery value!
+	    buffer[3] = currentField / 0.455; // Mystery value!
 	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	    assert(returnBuffer[0] == SUCCESS);
