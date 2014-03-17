@@ -308,6 +308,10 @@ static int handler(void *user, const char *section, const char *name,
     {
 	pconfig->nMeasurements = atoi(value);
     }
+    else if( MATCH("various", "save_dir") )
+    {
+	memmove(pconfig->savedir, value, strlen(value));
+    }
     else
     {
 	return 0;
