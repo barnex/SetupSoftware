@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     float fieldStep = config.stepField;
     float currentField = fieldStart;
 
-    double meas[3];
+    float meas[3];
 
     // We first set the output power of the signal generators (only internal levelling is currently used)
     myWrite( HPRxSocket, "SET,POW,7.0,1.0,1.0\n" );
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 
 	while( currentField <= fieldStop )
 	{
-	    buffer[3] = currentField / 455.0; // Mystery value!
+	    buffer[3] = currentField / 0.455; // Mystery value!
 	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	    assert(returnBuffer[0] == SUCCESS);
@@ -217,6 +217,7 @@ int main(int argc, char **argv)
 	    // This is just here for reference
 	    //fprintf(dest, "# Fieldstrength [T]\tFrequency[MHz]\tMag. signal\tMag. noise\tPhotodiode current [mA]\n");
 	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", currentField, freqCurrent , meas[1], meas[2], ipd );
+	    fflush(dest);
 	    
 	    currentField += fieldStep;
 	}
