@@ -13,9 +13,9 @@
 
 // These ports are SSH tunneled to mona/localhost
 #define CTRLR_PORT  5000
-#define TX_PORT	    5001
+#define TX_PORT	    5003
 // These ports are SSH tunneleded to dynalab
-#define FFT_PORT    5000
+#define FFT_PORT    5004
 #define RX_PORT	    5001
 #define IPD_PORT    5002
 
