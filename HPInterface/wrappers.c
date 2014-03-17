@@ -77,7 +77,7 @@ int setWrapper( char *stringParam, float *value, int *sockfd, gpibio *gpib)
     if( strstr(stringParam, "FREQ") != NULL )
     {
 	char cmdString[256];
-	getFrequencyString(value[0], cmdString);
+	getFrequencyString((double) value[0], cmdString);
 	gpib_write( gpib, strlen(cmdString), cmdString);
     }
     else if(strstr(stringParam, "POW") != NULL )
