@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "gpib.h"
-int setWrapper( char *stringParam, float *value, int *sockfd, gpibio *gpib);
+int setWrapper( char *stringParam, double *value, int *sockfd, gpibio *gpib);
 
 int	idWrapper( int *sockfd );
 

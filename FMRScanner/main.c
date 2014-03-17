@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 
     while( freqCurrent <= freqStop )
     {
-	myWrite( HPTxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 + config.offset );
+	myWrite( HPTxSocket, "SET,FREQ,%e,%e\n", freqCurrent*1.0e6, config.offset );
 	myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	assert(returnBuffer[0] == SUCCESS);
 	myWrite( HPRxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 );

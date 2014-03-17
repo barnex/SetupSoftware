@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib)
 {
     char *localCopy = NULL, *request = NULL, *stringParam = NULL;
-    float parameters[MAX_PARAMS];
+    double parameters[MAX_PARAMS];
     int command = 0;
     int32_t returnValue = 0;
 
@@ -71,7 +71,7 @@ int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib)
     strcpy( localCopy, cmdbuffer );
 
     // Set all parameters to zero
-    memset(parameters, 0, sizeof(float)*MAX_PARAMS);
+    memset(parameters, 0, sizeof(double)*MAX_PARAMS);
     request = strtok(localCopy , ",");
 
     // See what command has been given

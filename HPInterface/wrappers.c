@@ -1,11 +1,14 @@
 #include "wrappers.h"
 
-void getFrequencyString(double frequency, char *cmdString)
+void getFrequencyString(double frequency, double offset, char *cmdString)
 {
-    uint64_t f = (uint64_t) (frequency / 1.0e3);
-    uint64_t khz = ( f % 1000 );
-    uint64_t mhz = ( (f - khz) % 1000000 ) /1000;
-    uint64_t ghz =  (f - khz - mhz*1000)  / 1000000;
+    int f = (int) (frequency/1.0e6);
+    uint64_t f_off = (uint64_t) (offset);
+    f_off /= 1000;
+    uint64_t khz = f_off;
+    uint64_t mhz = (f % 1000 );
+    uint64_t ghz =  (f - mhz)  / 1000;
+    printf("%llu GHz %llu MHz %llu kHz\n", ghz, mhz, khz);
 
     if( ghz >= 10 )
     {
@@ -72,12 +75,13 @@ void getPowerString(double power, int enable, int internal, char *cmdString)
     }
 }
 
-int setWrapper( char *stringParam, float *value, int *sockfd, gpibio *gpib)
+int setWrapper( char *stringParam, double *value, int *sockfd, gpibio *gpib)
 {
     if( strstr(stringParam, "FREQ") != NULL )
     {
 	char cmdString[256];
-	getFrequencyString((double) value[0], cmdString);
+	getFrequencyString((double) value[0], (double) value[1], cmdString);
+	printf("%d, %e, %s\n", (int) value[0], value[1], cmdString);
 	gpib_write( gpib, strlen(cmdString), cmdString);
     }
     else if(strstr(stringParam, "POW") != NULL )
