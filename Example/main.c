@@ -177,7 +177,7 @@ int main(int argc, char **argv)
     assert(returnBuffer[0] == SUCCESS);
     currentField = fieldStart;
 
-    int pixels = 100;
+    int pixels = 20;
 
     int i = 0;
     for(i = 0; i < pixels; i++ )
@@ -186,8 +186,8 @@ int main(int argc, char **argv)
 	for(j = 0; j <pixels; j++ )
 	{
 	    buffer[3] = currentField / 0.455; // Mystery value!
-	    buffer[1] = 0.2*(double)j;
-	    buffer[2] = 0.2*(double)i;
+	    buffer[1] = 0.05*(double)j;
+	    buffer[2] = 0.05*(double)i;
 	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	    assert(returnBuffer[0] == SUCCESS);
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 	    
 	    // This is just here for reference
 	    //fprintf(dest, "# Fieldstrength [T]\tFrequency[MHz]\tMag. signal\tMag. noise\tPhotodiode current [mA]\n");
-	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", 0.2*(double)i, 0.2*(double)j , meas[1], meas[2], ipd );
+	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", 0.05*(double)i, 0.05*(double)j , meas[1], meas[2], ipd );
 	    fflush(dest);
 	    
 	}
