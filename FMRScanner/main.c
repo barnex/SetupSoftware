@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     myWrite( HPRxSocket, "SET,POW,7.0,1.0,1.0\n" );
     myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
     assert(returnBuffer[0] == SUCCESS);
-    myWrite( HPTxSocket, "SET,POW,%f,1.0,1.0\n", config.power );
+    myWrite( HPTxSocket, "SET,POW,%f,1.0,0.0\n", config.power );
     myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
     assert(returnBuffer[0] == SUCCESS);
 
@@ -201,10 +201,12 @@ int main(int argc, char **argv)
 	    assert(returnBuffer[1] == sizeof(float)*3);
 	    myReadfull( audioSocket, (void *)meas, sizeof(float)*3);
 
+	    
 	    myWrite( IPDSocket, "MEAS\n" );
 	    myReadfull( IPDSocket, (void *)returnBuffer, sizeof(int32_t)*2);
 	    assert(returnBuffer[0] == SUCCESS);
 	    assert(returnBuffer[1] == sizeof(float));
+	    
 	    float ipd = 0.0;
 	    myReadfull( IPDSocket, (void *)&ipd, sizeof(float));
 	    
@@ -240,7 +242,12 @@ int main(int argc, char **argv)
 
     // Disable output power
     myWrite( HPRxSocket, "SET,POW,7.0,0.0,1.0\n" );
+    myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+    assert(returnBuffer[0] == SUCCESS);
+
     myWrite( HPTxSocket, "SET,POW,%f,0.0,1.0\n", config.power );
+    myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+    assert(returnBuffer[0] == SUCCESS);
 
     // Close all sockets and let the servers know we are finished
     close(audioSocket);

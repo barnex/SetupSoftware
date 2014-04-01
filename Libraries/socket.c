@@ -7,7 +7,7 @@ int initServer( int *sockfd, int portno )
     *sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (*sockfd < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
     }
@@ -18,7 +18,7 @@ int initServer( int *sockfd, int portno )
     if (bind(*sockfd, (struct sockaddr *) &serv_addr,
         sizeof(serv_addr)) < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
 
@@ -33,7 +33,7 @@ int initClient( int *sockfd, int portno )
     struct hostent *server;
     if((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
     }
@@ -51,7 +51,7 @@ int initClient( int *sockfd, int portno )
     serv_addr.sin_port = htons(portno);
     if (connect(*sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
     }
@@ -65,7 +65,7 @@ int initRemoteClient( int *sockfd, char *hostname, int portno )
     struct hostent *server;
     if((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
     }
@@ -83,7 +83,7 @@ int initRemoteClient( int *sockfd, char *hostname, int portno )
     serv_addr.sin_port = htons(portno);
     if (connect(*sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
     {
-        fprintf(stderr, "! ERROR: Could not open socket!\n");
+        fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
         perror("! ERROR Message from system");
         return EXIT_FAILURE;
     }
