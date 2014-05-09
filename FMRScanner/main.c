@@ -115,7 +115,7 @@ int main(int argc, char **argv)
     size_t size;
     printf("Please enter your comment for this measurement: ");
 
-    fprintf( indexfile, "%s: ", indexFilename );
+    fprintf( indexfile, "%s: ", filename );
 
     if( getline( &textbuffer, &size, stdin) != -1 )
     {
