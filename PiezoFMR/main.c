@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <string.h>
 
 // These ports are SSH tunneled to mona/localhost
 #define CTRLR_PORT  5000
@@ -38,6 +39,16 @@ typedef struct
     double offset;
 
     char savedir[1024];
+
+
+    float start[4];
+    float width_i;
+    float width_j;
+    int i_axis;
+    int j_axis;
+    int pixels_i;
+    int pixels_j;
+    int tsettle;
 } configuration;
 
 int sockfd;
@@ -53,7 +64,7 @@ int main(int argc, char **argv)
     assert(homeDir);
     char cfgfile[1024];
     memset(cfgfile, 0, 1024);
-    sprintf(cfgfile, "%s/fmr_scanner.ini", homeDir );
+    sprintf(cfgfile, "%s/piezofmr.ini", homeDir );
 
     ini_parse(cfgfile, handler, &config);
 
@@ -177,17 +188,22 @@ int main(int argc, char **argv)
     assert(returnBuffer[0] == SUCCESS);
     currentField = fieldStart;
 
+
+    float iinc = config.width_i / (float)config.pixels_i;
+    float jinc = config.width_j / (float)config.pixels_j;
+
     int pixels = 20;
 
     int i = 0;
-    for(i = 0; i < pixels; i++ )
-    { 
+    for( i = 0 ; i < config.pixels_i ; i++ )
+    {
 	int j = 0;
-	for(j = 0; j <pixels; j++ )
+	for( j = 0; j < config.pixels_j; j++ )
 	{
+	    buffer[1] = (config.start[1] + (iinc * (float)i))/20.0;
+	    buffer[2] = (config.start[2] + (jinc * (float)j))/20.0;
 	    buffer[3] = currentField / 0.455; // Mystery value!
-	    buffer[1] = 0.05*(double)j;
-	    buffer[2] = 0.05*(double)i;
+
 	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
 	    assert(returnBuffer[0] == SUCCESS);
@@ -218,7 +234,7 @@ int main(int argc, char **argv)
 	    
 	    // This is just here for reference
 	    //fprintf(dest, "# Fieldstrength [T]\tFrequency[MHz]\tMag. signal\tMag. noise\tPhotodiode current [mA]\n");
-	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", 0.05*(double)i, 0.05*(double)j , meas[1], meas[2], ipd );
+	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", 20.0*buffer[1], 20.0*buffer[2], meas[1], meas[2], ipd );
 	    fflush(dest);
 	    
 	}
@@ -303,6 +319,50 @@ static int handler(void *user, const char *section, const char *name,
     else if( MATCH("various", "save_dir") )
     {
 	memmove(pconfig->savedir, value, strlen(value));
+    }
+    else if( MATCH("start", "x") )
+    {
+        pconfig->start[0] = atof(value);
+    }
+    else if( MATCH("start", "y") )
+    {
+        pconfig->start[1] = atof(value);
+    }
+    else if( MATCH("start", "z") )
+    {
+        pconfig->start[2] = atof(value);
+    }
+    else if( MATCH("start", "aux") )
+    {
+        pconfig->start[3] = atof(value);
+    }
+    else if( MATCH("scan", "width_i") )
+    {
+        pconfig->width_i = atof(value);
+    }
+    else if( MATCH("scan", "width_j") )
+    {
+        pconfig->width_j = atof(value);
+    }
+    else if( MATCH("scan", "i_axis") )
+    {
+        pconfig->i_axis = atoi(value);
+    }
+    else if( MATCH("scan", "j_axis") )
+    {
+        pconfig->j_axis = atoi(value);
+    }
+    else if( MATCH("others", "pixels_i") )
+    {
+	pconfig->pixels_i = atoi(value);
+    }
+    else if( MATCH("others", "pixels_j") )
+    {
+	pconfig->pixels_j = atoi(value);
+    }
+    else if( MATCH("others", "tsettle") )
+    {
+	pconfig->tsettle = atoi(value);
     }
     else
     {

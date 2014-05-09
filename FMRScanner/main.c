@@ -114,14 +114,8 @@ int main(int argc, char **argv)
     char *textbuffer = NULL;
     size_t size;
     printf("Please enter your comment for this measurement: ");
-    if( argc < 2 )
-    {
-	fprintf( indexfile, "standard_output.txt: ");
-    }	
-    else
-    {
-	fprintf( indexfile, "%s: ", argv[1] );
-    }
+
+    fprintf( indexfile, "%s: ", indexFilename );
 
     if( getline( &textbuffer, &size, stdin) != -1 )
     {
