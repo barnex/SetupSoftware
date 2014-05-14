@@ -14,18 +14,12 @@
 
 // These ports are SSH tunneled to mona/localhost
 #define CTRLR_PORT  5000
-#define TX_PORT	    5003
 // These ports are SSH tunneleded to dynalab
 #define FFT_PORT    5004
-#define RX_PORT	    5001
 #define IPD_PORT    5002
 
 typedef struct
 {
-    double startFrequency;
-    double stopFrequency;
-    double stepFrequency;
-
     double startField;
     double stopField;
     double stepField;
@@ -102,10 +96,6 @@ int main(int argc, char **argv)
     // Init the sockets
     int audioSocket = 0;
     initClient( &audioSocket, FFT_PORT);
-    int HPTxSocket  = 0;
-    initClient( &HPTxSocket, TX_PORT);
-    int HPRxSocket  = 0;
-    initClient( &HPRxSocket, RX_PORT);
     int IPDSocket = 0;
     initClient( &IPDSocket, IPD_PORT);
     int fieldSocket = 0;
@@ -125,14 +115,7 @@ int main(int argc, char **argv)
     char *textbuffer = NULL;
     size_t size;
     printf("Please enter your comment for this measurement: ");
-    if( argc < 2 )
-    {
-	fprintf( indexfile, "standard_output.txt: ");
-    }	
-    else
-    {
-	fprintf( indexfile, "%s: ", argv[1] );
-    }
+    fprintf( indexfile, "%s: ", filename );
 
     if( getline( &textbuffer, &size, stdin) != -1 )
     {
@@ -154,45 +137,12 @@ int main(int argc, char **argv)
     assert(returnBuffer[1] == sizeof(float)*4);
     myReadfull( fieldSocket, (void *)buffer, sizeof(float)*4);
     
-    fprintf(dest, "# Scan parameters: power %f dBm, bandwidth %f Hz, offset %f Hz\n", config.power, config.bandwidth, config.offset);
-    fprintf(dest, "# Fieldstrength [T]\tFrequency[MHz]\tMag. signal\tMag. noise\tPhotodiode current [mA]\n");
-    fprintf(dest, "# Position: %f, %f, %f um\n", buffer[0], buffer[1], buffer[2]);
-
-    float freqStep  = config.stepFrequency;
-    float freqStart = config.startFrequency;
-    float freqStop  = config.stopFrequency;
-    float freqCurrent = freqStart;
-    
-
-    float fieldStart = config.startField;
-    float fieldStop = config.stopField;
-    assert(fieldStop < 45.5e-3);
-    float fieldStep = config.stepField;
-    float currentField = fieldStart;
+    fprintf(dest, "# y[um]\tz[um]\tSignal\tNoise\tIPD\n" );
 
     float meas[3];
 
-    // We first set the output power of the signal generators (only internal levelling is currently used)
-    myWrite( HPRxSocket, "SET,POW,7.0,1.0,1.0\n" );
-    myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
-    myWrite( HPTxSocket, "SET,POW,%f,1.0,0.0\n", config.power );
-    myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
-
-    myWrite( HPTxSocket, "SET,FREQ,%e,%e\n", freqCurrent*1.0e6, config.offset );
-    myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
-    myWrite( HPRxSocket, "SET,FREQ,%e\n", freqCurrent*1.0e6 );
-    myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
-    currentField = fieldStart;
-
-
     float iinc = config.width_i / (float)config.pixels_i;
     float jinc = config.width_j / (float)config.pixels_j;
-
-    int pixels = 20;
 
     int i = 0;
     for( i = 0 ; i < config.pixels_i ; i++ )
@@ -202,7 +152,6 @@ int main(int argc, char **argv)
 	{
 	    buffer[1] = (config.start[1] + (iinc * (float)i))/20.0;
 	    buffer[2] = (config.start[2] + (jinc * (float)j))/20.0;
-	    buffer[3] = currentField / 0.455; // Mystery value!
 
 	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
@@ -243,18 +192,9 @@ int main(int argc, char **argv)
     fclose(dest);
 
     // Disable output power
-    myWrite( HPRxSocket, "SET,POW,7.0,0.0,1.0\n" );
-    myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
-
-    myWrite( HPTxSocket, "SET,POW,%f,0.0,1.0\n", config.power );
-    myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-    assert(returnBuffer[0] == SUCCESS);
 
     // Close all sockets and let the servers know we are finished
     close(audioSocket);
-    close(HPTxSocket);
-    close(HPRxSocket);
     close(IPDSocket);
     close(fieldSocket);
 
@@ -268,27 +208,7 @@ static int handler(void *user, const char *section, const char *name,
     configuration *pconfig = (configuration *)user;
 
     #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-    if( MATCH("frequencies", "start") )
-    {
-	pconfig->startFrequency = atof(value);
-    }
-    else if( MATCH( "frequencies", "stop" ) )
-    {
-	pconfig->stopFrequency = atof(value);
-    }
-    else if( MATCH( "frequencies", "step" ) )
-    {
-	pconfig->stepFrequency = atof(value);
-    }
-    else if( MATCH( "frequencies", "if" ) )
-    {
-	pconfig->IF = atof(value);
-    }
-    else if( MATCH( "frequencies", "power" ) )
-    {
-	pconfig->power = atof(value);
-    }
-    else if( MATCH( "audio", "bandwidth" ) )
+    if( MATCH( "audio", "bandwidth" ) )
     {
 	pconfig->bandwidth = atof(value);
     }

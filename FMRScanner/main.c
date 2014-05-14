@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     float meas[3];
 
     // We first set the output power of the signal generators (only internal levelling is currently used)
-    myWrite( HPRxSocket, "SET,POW,7.0,1.0,1.0\n" );
+    myWrite( HPRxSocket, "SET,POW,9.0,1.0,1.0\n" );
     myReadfull( HPRxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
     assert(returnBuffer[0] == SUCCESS);
     myWrite( HPTxSocket, "SET,POW,%f,1.0,0.0\n", config.power );
