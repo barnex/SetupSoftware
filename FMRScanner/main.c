@@ -149,7 +149,6 @@ int main(int argc, char **argv)
 
     float fieldStart = config.startField;
     float fieldStop = config.stopField;
-    assert(fieldStop < 45.5e-3);
     float fieldStep = config.stepField;
     float currentField = fieldStart;
 
