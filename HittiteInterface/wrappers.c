@@ -6,7 +6,7 @@ int setWrapper( char *stringParam, double *value, int *sockfd, FILE *hittite)
     {
 	char cmdString[256];
 	memset(cmdString, 0, 256);
-	sprintf(cmdString, "freq %e\n", value[0]);
+	sprintf(cmdString, "freq %e\n", value[0]+value[1]);
 	//getFrequencyString((double) value[0], (double) value[1], cmdString);
 	printf("%d, %e, %s\n", (int) value[0], value[1], cmdString);
 	fprintf(hittite, cmdString);
