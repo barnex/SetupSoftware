@@ -21,13 +21,15 @@ static int readfloats( float *floatBuffer, int *flagByte, int *usbfd)
     {
 	for(int i = 0; i < 16; i++ )
 	{
-	    if( i % 2 == 0)
+	    if( (i % 2) == 0)
 	    {
 		valueBuffer = USBBufferIn[i];
+		//printf("Recv value 0x%x, ", USBBufferIn[i]);
 	    }
 	    else
 	    {
 		valueBuffer |= USBBufferIn[i] << 8;
+		//printf("0x%x\n", USBBufferIn[i]);
 		//memcpy( &value, &valueBuffer, 2);
 		floatBuffer[i/2] = INT16_TO_FLOAT * (float)valueBuffer;
 		//float scaledValue = INT16_TO_FLOAT * (float)value;

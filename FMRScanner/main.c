@@ -18,6 +18,7 @@
 #define FFT_PORT    5004
 #define RX_PORT	    5001
 #define IPD_PORT    5002
+#define RIGOL_PORT  5005
 
 typedef struct
 {
@@ -99,11 +100,13 @@ int main(int argc, char **argv)
     initClient( &IPDSocket, IPD_PORT);
     int fieldSocket = 0;
     initClient( &fieldSocket, CTRLR_PORT);
+    int RigolSocket = 0;
+    initClient( &RigolSocket, RIGOL_PORT);
     
 
     // Init the relevant params
     struct timespec sleeptime, remaining;
-    sleeptime.tv_sec = 2;
+    sleeptime.tv_sec = 0;
     sleeptime.tv_nsec = (int)(config.settleTime);
 
     char indexFilename[1024];
@@ -162,6 +165,11 @@ int main(int argc, char **argv)
     myReadfull( HPTxSocket, (void *) returnBuffer, sizeof(int32_t)*2);
     assert(returnBuffer[0] == SUCCESS);
 
+    int ii = 0;
+    printf("Going for %d measurements\n", config.nMeasurements);
+    for(ii = 0 ; ii < config.nMeasurements; ii++ )
+    {
+    float freqCurrent = freqStart;
     while( freqCurrent <= freqStop )
     {
 	myWrite( HPTxSocket, "SET,FREQ,%e,%e\n", freqCurrent*1.0e6, config.offset );
@@ -174,13 +182,16 @@ int main(int argc, char **argv)
 
 	while( currentField <= fieldStop )
 	{
-	    buffer[3] = currentField / 0.455; // Mystery value!
-	    myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
-	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-	    assert(returnBuffer[0] == SUCCESS);
-	    myWrite( fieldSocket, "GOTO\n");
-	    myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
-	    assert(returnBuffer[0] == SUCCESS);
+	    if( fieldStop != fieldStart )
+	    {
+		buffer[3] = currentField / 0.455; // Mystery value!
+		myWrite( fieldSocket, "SET,START,%f,%f,%f,%f\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+		myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+		assert(returnBuffer[0] == SUCCESS);
+		myWrite( fieldSocket, "GOTO\n");
+		myReadfull( fieldSocket, (void *) returnBuffer, sizeof(int32_t)*2);
+		assert(returnBuffer[0] == SUCCESS);
+	    }
 
 	    int retval = nanosleep( &sleeptime, &remaining );
 	    if( retval != 0)
@@ -202,10 +213,18 @@ int main(int argc, char **argv)
 	    
 	    float ipd = 0.0;
 	    myReadfull( IPDSocket, (void *)&ipd, sizeof(float));
+
+	    myWrite( RigolSocket, "MEAS\n" );
+	    myReadfull( RigolSocket, (void *)returnBuffer, sizeof(int32_t)*2);
+	    assert(returnBuffer[0] == SUCCESS);
+	    assert(returnBuffer[1] == sizeof(float));
+	    
+	    float rfpower = 0.0;
+	    myReadfull( RigolSocket, (void *)&rfpower, sizeof(float));
 	    
 	    // This is just here for reference
 	    //fprintf(dest, "# Fieldstrength [T]\tFrequency[MHz]\tMag. signal\tMag. noise\tPhotodiode current [mA]\n");
-	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\n", currentField, freqCurrent , meas[1], meas[2], ipd );
+	    fprintf(dest, "%e\t%e\t%e\t%e\t%e\t%e\n", currentField, freqCurrent , meas[1], meas[2], ipd, rfpower );
 	    fflush(dest);
 	    
 	    currentField += fieldStep;
@@ -229,6 +248,7 @@ int main(int argc, char **argv)
 
 	freqCurrent += freqStep;
     }
+    }
 
   
     fclose(dest);
@@ -247,6 +267,7 @@ int main(int argc, char **argv)
     close(HPTxSocket);
     close(HPRxSocket);
     close(IPDSocket);
+    close(RigolSocket);
     close(fieldSocket);
 
 
