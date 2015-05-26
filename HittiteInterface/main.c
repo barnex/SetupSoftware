@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	// Resetting GPIB bus
 	fprintf(hittite, "*IDN?\n");
 	char id[1024];
-	fgets(id, 1023, hittite);
+	efgets(id, 1023, hittite);
 	printf("*IDN? : %s", id);
 
 	char socketBuffer[1024];
@@ -66,9 +66,9 @@ int handleRequest( char *cmdbuffer, int *clientfd, FILE *hittite) {
 			command = CMD_ID;
 		} else {
 			returnValue = UNKNOWN_COMMAND;
-			write(*clientfd, &returnValue, sizeof(int32_t));
+			ewrite(*clientfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*clientfd, &length, sizeof(int32_t));
+			ewrite(*clientfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 	}
@@ -81,9 +81,9 @@ int handleRequest( char *cmdbuffer, int *clientfd, FILE *hittite) {
 			strcpy( stringParam, request );
 		} else {
 			returnValue = NOT_ENOUGH_PARAMETERS;
-			write(*clientfd, &returnValue, sizeof(int32_t));
+			ewrite(*clientfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*clientfd, &length, sizeof(int32_t));
+			ewrite(*clientfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 
@@ -98,9 +98,9 @@ int handleRequest( char *cmdbuffer, int *clientfd, FILE *hittite) {
 
 			if( i == 0 ) {
 				returnValue = NOT_ENOUGH_PARAMETERS;
-				write(*clientfd, &returnValue, sizeof(int32_t));
+				ewrite(*clientfd, &returnValue, sizeof(int32_t));
 				int32_t length = 0;
-				write(*clientfd, &length, sizeof(int32_t));
+				ewrite(*clientfd, &length, sizeof(int32_t));
 				return(returnValue);
 			}
 		}
