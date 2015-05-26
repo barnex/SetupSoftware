@@ -39,8 +39,8 @@ int myReadfull( int fd, void *buffer, int nbytes ) {
 	while( bytesread < nbytes && bytesread >= 0 ) {
 		bytesread += read(fd, &(buffercast[bytesread]), nbytes - bytesread);
 	}
-	assert(bytesread > 0);
-	return bytesread;
+	assert(bytesread > 0); // TODO == nbytes?
+	return bytesread; // TODO: don't return?
 }
 
 int myRead( int fd, void *buffer, int nbytes ) {

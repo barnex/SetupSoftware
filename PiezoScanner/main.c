@@ -28,7 +28,7 @@ int sockfd;
 void catchSigint(int signum) {
 	printf("Caught signal. Aborting scan...\n");
 	char cmdString[] = "ABORT\n";
-	write( sockfd, cmdString, strlen(cmdString) );
+	ewrite( sockfd, cmdString, strlen(cmdString) );
 	printf("Aborted scan.\n");
 }
 
@@ -136,21 +136,23 @@ static int handler(void *user, const char *section, const char *name,
 
 void scan2D( FILE *destination, configuration *cfg ) {
 	char cmdString[] = "SCAN_2D\n";
-	int ret = 0, i = 0, enabled = 1;
+	//int ret = 0;
+	int i = 0;
+	int enabled = 1;
 	int32_t socketBuffer[2] = {0, 0};
 	float floatBuffer[8];
 	int scan_i = 0, scan_j = 0, direction = 1;
 	float iinc = cfg->width_i / (float)cfg->pixels_i;
 	float jinc = cfg->width_j / (float)cfg->pixels_j;
 
-	write( sockfd, cmdString, strlen(cmdString) );
+	ewrite( sockfd, cmdString, strlen(cmdString) );
 
 	while( ( i < cfg->pixels_i * cfg->pixels_j ) && enabled ) {
 		memset(socketBuffer, 0, 2*sizeof(int32_t));
-		ret = myReadfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
+		myReadfull(sockfd, (void *)socketBuffer, 2*sizeof(int32_t));
 		if( socketBuffer[0] == SUCCESS ) {
 			memset(floatBuffer, 0, 8*sizeof(float));
-			ret = myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
+			myReadfull(sockfd, (void *)floatBuffer, 8*sizeof(float));
 			fprintf(destination, "%f\t%f",  cfg->start[cfg->i_axis] + iinc*(float)scan_i,
 			        cfg->start[cfg->j_axis] + jinc*(float)scan_j);
 			for(int j = 0; j < 100; j++) {
