@@ -57,13 +57,13 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -Wall --std=c99
+MY_CFLAGS = -Wall --std=c99 -Werror
 
 # The linker options.
 MY_LIBS   = -pthread -lm -I../Libraries
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall
+CPPFLAGS  = -Wall -Werror
 
 # The options used in linking as well as in any direct use of ld.
 LDFLAGS   = 
@@ -87,8 +87,8 @@ HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
 
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.
-CFLAGS  = -g
-CXXFLAGS= -g
+CFLAGS  = -O2
+CXXFLAGS= -O2
 
 # The C program compiler.
 CC     = gcc
