@@ -27,7 +27,7 @@ void ewrite(int fd, const void *buf, size_t nbytes);
 void efgets(char *str, int num, FILE *stream);
 
 // abort with error message.
-void fatal(char *msg);
+void fatal(const char *msg);
 
 // check that argc == nArgs+1. If not, exit with
 // "progname: need nArgs arguments: msg"

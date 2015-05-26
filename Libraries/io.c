@@ -2,7 +2,7 @@
 
 char* progname = "";
 
-void fatal(char *msg) {
+void fatal(const char *msg) {
 	if (errno != 0) {
 		fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
 	} else {

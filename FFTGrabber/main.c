@@ -51,6 +51,7 @@ int main(int argc, char **argv) {
 	checkArgs(argc, 2, "port number, audio device number");
 
 	int sockfd = initServer( atoi(argv[1]) );
+	int devNumber = atoi(argv[2]); // device number we're using
 
 	// We set all variables passed to the callback function to zero
 	PACallbackData paArgs;
@@ -65,12 +66,13 @@ int main(int argc, char **argv) {
 	// Initialize PortAudio
 	Pa_Initialize();
 
-	int numDevices = Pa_GetDeviceCount();
+	//int numDevices = Pa_GetDeviceCount();
 	const PaDeviceInfo *deviceInfo;
-	for(int i = 0; i< numDevices; i++ ) {
-		deviceInfo = Pa_GetDeviceInfo(i);
-		printf("%d = %s\n", i, deviceInfo->name );
-	}
+	//for(int i = 0; i< numDevices; i++ ) {
+	deviceInfo = Pa_GetDeviceInfo(devNumber);
+		//printf("%d = %s\n", i, deviceInfo->name );
+	//}
+	fprintf(stderr, "%s: using audio device #%d: %s\n", progname, devNumber, deviceInfo->name);
 
 	PaStreamParameters inputParameters;
 	bzero( &inputParameters, sizeof(inputParameters));
@@ -84,16 +86,12 @@ int main(int argc, char **argv) {
 
 	PaError err = Pa_IsFormatSupported( &inputParameters, NULL, SAMPLE_RATE);
 	if( err != paFormatIsSupported ) {
-		printf("Format not supported\n");
-		return(EXIT_FAILURE);
+		fatal(Pa_GetErrorText(err));
 	}
 
 	err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, 480, paNoFlag, myPACallback, (void *)&paArgs);
 	if( err != paNoError ) {
-		printf( "An error occured while using the portaudio stream\n" );
-		printf( "Error number: %d\n", err );
-		printf( "Error message: %s\n", Pa_GetErrorText( err ) );
-		assert( err == paNoError );
+		fatal(Pa_GetErrorText(err) );
 	}
 
 	// When we handle a request, this is used to pass along the PaStream and the callback data
