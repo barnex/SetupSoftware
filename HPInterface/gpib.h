@@ -1,6 +1,6 @@
 /*
  *  This file is part of Agipibi
- * 
+ *
  *  Copyright 2013 Thibault Vincent, Mathias Helsen
  *  Agipibi is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Agipibi.  If not, see <http://www.gnu.org/licenses/>.
  *
- */ 
+ */
 
 #ifndef _GPIB_H
 #define _GPIB_H
@@ -30,53 +30,48 @@
 #include <errno.h>
 #include <stdio.h>
 
-typedef enum
-{
-    PING	= 0x00,
-    STATUS	= 0x01,
-    INIT	= 0x02,
-    LOCKREAD	= 0x03,
-    CONTROLLER	= 0x04,
-    REMOTE	= 0x05,
-    TALKER	= 0x06,
-    LISTENER	= 0x07,
-    UNLISTEN	= 0x08,
-    UNTALK	= 0x09,
-    LOCKOUT	= 0x0a,
-    CLEAR	= 0x0b,
-    UNLOCK	= 0x0c,
-    TRIGGER	= 0x0d,
-    READ	= 0x0e,
-    WRITE	= 0x0f,
-    CMD		= 0x10,
-    ENGAGE_REQ	= 0x11
+typedef enum {
+	PING	= 0x00,
+	STATUS	= 0x01,
+	INIT	= 0x02,
+	LOCKREAD	= 0x03,
+	CONTROLLER	= 0x04,
+	REMOTE	= 0x05,
+	TALKER	= 0x06,
+	LISTENER	= 0x07,
+	UNLISTEN	= 0x08,
+	UNTALK	= 0x09,
+	LOCKOUT	= 0x0a,
+	CLEAR	= 0x0b,
+	UNLOCK	= 0x0c,
+	TRIGGER	= 0x0d,
+	READ	= 0x0e,
+	WRITE	= 0x0f,
+	CMD		= 0x10,
+	ENGAGE_REQ	= 0x11
 } CMD_OUT;
 
-typedef enum
-{
-    PONG	= 0x00,
-    CHUNK	= 0x01,
-    STRING	= 0x02,
-    REQUEST	= 0x03
+typedef enum {
+	PONG	= 0x00,
+	CHUNK	= 0x01,
+	STRING	= 0x02,
+	REQUEST	= 0x03
 } CMD_IN;
 
-typedef enum 
-{
-    BOOLEAN	= 0x01
+typedef enum {
+	BOOLEAN	= 0x01
 } FLAGS;
 
-typedef struct
-{
-    const char *device;
-    int fd;
+typedef struct {
+	const char *device;
+	int fd;
 } port;
 
-typedef struct
-{
-    const char *device;
-    int address;
-    int controller;
-    port *arduino;
+typedef struct {
+	const char *device;
+	int address;
+	int controller;
+	port *arduino;
 } gpibio;
 
 /* Low level Arduino stuff */
@@ -98,7 +93,7 @@ int arduino_write(port *arduino, int size, char *buffer);
 int arduino_write_command(port *arduino, int command, int flags);
 
 /* Higher level GPIB/HPIB interface */
-/* 
+/*
  * Always call this function first, initializes the Arduino and GPIB interface
  * Set the address of the Arduino and if it's a controller. Returns a pointer
  * to the allocated gpib struct, NULL in case of failure
@@ -106,7 +101,7 @@ int arduino_write_command(port *arduino, int command, int flags);
 gpibio * gpib_init(int address, int controller, const char *device);
 /*
  * Closes the GPIB interface
- */ 
+ */
 int gpib_close(gpibio *self);
 
 /* Basic functionallity */
@@ -126,7 +121,7 @@ int gpib_untalk(gpibio *self);
 int gpib_unlisten(gpibio *self);
 int gpib_lockout(gpibio *self);
 int gpib_clear(gpibio *self, int bus);
-int gpib_unlock(gpibio *self);	
+int gpib_unlock(gpibio *self);
 int gpib_trigger(gpibio *self);
 /* More than simple wrappers */
 int gpib_talker(gpibio *self, int address);

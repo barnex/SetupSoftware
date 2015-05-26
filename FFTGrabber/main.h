@@ -10,19 +10,18 @@
  * how many have been and should be copied into this buffer. Lastly a mutex is present
  * to prevent reading/writing at the wrong time.
  */
-typedef struct
-{
-    float   *buffer;
-    int	    index;
-    int	    maxIndex;
-    pthread_mutex_t *lock;
+typedef struct {
+	float   *buffer;
+	int	    index;
+	int	    maxIndex;
+	pthread_mutex_t *lock;
 } PACallbackData;
 
-typedef struct
-{
-    PACallbackData  *paArgs;
-    PaStream	    *stream;
+typedef struct {
+	PACallbackData  *paArgs;
+	PaStream	    *stream;
 } handleData;
 
+int handleRequest(char *cmdbuffer, int *sockfd, handleData *args);
 
 #endif

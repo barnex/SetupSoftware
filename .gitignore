@@ -1,6 +1,7 @@
 *.o
 *.d
 *.swp
+*.orig
 
 HPInterface/HPInterface
 CurrentSense/CurrentSense
