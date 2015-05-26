@@ -17,6 +17,9 @@
 #include <stdarg.h>
 #include "errors.h"
 
+// program name, prefixed to error messages
+extern char *progname;
+
 // write with error checking.
 void ewrite(int fd, const void *buf, size_t nbytes);
 

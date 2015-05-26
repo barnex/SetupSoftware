@@ -1,9 +1,13 @@
 #include "io.h"
 
-static char* progname = "";
+char* progname = "";
 
 void fatal(char *msg) {
-	fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
+	if (errno != 0){
+		fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
+	}else{
+		fprintf(stderr, "%s: %s\n", progname, msg);
+	}
 	fflush(stdout);
 	fflush(stderr);
 	abort();
@@ -12,6 +16,7 @@ void fatal(char *msg) {
 void setProgName(char *name) {
 	progname = name;
 }
+
 
 void ewrite(int fd, const void *buf, size_t nbytes) {
 	size_t written = write(fd, buf, nbytes);
@@ -27,7 +32,6 @@ void efgets(char *str, int num, FILE *stream) {
 		fatal("read");
 	}
 }
-
 
 
 void checkArgs(int argc, int nArgs, char *msg) {
