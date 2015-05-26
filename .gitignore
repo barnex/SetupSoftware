@@ -2,10 +2,3 @@
 *.d
 *.swp
 *.orig
-
-HPInterface/HPInterface
-CurrentSense/CurrentSense
-DumbScanner/DumbScanner
-FFTGrabber/FFTGrabber
-HittiteInterface/HittiteInterface
-ScannerGUI/ScannerGUI/ScannerGUI
