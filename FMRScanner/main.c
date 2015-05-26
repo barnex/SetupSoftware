@@ -85,18 +85,12 @@ int main(int argc, char **argv) {
 	FILE * dest = fopen(filename, "w");
 
 	// Init the sockets
-	int audioSocket = 0;
-	initClient( &audioSocket, FFT_PORT);
-	int HPTxSocket  = 0;
-	initClient( &HPTxSocket, TX_PORT);
-	int HPRxSocket  = 0;
-	initClient( &HPRxSocket, RX_PORT);
-	int IPDSocket = 0;
-	initClient( &IPDSocket, IPD_PORT);
-	int fieldSocket = 0;
-	initClient( &fieldSocket, CTRLR_PORT);
-	int RigolSocket = 0;
-	initClient( &RigolSocket, RIGOL_PORT);
+	int audioSocket = initClient(FFT_PORT);
+	int HPTxSocket  = initClient(TX_PORT);
+	int HPRxSocket  = initClient(RX_PORT);
+	int IPDSocket = initClient(IPD_PORT);
+	int fieldSocket = initClient(CTRLR_PORT);
+	int RigolSocket = initClient(RIGOL_PORT);
 
 
 	// Init the relevant params

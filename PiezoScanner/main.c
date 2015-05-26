@@ -87,9 +87,7 @@ int main(int argc, char **argv) {
 
 
 
-	sockfd = 0;
-
-	initClient( &sockfd, 5000);
+	sockfd = initClient(5000); // TODO: port??
 	init( &config );
 	scan2D( dest, &config );
 	close( sockfd );

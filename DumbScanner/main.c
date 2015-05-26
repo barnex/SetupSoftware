@@ -80,12 +80,9 @@ int main(int argc, char **argv) {
 	FILE * dest = fopen(filename, "w");
 
 	// Init the sockets
-	int HPTxSocket  = 0;
-	initClient( &HPTxSocket, TX_PORT);
-	int fieldSocket = 0;
-	initClient( &fieldSocket, CTRLR_PORT);
-	int RigolSocket = 0;
-	initClient( &RigolSocket, RIGOL_PORT);
+	int HPTxSocket =  initClient(TX_PORT);
+	int fieldSocket = initClient(CTRLR_PORT);
+	int RigolSocket = initClient(RIGOL_PORT);
 
 
 	// Init the relevant params

@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
 	printf("*IDN? : %s", id);
 
 	char socketBuffer[1024];
-	int sockfd = 0;
-	initServer( &sockfd, atoi(argv[1]) );
+	int sockfd = initServer(atoi(argv[1]));
 
 	while(1) {
 		int clientfd = accept(sockfd, 0, 0);

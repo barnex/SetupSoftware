@@ -15,10 +15,13 @@
 #include <netdb.h>
 #include <assert.h>
 
-void initServer( int *sockfd, int portno );
+// listen on portno and return socket FD.
+int initServer(int portno) __attribute__((warn_unused_result));
 
-void initClient( int *sockfd, int portno );
+// connect to portno and return socket FD.
+int initClient(int portno ) __attribute__((warn_unused_result));
 
-void initRemoteClient( int *sockfd, char *hostname, int portno );
+// connect to hostname:protnoe and return socket FD.
+int initRemoteClient(char *hostname, int portno ) __attribute__((warn_unused_result));
 
 #endif

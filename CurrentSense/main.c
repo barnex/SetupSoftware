@@ -13,10 +13,10 @@
 int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd);
 
 int main(int argc, char **argv) {
-	int usbfd = 0, serverfd = 0;
+	int usbfd = 0;
 	char socketBuffer[1024];
 	initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
-	initServer( &serverfd, 1000 );
+	int serverfd =  initServer( 1000 );  // TODO: port??
 
 	while(1) {
 		// Listen for incoming calls

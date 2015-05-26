@@ -31,10 +31,10 @@ void catchBrokenpipe( int signum ) {
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
 
-	int usbfd = 0, serverfd = 0;
+	int usbfd = 0;
 	char socketBuffer[1024];
 	initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
-	initServer( &serverfd, atoi(argv[1]) );
+	int serverfd = initServer( atoi(argv[1]) );
 
 	assert(signal( SIGPIPE, SIG_IGN)!=SIG_ERR);
 

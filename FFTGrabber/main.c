@@ -50,8 +50,7 @@ int main(int argc, char **argv) {
 	setProgName(argv[0]);
 	checkArgs(argc, 2, "port number, audio device number");
 
-	int sockfd = 0;
-	initServer( &sockfd, atoi(argv[1]) );
+	int sockfd = initServer( atoi(argv[1]) );
 
 	// We set all variables passed to the callback function to zero
 	PACallbackData paArgs;

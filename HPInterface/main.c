@@ -38,8 +38,7 @@ int main(int argc, char **argv) {
 	gpib_listener( gpib, _GPIB_LISTENER );
 
 	char socketBuffer[1024];
-	int sockfd = 0;
-	initServer( &sockfd, atoi(argv[1]) );
+	int sockfd = initServer(atoi(argv[1]) );
 
 	while(1) {
 		int clientfd = accept(sockfd, 0, 0);
