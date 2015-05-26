@@ -17,6 +17,16 @@
 #include <stdarg.h>
 #include "errors.h"
 
+// write with error checking.
+void ewrite(int fd, const void *buf, size_t nbytes);
+
+// abort with error message.
+void fatal(char *msg);
+
+// set the program name to be reported in errors
+// typically in main: setProgName(argv[0]);
+void setProgName(char *name);
+
 int myReadfull( int fd, void *buffer, int nBytes );
 
 int myRead( int fd, void *buffer, int nBytes );

@@ -1,5 +1,25 @@
 #include "io.h"
 
+static char* progname = "";
+
+void fatal(char *msg){
+		fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
+		fflush(stdout);
+		fflush(stderr);
+		abort();
+}
+
+void setProgName(char *name){
+	progname = name;
+}
+
+void ewrite(int fd, const void *buf, size_t nbytes){
+	size_t written = write(fd, buf, nbytes);
+	if (written < nbytes || errno != 0){
+		fatal("write");	
+	}
+}
+
 static int set_interface_attribs (int fd, int speed, int parity);
 static void set_blocking (int fd, int should_block);
 
