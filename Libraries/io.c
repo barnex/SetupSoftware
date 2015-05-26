@@ -119,6 +119,6 @@ int myWrite( int fd, const char *format, ...) {
 	int ret = vsnprintf( buffer, 1024, format, vl );
 	va_end(vl);
 	assert( (ret > 0) && (ret < 1024) );
-	write( fd, buffer, strlen(buffer) );
+	ewrite( fd, buffer, strlen(buffer) );
 	return SUCCESS;
 }

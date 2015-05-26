@@ -99,9 +99,9 @@ int measureWrapper  (float *parameters, int *sockfd, handleData *args) {
 	}
 	// Let the client know that we have succeeded and are ready to copy the data
 	int32_t socketbuffer[2] = { SUCCESS, sizeof(float)*3 };
-	write(*sockfd, socketbuffer, sizeof(int32_t)*2);
+	ewrite(*sockfd, socketbuffer, sizeof(int32_t)*2);
 	float outputBuffer[3] = { bandwidth*(float)peakIndex, signalStrength, avgNoise };
-	write(*sockfd, outputBuffer, sizeof(float)*3);
+	ewrite(*sockfd, outputBuffer, sizeof(float)*3);
 
 	printf("# Finished sending\n");
 
@@ -120,10 +120,10 @@ int	idWrapper( int *sockfd ) {
 	memset(idstring, 0, 1024);
 
 	sprintf(idstring, "Audio FFT interface\n");
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = strlen(idstring);
-	write(*sockfd, &tmp, sizeof(int32_t));
-	write(*sockfd, idstring, strlen(idstring));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, idstring, strlen(idstring));
 
 	return SUCCESS;
 }

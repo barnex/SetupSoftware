@@ -135,9 +135,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, handleData *args) {
 			command = CMD_ID;
 		} else {
 			returnValue = UNKNOWN_COMMAND;
-			write(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(*sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*sockfd, &length, sizeof(int32_t));
+			ewrite(*sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 	}
@@ -154,9 +154,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, handleData *args) {
 
 		if( i == 0 ) {
 			returnValue = NOT_ENOUGH_PARAMETERS;
-			write(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(*sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*sockfd, &length, sizeof(int32_t));
+			ewrite(*sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 	}
