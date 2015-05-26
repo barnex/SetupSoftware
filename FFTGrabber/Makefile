@@ -57,7 +57,7 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS = -Wall -std=c99
+MY_CFLAGS = -Wall -std=c99 -Werror
 
 # The linker options.
 MY_LIBS   = -pthread -lm -lportaudio -lrfftw -lfftw -I../Libraries
@@ -87,8 +87,8 @@ HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
 
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.
-CFLAGS  = -g -O3 -march=native
-CXXFLAGS= -O3
+CFLAGS  = -O2
+CXXFLAGS= -O2
 
 # The C program compiler.
 CC     = gcc
