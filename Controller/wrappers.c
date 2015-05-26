@@ -31,7 +31,7 @@ static int readfloats( float *floatBuffer, int *flagByte, int *usbfd) {
 
 }
 
-int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbfd) {
+int setWrapper (char *stringParam, float *parameters, int *sockfd, int *usbfd) {
 	uint8_t outputBuffer[10];
 	memset(outputBuffer, 0, 10);
 
@@ -46,7 +46,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 				outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
 			}
 		}
-		write( *usbfd, outputBuffer, 10 );
+		ewrite( *usbfd, outputBuffer, 10 );
 	} else if( strstr(stringParam, "IINC") != NULL ) {
 		outputBuffer[0] = IN_CMD_SET_IINC;
 		outputBuffer[1] = 8;
@@ -58,7 +58,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 				outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
 			}
 		}
-		write( *usbfd, outputBuffer, 10 );
+		ewrite( *usbfd, outputBuffer, 10 );
 
 	} else if( strstr(stringParam, "JINC") != NULL ) {
 		outputBuffer[0] = IN_CMD_SET_JINC;
@@ -71,7 +71,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 				outputBuffer[i+2] = (uint8_t) ((tmp >> 8) & 0xff);
 			}
 		}
-		write( *usbfd, outputBuffer, 10 );
+		ewrite( *usbfd, outputBuffer, 10 );
 
 	} else if( strstr(stringParam, "TSETTLE") != NULL ) {
 		outputBuffer[0] = IN_CMD_SET_TSETTLE;
@@ -79,7 +79,7 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 		uint32_t tmp = (uint32_t) parameters[0];
 		outputBuffer[2] = (uint8_t) (tmp & 0xff);
 		outputBuffer[3] = (uint8_t) ((tmp >> 8) & 0xff);
-		write( *usbfd, outputBuffer, 4);
+		ewrite( *usbfd, outputBuffer, 4);
 
 	} else if( strstr(stringParam, "PIXELS") != NULL ) {
 		outputBuffer[0] = IN_CMD_SET_PIXELS;
@@ -90,32 +90,32 @@ int setWrapper	    (char *stringParam, float *parameters, int *sockfd, int *usbf
 		tmp = (uint16_t) parameters[1];
 		outputBuffer[4] = (uint8_t) (tmp & 0xff);
 		outputBuffer[5] = (uint8_t) ((tmp >> 8) & 0xff);
-		write( *usbfd, outputBuffer, 6);
+		ewrite( *usbfd, outputBuffer, 6);
 
 	} else {
 		int32_t tmp = UNKNOWN_PARAMETER;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		tmp = 0;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		return( UNKNOWN_PARAMETER );
 	}
 
 	int32_t tmp = SUCCESS;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = 0;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 
 	return SUCCESS;
 }
 
 int gotoWrapper		(int *sockfd, int *usbfd) {
 	uint8_t outputBuffer[2] = {IN_CMD_GOTO, 0};
-	write( *usbfd, outputBuffer, 2);
+	ewrite( *usbfd, outputBuffer, 2);
 
 	int32_t tmp = SUCCESS;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = 0;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 
 	return SUCCESS;
 }
@@ -131,20 +131,20 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd) {
 	if( strstr(stringParam, "POSITION") != NULL ) {
 		USBBufferOut[0] = IN_CMD_GET_DAC;
 		USBBufferOut[1] = 0;
-		write( *usbfd, USBBufferOut, 2);
+		ewrite( *usbfd, USBBufferOut, 2);
 		tmp = myReadfull( *usbfd, USBBufferIn, 10);
 		if( (tmp == 10) && (USBBufferIn[1] == 8) ) {
 			socketBuffer = SUCCESS;
-			write( *sockfd, &socketBuffer, sizeof(int32_t));
+			ewrite( *sockfd, &socketBuffer, sizeof(int32_t));
 			socketBuffer = 4*sizeof(float);
-			write( *sockfd, &socketBuffer, sizeof(int32_t));
+			ewrite( *sockfd, &socketBuffer, sizeof(int32_t));
 			for(int i = 2; i < 10; i++ ) {
 				if( i % 2 == 0 ) {
 					tmp = USBBufferIn[i];
 				} else {
 					tmp |= USBBufferIn[i] << 8;
 					output = ((float) tmp)/65536.0;
-					write(*sockfd, &output, sizeof(float));
+					ewrite(*sockfd, &output, sizeof(float));
 				}
 			}
 		} else {
@@ -153,19 +153,19 @@ int getWrapper	    (char *stringParam, int *sockfd, int *usbfd) {
 
 			memset(errorstring, 0, 1024);
 			sprintf(errorstring, "recvd from STM32: 0x%x 0x%x\n", USBBufferIn[0], USBBufferIn[1]);
-			write(*sockfd, &tmp, sizeof(int32_t));
+			ewrite(*sockfd, &tmp, sizeof(int32_t));
 			tmp = strlen(errorstring);
-			write(*sockfd, &tmp, sizeof(int32_t));
+			ewrite(*sockfd, &tmp, sizeof(int32_t));
 
-			write(*sockfd, errorstring, strlen(errorstring));
+			ewrite(*sockfd, errorstring, strlen(errorstring));
 
 			return( HARDWARE_COMM_ERR );
 		}
 	} else {
 		int32_t tmp = UNKNOWN_PARAMETER;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		tmp = 0;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		return( UNKNOWN_PARAMETER );
 	}
 
@@ -178,7 +178,7 @@ int scan2DWrapper   (int *sockfd, int *usbfd) {
 	float floatBuffer[8];
 	char sockBuffer[256];
 	int ret = SUCCESS, flagByte = 0;
-	write( *usbfd, USBBufferOut, 2 );
+	ewrite( *usbfd, USBBufferOut, 2 );
 	while( ret == SUCCESS ) {
 		memset(sockBuffer, 0, 256);
 		fcntl( *sockfd, F_SETFL, O_NONBLOCK );
@@ -192,7 +192,7 @@ int scan2DWrapper   (int *sockfd, int *usbfd) {
 			// Let the user know that abort has succeeded
 			outputBuffer[0] = SUCCESS;
 			outputBuffer[1] = 0;
-			write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+			ewrite( *sockfd, outputBuffer, sizeof(int32_t)*2);
 			\
 			// Scan 2D has not finished succesfully
 			return -1;
@@ -213,7 +213,7 @@ int scan2DWrapper   (int *sockfd, int *usbfd) {
 		} else {
 			outputBuffer[0] = ret;
 			outputBuffer[1] = 0;
-			write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+			ewrite( *sockfd, outputBuffer, sizeof(int32_t)*2);
 			return ret;
 		}
 		if( flagByte == OUT_CMD_LASTPIXEL ) {
@@ -229,16 +229,16 @@ int scan2DWrapper   (int *sockfd, int *usbfd) {
 }
 int resetWrapper    (int *sockfd, int *usbfd) {
 	uint8_t outputBuffer[2] = { IN_CMD_RESET, 0 };
-	write( *usbfd, outputBuffer, 2 );
+	ewrite( *usbfd, outputBuffer, 2 );
 	int32_t socketOutput[2] = { SUCCESS, 0 };
-	write( *sockfd, socketOutput, 2*sizeof(int32_t));
+	ewrite( *sockfd, socketOutput, 2*sizeof(int32_t));
 	return SUCCESS;
 }
 int abortWrapper    (int *sockfd, int *usbfd) {
 	uint8_t outputBuffer[2] = { IN_CMD_ABORT, 0 };
-	write( *usbfd, outputBuffer, 2 );
+	ewrite( *usbfd, outputBuffer, 2 );
 	int32_t socketOutput[2] = { SUCCESS, 0 };
-	write( *sockfd, socketOutput, 2*sizeof(int32_t));
+	ewrite( *sockfd, socketOutput, 2*sizeof(int32_t));
 	return SUCCESS;
 }
 
@@ -249,20 +249,20 @@ int measureWrapper  (int *sockfd, int *usbfd) {
 	float floatBuffer[8];
 	int ret = 0;
 	// Ask the controller to measure once
-	write( *usbfd, USBBufferOut, 2 );
+	ewrite( *usbfd, USBBufferOut, 2 );
 	// (Try to) read the floats it returns
 	ret = readfloats( floatBuffer, &flagByte, usbfd);
 	// Write the result out to the socket
 	if( ret == SUCCESS ) {
 		outputBuffer[0] = SUCCESS;
 		outputBuffer[1] = sizeof(float)*8;
-		write( *sockfd, outputBuffer, sizeof(int32_t)*2);
-		write( *sockfd, floatBuffer, sizeof(float)*8);
+		ewrite( *sockfd, outputBuffer, sizeof(int32_t)*2);
+		ewrite( *sockfd, floatBuffer, sizeof(float)*8);
 		return SUCCESS;
 	} else {
 		outputBuffer[0] = ret;
 		outputBuffer[1] = 0;
-		write( *sockfd, outputBuffer, sizeof(int32_t)*2);
+		ewrite( *sockfd, outputBuffer, sizeof(int32_t)*2);
 		return ret;
 	}
 }
@@ -273,10 +273,10 @@ int	idWrapper( int *sockfd ) {
 
 	memset(idstring, 0, 1024);
 	sprintf(idstring, "STM32 Controller interface\n");
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = strlen(idstring);
-	write(*sockfd, &tmp, sizeof(int32_t));
-	write(*sockfd, idstring, strlen(idstring));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, idstring, strlen(idstring));
 
 	return SUCCESS;
 }

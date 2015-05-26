@@ -29,6 +29,8 @@ void catchBrokenpipe( int signum ) {
 }
 
 int main(int argc, char **argv) {
+	setProgName(argv[0]);
+
 	int usbfd = 0, serverfd = 0;
 	char socketBuffer[1024];
 	initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
@@ -85,9 +87,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 			command = CMD_ID;
 		} else {
 			returnValue = UNKNOWN_COMMAND;
-			write(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(*sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*sockfd, &length, sizeof(int32_t));
+			ewrite(*sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 	}
@@ -100,9 +102,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 			strcpy( stringParam, request );
 		} else {
 			returnValue = NOT_ENOUGH_PARAMETERS;
-			write(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(*sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			write(*sockfd, &length, sizeof(int32_t));
+			ewrite(*sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 
@@ -117,9 +119,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 
 			if( i == 0 ) {
 				returnValue = NOT_ENOUGH_PARAMETERS;
-				write(*sockfd, &returnValue, sizeof(int32_t));
+				ewrite(*sockfd, &returnValue, sizeof(int32_t));
 				int32_t length = 0;
-				write(*sockfd, &length, sizeof(int32_t));
+				ewrite(*sockfd, &length, sizeof(int32_t));
 				return(returnValue);
 			}
 		}

@@ -63,7 +63,7 @@ MY_CFLAGS = -Wall -std=c99 -Werror
 MY_LIBS   = -pthread -lm -lportaudio -lrfftw -lfftw -I../Libraries
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall
+CPPFLAGS  = -Wall -Werror
 
 # The options used in linking as well as in any direct use of ld.
 LDFLAGS   = 
