@@ -1,4 +1,5 @@
 #include "wrappers.h"
+#include <inttypes.h>
 
 void getFrequencyString(double frequency, double offset, char *cmdString) {
 	int f = (int) (frequency/1.0e6);
@@ -7,14 +8,14 @@ void getFrequencyString(double frequency, double offset, char *cmdString) {
 	uint64_t khz = f_off;
 	uint64_t mhz = (f % 1000 );
 	uint64_t ghz =  (f - mhz)  / 1000;
-	printf("%llu GHz %llu MHz %llu kHz\n", ghz, mhz, khz);
+	printf("%"PRIu64" GHz %"PRIu64" MHz %"PRIu64" kHz\n", ghz, mhz, khz);
 
 	if( ghz >= 10 ) {
 		memset(cmdString, 0, 256);
-		sprintf(cmdString, "P%llu%.2lluT%llu%.3lluZ1\r\n", ghz, mhz/10, mhz % 10, khz);
+		sprintf(cmdString, "P%"PRIu64"%.2"PRIu64"T%"PRIu64"%.3"PRIu64"Z1\r\n", ghz, mhz/10, mhz % 10, khz);
 	} else {
 		memset(cmdString, 0, 256);
-		sprintf(cmdString, "Q%llu%.2lluT%llu%.3lluZ1\r\n", ghz, mhz/10, mhz % 10, khz);
+		sprintf(cmdString, "Q%"PRIu64"%.2"PRIu64"T%"PRIu64"%.3"PRIu64"Z1\r\n", ghz, mhz/10, mhz % 10, khz);
 	}
 }
 
@@ -67,16 +68,16 @@ int setWrapper( char *stringParam, double *value, int *sockfd, gpibio *gpib) {
 		gpib_write( gpib, strlen(cmdString), cmdString);
 	} else {
 		int32_t tmp = UNKNOWN_PARAMETER;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		tmp = 0;
-		write(*sockfd, &tmp, sizeof(int32_t));
+		ewrite(*sockfd, &tmp, sizeof(int32_t));
 		return( UNKNOWN_PARAMETER );
 	}
 
 	int32_t tmp = SUCCESS;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = 0;
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 
 	return SUCCESS;
 }
@@ -87,10 +88,10 @@ int	idWrapper( int *sockfd ) {
 
 	memset(idstring, 0, 1024);
 	sprintf(idstring, "Arduino GPIB HP 8672A controller\n");
-	write(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
 	tmp = strlen(idstring);
-	write(*sockfd, &tmp, sizeof(int32_t));
-	write(*sockfd, idstring, strlen(idstring));
+	ewrite(*sockfd, &tmp, sizeof(int32_t));
+	ewrite(*sockfd, idstring, strlen(idstring));
 
 	return SUCCESS;
 }

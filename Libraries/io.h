@@ -20,6 +20,7 @@
 // write with error checking.
 void ewrite(int fd, const void *buf, size_t nbytes);
 
+
 // abort with error message.
 void fatal(char *msg);
 

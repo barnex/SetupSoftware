@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
 	float freqStep  = config.stepFrequency;
 	float freqStart = config.startFrequency;
 	float freqStop  = config.stopFrequency;
-	float freqCurrent = freqStart;
+	//float freqCurrent = freqStart;
 
 
 	float fieldStart = config.startField;

@@ -2,11 +2,9 @@
 
 ## Controller
 Presents an interface to the STM32 based piezo/magnet controller with 8-channel, 16-bit bipolar ADC input.
-TODO: warnings
 
 ## CurrentSense
 An interface to a STM32 based current sensor (current through fast photodiode)
-TODO: warnings
 
 ## Dumbscanner
 
