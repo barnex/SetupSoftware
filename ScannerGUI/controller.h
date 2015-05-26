@@ -6,22 +6,21 @@
 #include <QMutex>
 #include "../Libraries/errors.h"
 #include <QDebug>
+#include <QHostAddress>
+
+#include <assert.h>
+#include <unistd.h>
+
+#include "socket.h"
+#include "io.h"
 
 #define CONTROLLER_BUSY    1
 #define CONTROLLER_IDLE    2
 
 class Controller {
 private:
-	QTcpSocket *controller;
-	QMutex *lock;
-	int     status;
-	float   startPosition[4];
-	float   currentPosition[4];
-	float   IInc[4];
-	float   JInc[4];
-	int     pixels;
+	int sockfd;
 	int     t_settle;
-	int myReadfull(void *, int );
 public:
 	Controller();
 	~Controller();
@@ -29,6 +28,7 @@ public:
 	// Basic getters
 	int setPosition(float *pos);
 	int getPosition (float *pos);
+	int abort();
 };
 
 #endif // CONTROLLER_H

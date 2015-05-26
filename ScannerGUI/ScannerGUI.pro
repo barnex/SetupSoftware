@@ -2,6 +2,7 @@
 # Project created by QtCreator 2014-02-27T16:25:50
 # -------------------------------------------------
 QT += network
+QT += widgets
 TARGET = ScannerGUI
 TEMPLATE = app
 SOURCES += main.cpp \

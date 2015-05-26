@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "piezocontrol.h"
 #include "controller.h"
 #include <QMutex>
