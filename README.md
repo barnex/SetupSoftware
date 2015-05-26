@@ -19,11 +19,10 @@ TODO: warnings
 ## PiezoFMR
 
 ## FFTGrabber
-When requested, it will record a number of samples from a soundcard and returns the FFT of this
-dependencies: 
+Records samples from a soundcard and returns the Fourier transform.
+Dependencies: 
   * portaudio (Ubuntu 15.04: ``sudo apt-get install portaudio19-dev``)
   * fftw (Ubuntu 15.04: ``sudo apt-get install fftw-dev``)
-TODO: warnings
 
 ## HPInterface
 interfaces both with a Prologix or Arduino based GPIB controller hooked up to the HP 8672A signal generator
