@@ -26,6 +26,10 @@ void efgets(char *str, int num, FILE *stream);
 // abort with error message.
 void fatal(char *msg);
 
+// check that argc == nArgs+1. If not, exit with
+// "progname: need nArgs arguments: msg"
+void checkArgs(int argc, int nArgs, char *msg);
+
 // set the program name to be reported in errors
 // typically in main: setProgName(argv[0]);
 void setProgName(char *name);

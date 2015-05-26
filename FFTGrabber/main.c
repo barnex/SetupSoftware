@@ -47,6 +47,9 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
 
 
 int main(int argc, char **argv) {
+	setProgName(argv[0]);
+	checkArgs(argc, 2, "port number, audio device number");
+
 	int sockfd = 0;
 	initServer( &sockfd, atoi(argv[1]) );
 

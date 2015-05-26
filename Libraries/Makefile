@@ -1,2 +1,2 @@
 all:
-	gcc -Wall  *.c -o test
+	#gcc -Wall  *.c -o test

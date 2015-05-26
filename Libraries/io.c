@@ -28,6 +28,16 @@ void efgets(char *str, int num, FILE *stream) {
 	}
 }
 
+
+
+void checkArgs(int argc, int nArgs, char *msg) {
+	if(argc != nArgs+1) {
+		fprintf(stderr, "%s: need %d arguments: %s\n", progname, nArgs, msg);
+		fflush(stderr);
+		abort();
+	}
+}
+
 static int set_interface_attribs (int fd, int speed, int parity);
 static void set_blocking (int fd, int should_block);
 
