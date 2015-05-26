@@ -20,6 +20,8 @@
 // write with error checking.
 void ewrite(int fd, const void *buf, size_t nbytes);
 
+// fgets with error checking.
+void efgets(char *str, int num, FILE *stream);
 
 // abort with error message.
 void fatal(char *msg);

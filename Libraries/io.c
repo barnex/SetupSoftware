@@ -20,6 +20,14 @@ void ewrite(int fd, const void *buf, size_t nbytes) {
 	}
 }
 
+
+void efgets(char *str, int num, FILE *stream) {
+	char* ret = fgets(str, num, stream);
+	if (ret == NULL) {
+		fatal("read");
+	}
+}
+
 static int set_interface_attribs (int fd, int speed, int parity);
 static void set_blocking (int fd, int should_block);
 
