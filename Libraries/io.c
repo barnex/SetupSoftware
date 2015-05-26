@@ -2,21 +2,21 @@
 
 static char* progname = "";
 
-void fatal(char *msg){
-		fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
-		fflush(stdout);
-		fflush(stderr);
-		abort();
+void fatal(char *msg) {
+	fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
+	fflush(stdout);
+	fflush(stderr);
+	abort();
 }
 
-void setProgName(char *name){
+void setProgName(char *name) {
 	progname = name;
 }
 
-void ewrite(int fd, const void *buf, size_t nbytes){
+void ewrite(int fd, const void *buf, size_t nbytes) {
 	size_t written = write(fd, buf, nbytes);
-	if (written < nbytes || errno != 0){
-		fatal("write");	
+	if (written < nbytes || errno != 0) {
+		fatal("write");
 	}
 }
 
