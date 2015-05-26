@@ -3,9 +3,9 @@
 char* progname = "";
 
 void fatal(char *msg) {
-	if (errno != 0){
+	if (errno != 0) {
 		fprintf(stderr, "%s: %s: %s\n", progname, msg, strerror(errno));
-	}else{
+	} else {
 		fprintf(stderr, "%s: %s\n", progname, msg);
 	}
 	fflush(stdout);

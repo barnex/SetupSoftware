@@ -15,8 +15,10 @@
 #include <netdb.h>
 #include <assert.h>
 
-int initServer( int *sockfd, int portno );
-int initClient( int *sockfd, int portno );
-int initRemoteClient( int *sockfd, char *hostname, int portno );
+void initServer( int *sockfd, int portno );
+
+void initClient( int *sockfd, int portno );
+
+void initRemoteClient( int *sockfd, char *hostname, int portno );
 
 #endif

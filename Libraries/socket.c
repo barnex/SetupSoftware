@@ -1,13 +1,21 @@
 #include "socket.h"
+#include "io.h"
 
-int initServer( int *sockfd, int portno ) {
+void checkPort(int portno) {
+	if(portno == 0) {
+		fatal("port 0 not allowed");
+	}
+}
+
+void initServer( int *sockfd, int portno ) { // TODO: void!
+	fprintf(stderr, "%s: init server, port %d\n", progname, portno);
+	checkPort(portno);
+
 	struct sockaddr_in serv_addr;
 
 	*sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (*sockfd < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init server");
 	}
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
@@ -15,22 +23,20 @@ int initServer( int *sockfd, int portno ) {
 	serv_addr.sin_port = htons(portno);
 	if (bind(*sockfd, (struct sockaddr *) &serv_addr,
 	         sizeof(serv_addr)) < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init server (bind)");
 
 	}
 	listen(*sockfd,5);
-	return EXIT_SUCCESS;
 }
 
-int initClient( int *sockfd, int portno ) {
+void initClient( int *sockfd, int portno ) {
+	fprintf(stderr, "%s: init client, port %d\n", progname, portno);
+	checkPort(portno);
+
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 	if((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init client");
 	}
 
 	server = gethostbyname("localhost");
@@ -45,21 +51,18 @@ int initClient( int *sockfd, int portno ) {
 	      server->h_length);
 	serv_addr.sin_port = htons(portno);
 	if (connect(*sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init client (connect)");
 	}
-
-	return EXIT_SUCCESS;
 }
 
-int initRemoteClient( int *sockfd, char *hostname, int portno ) {
+void initRemoteClient( int *sockfd, char *hostname, int portno ) {
+	fprintf(stderr, "%s: init remote client, %s:%d\n", progname, hostname, portno);
+	checkPort(portno);
+
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 	if((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init remote client (socket)");
 	}
 
 	server = gethostbyname(hostname);
@@ -74,10 +77,6 @@ int initRemoteClient( int *sockfd, char *hostname, int portno ) {
 	      server->h_length);
 	serv_addr.sin_port = htons(portno);
 	if (connect(*sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-		fprintf(stderr, "! ERROR: Could not open socket to port %d!\n", portno);
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("init remote client (connect)");
 	}
-
-	return EXIT_SUCCESS;
 }
