@@ -1,4 +1,5 @@
 all:
+	astyle --indent=tab --style=java */*.c */*.h */*.cpp || echo ""
 	make -C Controller
 	make -C CurrentSense
 	make -C DumbScanner
