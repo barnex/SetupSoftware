@@ -36,25 +36,21 @@ int main(int argc, char **argv) {
 	if( gpib == NULL ){
 		fatal("init GPIB");
 	}
-	printf("OK\n");
 
 	printf("%s: pinging GPIB...\n", progname);
 	int ping = gpib_ping(gpib);
 	if(ping == 0){
 		fatal("unable to ping GPIB");
-	}else{
-		printf("OK\n");
 	}
 
-	printf("%s: resetting GPIB bus...\n", progname);
 	// Resetting GPIB bus
+	printf("%s: resetting GPIB bus...\n", progname);
 	gpib_remote(gpib, 1);
 	gpib_clear(gpib, 1);
 	gpib_untalk(gpib);
 	gpib_unlisten(gpib);
 	gpib_talker( gpib, 0x00 );
 	gpib_listener( gpib, _GPIB_LISTENER );
-	printf("OK\n");
 
 	char socketBuffer[1024];
 	int sockfd = initServer(atoi(argv[1]) );
