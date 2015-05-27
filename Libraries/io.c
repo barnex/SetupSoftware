@@ -68,18 +68,15 @@ int myRead( int fd, void *buffer, int nbytes ) {
 
 
 
-void initSerial( int *fd, int baudrate, char *devname ) {
-	
-	*fd = open( devname, O_RDWR | O_NOCTTY | O_SYNC );
-	if (*fd < 0) {
+int initSerial(int baudrate, char *devname ) {
+	printf("%s: open %s baud%d \n", progname, devname, baudrate);
+	int fd = open( devname, O_RDWR | O_NOCTTY | O_SYNC );
+	if (fd < 0) {
 		fatal("initSerial");
-		//fprintf(stderr, "! ERROR: Could not open serial port!\n");
-		//perror("! ERROR Message from system");
-		//return EXIT_FAILURE;
 	}
-	set_interface_attribs (*fd, baudrate, 0);  // set speed to baudrate, 8n1 (no parity)
-	set_blocking (*fd, 0);                // set non blocking
-	//return EXIT_SUCCESS;
+	set_interface_attribs (fd, baudrate, 0);  // set speed to baudrate, 8n1 (no parity)
+	set_blocking (fd, 0);                // set non blocking
+	return fd;
 }
 
 static int set_interface_attribs (int fd, int speed, int parity) {

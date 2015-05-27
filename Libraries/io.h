@@ -43,6 +43,8 @@ int myRead( int fd, void *buffer, int nBytes );
 
 int myWrite( int fd, const char *format, ...);
 
-void initSerial( int *fd, int baudrate, char *devname );
+// open serial device and set baudrate, return file descriptor,
+// with error checking.
+int initSerial(int baudrate, char *devname );
 
 #endif

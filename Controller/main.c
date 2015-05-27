@@ -32,12 +32,9 @@ int handleRequest(char *cmdbuffer, int sockfd, int usbfd);
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
 
-	int usbfd = 0;
 	char socketBuffer[1024];
-	initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
-	//printf("usbfd=%x\n", usbfd);
+	int usbfd = initSerial(115200, "/dev/ttyUSB0" );
 	int serverfd = initServer( atoi(argv[1]) );
-	//printf("srverfd=%x\n", serverfd);
 
 	assert(signal( SIGPIPE, SIG_IGN)!=SIG_ERR);
 
