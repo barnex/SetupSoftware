@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 	const PaDeviceInfo *deviceInfo;
 	//for(int i = 0; i< numDevices; i++ ) {
 	deviceInfo = Pa_GetDeviceInfo(devNumber);
-		//printf("%d = %s\n", i, deviceInfo->name );
+	//printf("%d = %s\n", i, deviceInfo->name );
 	//}
 	fprintf(stderr, "%s: using audio device #%d: %s\n", progname, devNumber, deviceInfo->name);
 

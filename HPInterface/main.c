@@ -24,8 +24,10 @@
 int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib);
 
 int main(int argc, char **argv) {
+	setProgName(argv[0]);
+	checkArgs(argc, 1, "port number");
 	// Basic init
-	gpibio *gpib = gpib_init(0x00, 0x01, "/dev/ttyACM0");
+	gpibio *gpib = gpib_init(0x00, 0x01, "/dev/ttyACM0"); // TODO
 	assert( gpib != NULL );
 	assert( gpib_ping(gpib) != 0 );
 
