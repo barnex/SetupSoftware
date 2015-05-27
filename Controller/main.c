@@ -22,11 +22,12 @@
 
 #define MAX_PARAMS  4
 
-int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd);
 
-void catchBrokenpipe( int signum ) {
-	printf("Broken pipe. Will ignore\n");
-}
+int handleRequest(char *cmdbuffer, int sockfd, int usbfd);
+
+//void catchBrokenpipe( int signum ) {
+//	printf("Broken pipe. Will ignore\n");
+//}
 
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
@@ -44,7 +45,7 @@ int main(int argc, char **argv) {
 		int ret = myRead( clientfd, socketBuffer, 1024 );
 		while( ret > 0 ) {
 			printf("inbound: %s\n", socketBuffer);
-			handleRequest(socketBuffer, &clientfd, &usbfd);
+			handleRequest(socketBuffer, clientfd, usbfd);
 			ret = myRead(clientfd, socketBuffer, 1024);
 		}
 		close(clientfd);
@@ -53,7 +54,7 @@ int main(int argc, char **argv) {
 	return EXIT_SUCCESS;
 }
 
-int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
+int handleRequest(char *cmdbuffer, int sockfd, int usbfd) {
 	char *localCopy = NULL, *request = NULL, *stringParam = NULL;
 	float parameters[MAX_PARAMS];
 	int command = 0;
@@ -87,9 +88,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 			command = CMD_ID;
 		} else {
 			returnValue = UNKNOWN_COMMAND;
-			ewrite(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			ewrite(*sockfd, &length, sizeof(int32_t));
+			ewrite(sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 	}
@@ -102,9 +103,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 			strcpy( stringParam, request );
 		} else {
 			returnValue = NOT_ENOUGH_PARAMETERS;
-			ewrite(*sockfd, &returnValue, sizeof(int32_t));
+			ewrite(sockfd, &returnValue, sizeof(int32_t));
 			int32_t length = 0;
-			ewrite(*sockfd, &length, sizeof(int32_t));
+			ewrite(sockfd, &length, sizeof(int32_t));
 			return(returnValue);
 		}
 
@@ -119,9 +120,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, int *usbfd) {
 
 			if( i == 0 ) {
 				returnValue = NOT_ENOUGH_PARAMETERS;
-				ewrite(*sockfd, &returnValue, sizeof(int32_t));
+				ewrite(sockfd, &returnValue, sizeof(int32_t));
 				int32_t length = 0;
-				ewrite(*sockfd, &length, sizeof(int32_t));
+				ewrite(sockfd, &length, sizeof(int32_t));
 				return(returnValue);
 			}
 		}
