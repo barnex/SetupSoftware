@@ -41,6 +41,10 @@ void init( configuration *cfg );
 void scan2D( FILE *destination, configuration *cfg );
 
 int main(int argc, char **argv) {
+
+	setProgName(argv[0]);
+	checkArgs(argc, 0, "");
+
 	configuration config;
 	memset(&config, 0, sizeof(configuration));
 	char *homeDir = getenv("HOME");
