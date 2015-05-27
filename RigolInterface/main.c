@@ -14,19 +14,21 @@
 
 int handleRequest(char *cmdbuffer, int *sockfd, FILE *usbfd);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
+
+	setProgName(argv[0]);
+checkArgs(argc, 1, "port number");
+
     FILE *usbfd = NULL;
-    int serverfd = 0;
     char socketBuffer[1024];
     //initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
     usbfd = fopen("/dev/usbtmc0", "w+");
-    initServer( &serverfd, atoi(argv[1]) );
+    int serverfd= initServer(atoi(argv[1]) );
 
     while(1)
     {
 	// Listen for incoming calls
-	int clientfd = accept(serverfd, 0, 0);
+	int clientfd = eaccept(serverfd);
 	int ret = myRead( clientfd, socketBuffer, 1024 );
         while( ret > 0 )
         {
@@ -66,9 +68,9 @@ int handleRequest(char *cmdbuffer, int *sockfd, FILE *usbfd)
 	else
 	{
 	    returnValue = UNKNOWN_COMMAND;
-	    write(*sockfd, &returnValue, sizeof(int32_t));
+	    ewrite(*sockfd, &returnValue, sizeof(int32_t));
 	    int32_t length = 0;
-	    write(*sockfd, &length, sizeof(int32_t));
+	    ewrite(*sockfd, &length, sizeof(int32_t));
 	    return(returnValue);
 	}
     }
