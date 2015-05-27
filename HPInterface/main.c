@@ -21,16 +21,32 @@
 
 #define MAX_PARAMS  3
 
+#define GPIB_DEV "/dev/ttyACM0"
+
 int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib);
+
 
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
 	checkArgs(argc, 1, "port number");
-	// Basic init
-	gpibio *gpib = gpib_init(0x00, 0x01, "/dev/ttyACM0"); // TODO
-	assert( gpib != NULL );
-	assert( gpib_ping(gpib) != 0 );
 
+	// Basic init
+	printf("%s: init GPIB: %s...\n", progname, GPIB_DEV);
+	gpibio *gpib = gpib_init(0x00, 0x01, GPIB_DEV);
+	if( gpib == NULL ){
+		fatal("init GPIB");
+	}
+	printf("OK\n");
+
+	printf("%s: pinging GPIB...\n", progname);
+	int ping = gpib_ping(gpib);
+	if(ping == 0){
+		fatal("unable to ping GPIB");
+	}else{
+		printf("OK\n");
+	}
+
+	printf("%s: resetting GPIB bus...\n", progname);
 	// Resetting GPIB bus
 	gpib_remote(gpib, 1);
 	gpib_clear(gpib, 1);
@@ -38,6 +54,7 @@ int main(int argc, char **argv) {
 	gpib_unlisten(gpib);
 	gpib_talker( gpib, 0x00 );
 	gpib_listener( gpib, _GPIB_LISTENER );
+	printf("OK\n");
 
 	char socketBuffer[1024];
 	int sockfd = initServer(atoi(argv[1]) );
