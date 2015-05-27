@@ -7,6 +7,15 @@ void checkPort(int portno) {
 	}
 }
 
+int eaccept(int listener){
+	int sock = accept(listener, 0, 0);
+	if(sock < 0){
+		fatal("accept");
+	}
+	printf("accepted connection, fd=%x\n", sock);
+	return sock;
+}
+
 int initServer(int portno ) {
 	int sockfd;
 

@@ -19,8 +19,9 @@ void setProgName(char *name) {
 
 
 void ewrite(int fd, const void *buf, size_t nbytes) {
+	//printf("ewrite fd=%x buf=%p size=%ld \n", fd, buf, nbytes);
 	size_t written = write(fd, buf, nbytes);
-	if (written < nbytes || errno != 0) {
+	if (written < 0) {
 		fatal("write");
 	}
 }
@@ -67,18 +68,18 @@ int myRead( int fd, void *buffer, int nbytes ) {
 
 
 
-int initSerial( int *fd, int baudrate, char *devname ) {
+void initSerial( int *fd, int baudrate, char *devname ) {
+	
 	*fd = open( devname, O_RDWR | O_NOCTTY | O_SYNC );
 	if (*fd < 0) {
-		fprintf(stderr, "! ERROR: Could not open serial port!\n");
-		perror("! ERROR Message from system");
-		return EXIT_FAILURE;
+		fatal("initSerial");
+		//fprintf(stderr, "! ERROR: Could not open serial port!\n");
+		//perror("! ERROR Message from system");
+		//return EXIT_FAILURE;
 	}
-
-	set_interface_attribs (*fd, baudrate, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-	set_blocking (*fd, 0);                // set no blockin
-
-	return EXIT_SUCCESS;
+	set_interface_attribs (*fd, baudrate, 0);  // set speed to baudrate, 8n1 (no parity)
+	set_blocking (*fd, 0);                // set non blocking
+	//return EXIT_SUCCESS;
 }
 
 static int set_interface_attribs (int fd, int speed, int parity) {

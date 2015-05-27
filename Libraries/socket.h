@@ -15,6 +15,10 @@
 #include <netdb.h>
 #include <assert.h>
 
+// accept connection on listening socket, and return connection socket,
+// with error checking.
+int eaccept(int listener);
+
 // listen on portno and return socket FD.
 int initServer(int portno) __attribute__((warn_unused_result));
 

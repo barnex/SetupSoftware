@@ -44,7 +44,7 @@ typedef struct {
 	int tsettle;
 } configuration;
 
-int sockfd;
+//int sockfd;
 
 static int handler(void *user, const char *section, const char *name,
                    const char *value);
