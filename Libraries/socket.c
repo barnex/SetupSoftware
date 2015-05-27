@@ -8,7 +8,7 @@ void checkPort(int portno) {
 }
 
 int eaccept(int listener){
-	printf("%s: listening for connections\n", progname);
+	printf("%s: listening for connections...\n", progname);
 	int sock = accept(listener, 0, 0);
 	if(sock < 0){
 		fatal("accept");
@@ -17,26 +17,30 @@ int eaccept(int listener){
 	return sock;
 }
 
-// TODO: pass port as string, atoi here!
-int initServer(int portno ) {
-	int sockfd;
+int esocket(){
+	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		fatal("opening socket");
+	}
+	return sockfd;
+}
 
-	fprintf(stderr, "%s: init server, port %d\n", progname, portno);
+// TODO: pass port as string, atoi here!
+int initServer(int portno) {
+
+	fprintf(stderr, "%s: serving at port %d\n", progname, portno);
 	checkPort(portno);
 
-	struct sockaddr_in serv_addr;
+	int sockfd = esocket();
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
-		fatal("init server");
-	}
+	struct sockaddr_in serv_addr;
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(portno);
 	if (bind(sockfd, (struct sockaddr *) &serv_addr,
 	         sizeof(serv_addr)) < 0) {
-		fatal("init server (bind)");
+		fatal("bind");
 
 	}
 	listen(sockfd,5);
@@ -44,15 +48,13 @@ int initServer(int portno ) {
 }
 
 int initClient(int portno) {
-	fprintf(stderr, "%s: init client, port %d\n", progname, portno);
+	fprintf(stderr, "%s: connecting to localhost:%d\n", progname, portno);
 	checkPort(portno);
 
-	int sockfd;
+	int sockfd = esocket();
+
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fatal("init client");
-	}
 
 	server = gethostbyname("localhost");
 	memset(&serv_addr, 0, sizeof(serv_addr));
@@ -66,35 +68,8 @@ int initClient(int portno) {
 	      server->h_length);
 	serv_addr.sin_port = htons(portno);
 	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-		fatal("init client (connect)");
+		fatal("connect");
 	}
 	return sockfd;
 }
 
-int initRemoteClient(char *hostname, int portno ) {
-	fprintf(stderr, "%s: init remote client, %s:%d\n", progname, hostname, portno);
-	checkPort(portno);
-
-	int sockfd;
-	struct sockaddr_in serv_addr;
-	struct hostent *server;
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		fatal("init remote client (socket)");
-	}
-
-	server = gethostbyname(hostname);
-	memset(&serv_addr, 0, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = portno;
-
-	bzero((char *) &serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	bcopy((char *)server->h_addr_list[0],
-	      (char *)&serv_addr.sin_addr.s_addr,
-	      server->h_length);
-	serv_addr.sin_port = htons(portno);
-	if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) {
-		fatal("init remote client (connect)");
-	}
-	return sockfd;
-}

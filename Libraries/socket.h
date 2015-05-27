@@ -25,7 +25,4 @@ int initServer(int portno) __attribute__((warn_unused_result));
 // connect to portno and return socket FD.
 int initClient(int portno ) __attribute__((warn_unused_result));
 
-// connect to hostname:protnoe and return socket FD.
-int initRemoteClient(char *hostname, int portno ) __attribute__((warn_unused_result));
-
 #endif
