@@ -46,6 +46,10 @@ static int handler(void *user, const char *section, const char *name,
                    const char *value);
 
 int main(int argc, char **argv) {
+
+	setProgName(argv[0]);
+	checkArgs(argc, 0, "");
+
 	configuration config;
 	memset(&config, 0, sizeof(configuration));
 	char *homeDir = getenv("HOME");

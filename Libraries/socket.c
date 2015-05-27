@@ -8,14 +8,16 @@ void checkPort(int portno) {
 }
 
 int eaccept(int listener){
+	printf("%s: listening for connections\n", progname);
 	int sock = accept(listener, 0, 0);
 	if(sock < 0){
 		fatal("accept");
 	}
-	printf("%s: accepted connection", progname);
+	printf("%s: accepted connection\n", progname);
 	return sock;
 }
 
+// TODO: pass port as string, atoi here!
 int initServer(int portno ) {
 	int sockfd;
 

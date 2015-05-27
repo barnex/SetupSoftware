@@ -9,6 +9,7 @@ all:
 	make -C HittiteInterface
 	make -C PiezoFMR
 	make -C PiezoScanner
+	make -C RigolInterface
 	#(cd ScannerGUI && qmake && make)
 
 clean:
@@ -21,4 +22,5 @@ clean:
 	make clean -C HittiteInterface
 	make clean -C PiezoFMR
 	make clean -C PiezoScanner
+	make clean -C RigolInterface
 	make clean -C ScannerGUI
