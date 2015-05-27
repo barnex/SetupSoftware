@@ -9,7 +9,7 @@ all:
 	make -C HittiteInterface
 	make -C PiezoFMR
 	make -C PiezoScanner
-	(cd ScannerGUI && qmake && make)
+	#(cd ScannerGUI && qmake && make)
 
 clean:
 	make clean -C Controller
