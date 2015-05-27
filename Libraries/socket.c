@@ -12,7 +12,7 @@ int eaccept(int listener){
 	if(sock < 0){
 		fatal("accept");
 	}
-	printf("accepted connection, fd=%x\n", sock);
+	printf("%s: accepted connection", progname);
 	return sock;
 }
 

@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
 	int sockfd = initServer(atoi(argv[1]) );
 
 	while(1) {
-		int clientfd = accept(sockfd, 0, 0);
+		int clientfd = eaccept(sockfd);
 		int ret = myRead( clientfd, socketBuffer, 1024 );
 		while( ret > 0 ) {
 			printf("Received: %s\n", socketBuffer);

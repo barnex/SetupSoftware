@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
 	while(1) {
 		// Listen for incoming calls
-		int clientfd = accept(serverfd, 0, 0);
+		int clientfd = eaccept(serverfd);
 		int ret = myRead( clientfd, socketBuffer, 1024 );
 		while( ret > 0 ) {
 			handleRequest(socketBuffer, &clientfd, &usbfd);
