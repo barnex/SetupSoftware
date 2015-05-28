@@ -7,17 +7,17 @@ void checkPort(int portno) {
 	}
 }
 
-int eaccept(int listener){
+int eaccept(int listener) {
 	printf("%s: listening for connections...\n", progname);
 	int sock = accept(listener, 0, 0);
-	if(sock < 0){
+	if(sock < 0) {
 		fatal("accept");
 	}
 	printf("%s: accepted connection\n", progname);
 	return sock;
 }
 
-int esocket(){
+int esocket() {
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0) {
 		fatal("opening socket");

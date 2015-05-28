@@ -45,13 +45,13 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
 	return 0;
 }
 
-void listDevices(){
+void listDevices() {
 	printf("%s: audio devices:\n", progname);
 	int numDevices = Pa_GetDeviceCount();
 	const PaDeviceInfo *deviceInfo;
 	for(int i = 0; i< numDevices; i++ ) {
-	deviceInfo = Pa_GetDeviceInfo(i);
-	printf("%s:  * device %d: %s\n", progname, i, deviceInfo->name );
+		deviceInfo = Pa_GetDeviceInfo(i);
+		printf("%s:  * device %d: %s\n", progname, i, deviceInfo->name );
 	}
 }
 
@@ -91,13 +91,13 @@ int main(int argc, char **argv) {
 
 	PaError err = Pa_IsFormatSupported( &inputParameters, NULL, SAMPLE_RATE);
 	if( err != paFormatIsSupported ) {
-		listDevices();	
+		listDevices();
 		fatal(Pa_GetErrorText(err));
 	}
 
 	err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, 480, paNoFlag, myPACallback, (void *)&paArgs);
 	if( err != paNoError ) {
-		listDevices();	
+		listDevices();
 		fatal(Pa_GetErrorText(err) );
 	}
 

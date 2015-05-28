@@ -33,13 +33,13 @@ int main(int argc, char **argv) {
 	// Basic init
 	printf("%s: init GPIB: %s...\n", progname, GPIB_DEV);
 	gpibio *gpib = gpib_init(0x00, 0x01, GPIB_DEV);
-	if( gpib == NULL ){
+	if( gpib == NULL ) {
 		fatal("init GPIB");
 	}
 
 	printf("%s: pinging GPIB...\n", progname);
 	int ping = gpib_ping(gpib);
-	if(ping == 0){
+	if(ping == 0) {
 		fatal("unable to ping GPIB");
 	}
 
