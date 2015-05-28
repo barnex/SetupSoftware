@@ -3,7 +3,7 @@ all:
 	make -C Controller
 	make -C CurrentSense
 	make -C DumbScanner
-	make -C FFTGrabber
+	(cd FFTGrabber && ./make.bash)
 	make -C FMRScanner
 	make -C HPInterface
 	make -C HittiteInterface
@@ -16,7 +16,7 @@ clean:
 	make clean -C Controller
 	make clean -C CurrentSense
 	make clean -C DumbScanner
-	make clean -C FFTGrabber
+	rm -rf FFTGrabber/FFTGrabber FFTGrabber/*.o
 	make clean -C FMRScanner
 	make clean -C HPInterface
 	make clean -C HittiteInterface
