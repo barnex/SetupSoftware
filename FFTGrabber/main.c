@@ -45,6 +45,16 @@ static int myPACallback(const void *inputBuffer, void *outputBuffer,
 	return 0;
 }
 
+void listDevices(){
+	printf("%s: audio devices:\n", progname);
+	int numDevices = Pa_GetDeviceCount();
+	const PaDeviceInfo *deviceInfo;
+	for(int i = 0; i< numDevices; i++ ) {
+	deviceInfo = Pa_GetDeviceInfo(i);
+	printf("%s:  * device %d: %s\n", progname, i, deviceInfo->name );
+	}
+}
+
 
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
@@ -66,19 +76,14 @@ int main(int argc, char **argv) {
 	// Initialize PortAudio
 	Pa_Initialize();
 
-	//int numDevices = Pa_GetDeviceCount();
-	const PaDeviceInfo *deviceInfo;
-	//for(int i = 0; i< numDevices; i++ ) {
-	deviceInfo = Pa_GetDeviceInfo(devNumber);
-	//printf("%d = %s\n", i, deviceInfo->name );
-	//}
-	fprintf(stderr, "%s: using audio device #%d: %s\n", progname, devNumber, deviceInfo->name);
+	const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(devNumber);
+	fprintf(stderr, "%s: using audio device  %d: %s\n", progname, devNumber, deviceInfo->name);
 
 	PaStreamParameters inputParameters;
 	bzero( &inputParameters, sizeof(inputParameters));
 
 	inputParameters.channelCount = 1;
-	inputParameters.device = 3;
+	inputParameters.device = devNumber;
 	inputParameters.hostApiSpecificStreamInfo = NULL;
 	inputParameters.sampleFormat = paFloat32;
 	inputParameters.suggestedLatency = Pa_GetDeviceInfo(0)->defaultLowInputLatency;
@@ -86,11 +91,13 @@ int main(int argc, char **argv) {
 
 	PaError err = Pa_IsFormatSupported( &inputParameters, NULL, SAMPLE_RATE);
 	if( err != paFormatIsSupported ) {
+		listDevices();	
 		fatal(Pa_GetErrorText(err));
 	}
 
 	err = Pa_OpenStream( &stream, &inputParameters, NULL, SAMPLE_RATE, 480, paNoFlag, myPACallback, (void *)&paArgs);
 	if( err != paNoError ) {
+		listDevices();	
 		fatal(Pa_GetErrorText(err) );
 	}
 
