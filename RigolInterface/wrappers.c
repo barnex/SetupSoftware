@@ -1,18 +1,17 @@
 #include "wrappers.h"
 
-int measureWrapper  (int *sockfd, FILE *usbfd)
-{
-    fprintf(usbfd, ":MEAS:VOLT:DC?\n");
-    float retval = 0.0;
-    int32_t tmp[2] = {SUCCESS, sizeof(float)};
-    ewrite(*sockfd, tmp, sizeof(int32_t)*2);
-    int read = fscanf( usbfd, "%f", &retval );
-    if (read < 1){
-	fatal("read from USB");
-    }
-    printf("measured %f V\n", retval);
-    ewrite(*sockfd, &retval, sizeof(float));
-    return SUCCESS;
+int measureWrapper  (int *sockfd, FILE *usbfd) {
+	fprintf(usbfd, ":MEAS:VOLT:DC?\n");
+	float retval = 0.0;
+	int32_t tmp[2] = {SUCCESS, sizeof(float)};
+	ewrite(*sockfd, tmp, sizeof(int32_t)*2);
+	int read = fscanf( usbfd, "%f", &retval );
+	if (read < 1) {
+		fatal("read from USB");
+	}
+	printf("measured %f V\n", retval);
+	ewrite(*sockfd, &retval, sizeof(float));
+	return SUCCESS;
 }
 
 int	idWrapper( int *sockfd ) {
