@@ -12,6 +12,8 @@
 #define CMD_MEAS    1
 #define CMD_ID	    2
 
+#define USB_DEV "/dev/usbtmc0"
+
 int handleRequest(char *cmdbuffer, int *sockfd, FILE *usbfd);
 
 int main(int argc, char **argv) {
@@ -21,8 +23,11 @@ int main(int argc, char **argv) {
 
 	FILE *usbfd = NULL;
 	char socketBuffer[1024];
-	//initSerial( &usbfd, 115200, "/dev/ttyUSB0" );
-	usbfd = fopen("/dev/usbtmc0", "w+");
+	printf("%s: open %s \n", progname, USB_DEV);	
+	usbfd = fopen(USB_DEV, "w+");
+	if(usbfd <= 0){
+		fatal("opening usb device");
+	}
 	int serverfd= initServer(atoi(argv[1]) );
 
 	while(1) {

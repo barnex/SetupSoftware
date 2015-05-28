@@ -10,6 +10,7 @@ int measureWrapper  (int *sockfd, FILE *usbfd) {
 		fatal("read from USB");
 	}
 	printf("measured %f V\n", retval);
+	printf("bits %d \n", *((int32_t*)(&retval)));
 	ewrite(*sockfd, &retval, sizeof(float));
 	return SUCCESS;
 }
