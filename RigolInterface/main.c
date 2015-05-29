@@ -23,9 +23,9 @@ int main(int argc, char **argv) {
 
 	FILE *usbfd = NULL;
 	char socketBuffer[1024];
-	printf("%s: open %s \n", progname, USB_DEV);	
+	printf("%s: open %s \n", progname, USB_DEV);
 	usbfd = fopen(USB_DEV, "w+");
-	if(usbfd <= 0){
+	if(usbfd <= 0) {
 		fatal("opening usb device");
 	}
 	int serverfd= initServer(atoi(argv[1]) );

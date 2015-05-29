@@ -7,10 +7,10 @@ all:
 	make -C FMRScanner
 	make -C HPInterface
 	make -C HittiteInterface
+	make -C Master
 	make -C PiezoFMR
 	make -C PiezoScanner
 	make -C RigolInterface
-	#(cd ScannerGUI && qmake && make)
 
 clean:
 	make clean -C Controller
@@ -20,6 +20,7 @@ clean:
 	make clean -C FMRScanner
 	make clean -C HPInterface
 	make clean -C HittiteInterface
+	make clean -C Master
 	make clean -C PiezoFMR
 	make clean -C PiezoScanner
 	make clean -C RigolInterface
