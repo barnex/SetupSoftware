@@ -10,6 +10,9 @@ public final class Main {
 
 		HP hp1 = new HP("hp1", "mona.ugent.be", 5003);
 		System.out.println("hp1 id: " + hp1.id() );
+
+		PiezoController piezo = new PiezoController("mona.ugent.be", 5000);
+		System.out.println("piezo id: " + piezo.id() );
 	}
 
 	static void log(String msg) {
