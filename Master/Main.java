@@ -9,17 +9,55 @@ import java.net.*;
 public final class Main {
 
 	static final int STATUS_OK = 1;
+	static boolean verbose = true;
 
 	public static void main(String[] args) throws Exception {
-		RigolInterface rigol = RigolInterface.connect("mona.ugent.be", 5005);
-		for(;;) {
-			System.out.println("rigol: " + rigol.get() + " V");
-		}
-		//rigol.close();
+		Rigol rigol = new Rigol("mona.ugent.be", 5005);
+		System.out.println("rigol id     : " + rigol.id() );
+		System.out.println("rigol measure: " + rigol.get() + "V");
+
+		HP hp1 = new HP("hp1", "mona.ugent.be", 5003);
+		System.out.println("hp1 id: " + hp1.id() );
 	}
 
-	static float readFloatResponse(InputStream in) throws IOException {
-		byte[] data = readResponse(in);
+
+	static void log(String msg) {
+		if (verbose){
+			System.err.println(msg);
+		}
+	}
+}
+
+// Interfaces with a generic device over Mathias' networked protocol.
+class Device {
+
+	String name;
+	Socket socket;
+	PrintStream out;
+	InputStream in;
+
+	// Make a device connection with given name (e.g.: "Rigol"),
+	// connected to host:port.
+	Device(String name, String host, int port) throws UnknownHostException , IOException {
+		this.name = name;
+		Main.log(name + ": connecting to " + host + ":" + port);
+		this.socket = new Socket(host, port);
+		this.out = new PrintStream(socket.getOutputStream());
+		this.in = socket.getInputStream();
+		Main.log(name + ": connected");
+	}
+
+	void close() throws IOException {
+		socket.close();
+	}
+
+	void send(String msg) {
+		out.print(msg);
+	}
+
+
+	float readFloatResponse() throws IOException {
+		byte[] data = readResponse();
 		if(data.length != 4) {
 			throw new IOException("readFloatResponse: got " + data.length + " bytes");
 		}
@@ -27,36 +65,35 @@ public final class Main {
 
 	}
 
-	static byte[] readResponse(InputStream in) throws IOException {
-		byte[] hdr = new byte[8];
-		readFull(in, hdr);
-
-		int status = toInt(hdr, 0);
-		int payload = toInt(hdr, 4);
-
-		log("response: status: " + status + " payload size: " + payload);
-
-		if(payload > 0) {
-			byte[] data = new byte[payload];
-			readFull(in, data);
-			return data;
-		} else {
-			return null;
-		}
-
-
-		//if(status != STATUS_OK) {
-		//return null;
-		//}
-
+	String readStringResponse() throws IOException {
+		byte[] data = readResponse();
+		return new String(data);
 	}
 
 	// read from in until data is full.
-	static void readFull(InputStream in, byte[] data) throws IOException {
+	void readFull(byte[] data) throws IOException {
 		int N = data.length;
 		int off = 0;
 		while(off < N) {
 			off += in.read(data, off, N-off);
+		}
+	}
+
+	byte[] readResponse() throws IOException {
+		byte[] hdr = new byte[8];
+		readFull(hdr);
+
+		int status = toInt(hdr, 0);
+		int payload = toInt(hdr, 4);
+
+		Main.log("response: status: " + status + " payload size: " + payload);
+
+		if(payload > 0) {
+			byte[] data = new byte[payload];
+			readFull(data);
+			return data;
+		} else {
+			return null;
 		}
 	}
 
@@ -76,35 +113,40 @@ public final class Main {
 		return Float.intBitsToFloat(toInt(data, 0))	;
 	}
 
-	static void log(String msg) {
-		System.err.println(msg);
+	String id() throws IOException {
+		send("ID");
+		return readStringResponse();
 	}
+
 }
 
-class RigolInterface {
+class Rigol {
 
-	Socket s;
-	PrintStream out;
-	InputStream in;
+	Device dev;
 
-	static RigolInterface connect(String host, int port) throws UnknownHostException , IOException {
-		RigolInterface i = new RigolInterface();
-		Main.log("RigolInterface: connecting to " + host + ":" + port);
-		i.s = new Socket(host, port);
-		i.out = new PrintStream(i.s.getOutputStream());
-		i.in = i.s.getInputStream();
-		Main.log("RigolInterface: connected");
-		return i;
+	Rigol(String host, int port) throws UnknownHostException , IOException {
+		dev = new Device("rigol", host, port);
 	}
 
 	float get() throws IOException {
-		out.print("MEAS");
-		return Main.readFloatResponse(in);
+		dev.send("MEAS");
+		return dev.readFloatResponse();
 	}
 
-	void close() throws IOException {
-		s.close();
+	String id() throws IOException {
+		return dev.id();
 	}
-
 }
 
+class HP {
+
+	Device dev;
+
+	HP(String name, String host, int port) throws UnknownHostException , IOException {
+		dev = new Device(name, host, port);
+	}
+
+	String id() throws IOException {
+		return dev.id();
+	}
+}
