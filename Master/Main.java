@@ -8,32 +8,48 @@ import java.net.*;
 
 public final class Main {
 
+	static final int STATUS_OK = 1;
+
 	public static void main(String[] args) throws Exception {
-		Socket s = new Socket("mona.ugent.be", 5005);
-		PrintStream out = new PrintStream(s.getOutputStream());
-		InputStream in = s.getInputStream();
+		RigolInterface rigol = RigolInterface.connect("mona.ugent.be", 5005);
+		for(;;) {
+			System.out.println("rigol: " + rigol.get() + " V");
+		}
+		//rigol.close();
+	}
 
-		out.println("MEAS");
+	static float readFloatResponse(InputStream in) throws IOException {
+		byte[] data = readResponse(in);
+		if(data.length != 4) {
+			throw new IOException("readFloatResponse: got " + data.length + " bytes");
+		}
+		return toFloat(data, 0);
 
+	}
+
+	static byte[] readResponse(InputStream in) throws IOException {
 		byte[] hdr = new byte[8];
 		readFull(in, hdr);
+
 		int status = toInt(hdr, 0);
 		int payload = toInt(hdr, 4);
 
-		System.out.println("status: " + status+ ", payload: " + payload);
+		log("response: status: " + status + " payload size: " + payload);
 
 		if(payload > 0) {
 			byte[] data = new byte[payload];
 			readFull(in, data);
-			System.out.println(Float.intBitsToFloat(toInt(data, 0)));
+			return data;
+		} else {
+			return null;
 		}
 
-		s.close();
-	}
 
-	//float readOneFloat(IntputStream in){
-	//
-	//}
+		//if(status != STATUS_OK) {
+		//return null;
+		//}
+
+	}
 
 	// read from in until data is full.
 	static void readFull(InputStream in, byte[] data) throws IOException {
@@ -56,4 +72,39 @@ public final class Main {
 		return (int)(v);
 	}
 
+	static float toFloat(byte[] data, int off) {
+		return Float.intBitsToFloat(toInt(data, 0))	;
+	}
+
+	static void log(String msg) {
+		System.err.println(msg);
+	}
 }
+
+class RigolInterface {
+
+	Socket s;
+	PrintStream out;
+	InputStream in;
+
+	static RigolInterface connect(String host, int port) throws UnknownHostException , IOException {
+		RigolInterface i = new RigolInterface();
+		Main.log("RigolInterface: connecting to " + host + ":" + port);
+		i.s = new Socket(host, port);
+		i.out = new PrintStream(i.s.getOutputStream());
+		i.in = i.s.getInputStream();
+		Main.log("RigolInterface: connected");
+		return i;
+	}
+
+	float get() throws IOException {
+		out.print("MEAS");
+		return Main.readFloatResponse(in);
+	}
+
+	void close() throws IOException {
+		s.close();
+	}
+
+}
+
