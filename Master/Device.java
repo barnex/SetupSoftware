@@ -27,8 +27,18 @@ class Device {
 
 	/** Receive the payload of the response, header stripped.
 	 *  return null in case of an error. */
-	private byte[] receive() throws IOException {
+	byte[] receive() throws IOException {
 		return Proto.receive(in);
+	}
+
+	void receiveOK() throws IOException {
+		byte[] data = receive();
+		if(data == null) {
+			throw new IOException("received status not OK");
+		}
+		if(data.length > 0) {
+			throw new IOException("received unexpected " + data.length + " bytes");
+		}
 	}
 
 	/** Receive response and convert to String. */

@@ -13,6 +13,16 @@ public final class Main {
 
 		PiezoController piezo = new PiezoController("mona.ugent.be", 5000);
 		System.out.println("piezo id: " + piezo.id() );
+		piezo.setStart(0.1, 0.2, 0.3, 0.4);
+		piezo.goTo();
+		piezo.setIInc(0.008, 0, 0, 0);
+		piezo.setIJnc(0, 0.008, 0, 0);
+		piezo.setpixels(25, 25);
+		piezo.setTSettle(5);
+		piezo.goTo();
+		piezo.scan2d();
+		//piezo.abort();
+		//piezo.scan2d();
 	}
 
 	static void log(String msg) {
