@@ -10,14 +10,19 @@ public final class Main {
 
 		//HP hp1 = new HP("hp1", "mona.ugent.be", 5003);
 		//System.out.println("hp1 id: " + hp1.id() );
+		
 
-		PiezoController piezo = new PiezoController("mona.ugent.be", 5000);
+		GUI.init();	
+
+		PiezoController piezo = new PiezoController("mona.ugent.be", 50000);
+		piezo.viewer = GUI.viewer;
+
 		System.out.println("piezo id: " + piezo.id() );
 		piezo.setStart(0.1, 0.2, 0.3, 0.4);
 		piezo.goTo();
 		piezo.setIInc(0.008, 0, 0, 0);
 		piezo.setIJnc(0, 0.008, 0, 0);
-		piezo.setpixels(4, 3);
+		piezo.setpixels(40, 20);
 		piezo.setTSettle(5);
 		piezo.goTo();
 		piezo.scan2d();

@@ -46,14 +46,14 @@ public final class Proto {
 		Subsequent words, as many bytes as indicated by payload size:
 		payload data which can be a string, floats or ints.         */
 	public static byte[] receive(InputStream in) throws IOException {
-		Main.logn("receive: ");
+		//Main.logn("receive: ");
 		// Parse the header
 		byte[] hdr = new byte[8];
 		readFull(in, hdr);
 		int status = toIntOff(hdr, 0);
 		int payload = toIntOff(hdr, 4);
 
-		Main.log("status: " + status + ", payload size: " + payload);
+		//Main.log("status: " + status + ", payload size: " + payload);
 
 		// Read the payload, even on error
 		byte []data = new byte[payload];
@@ -93,8 +93,9 @@ public final class Proto {
 	// read from in until data is full.
 	private static void readFull(InputStream in, byte[] data) throws IOException {
 		int N = data.length;
-		int off = 0;
+		int off = in.read(data, 0, N);
 		while(off < N) {
+			Main.log("readfull: waiting for " + (N-off) + " more bytes");
 			off += in.read(data, off, N-off);
 		}
 	}

@@ -6,13 +6,15 @@ public final class PiezoController {
 
 	Device dev;
 	
-	private double iincx, iincy, iincz, iincaux;  // outer scan increments
-	private double jincx, jincy, jincz, jincaux;  // inner scan increments
-	private int pixi, pixj;                       // # pixels to scan
-	private double tsettle;                       // settle time per pixel (ms)
-	private float[][][] image = new float[N_CHAN][pixi][pixj];  // last recored image
+	//private double iincx, iincy, iincz, iincaux;  // outer scan increments
+	//private double jincx, jincy, jincz, jincaux;  // inner scan increments
+	private int nX, nY;                       // # pixels to scan
+	//private double tsettle;                       // settle time per pixel (ms)
+	private float[][][] image = new float[N_CHAN][nY][nX];  // last recored image
 
 	public static final int N_CHAN = 8; // Number of recored channels.
+
+	ImageView viewer = null;
 
 
 	public PiezoController(String host, int port) throws UnknownHostException, IOException {
@@ -29,10 +31,10 @@ public final class PiezoController {
 	/** Set increment vector for scan2d, outer (slow) scan loop.
 	 * E.g.: 0.1, 0, 0, 0 slowly scans x, the focus.                      */
 	public void setIInc(double x, double y, double z, double aux) throws IOException {
-		iincx = x;
-		iincy = y;
-		iincz = z;
-		iincaux = aux;
+		//iincx = x;
+		//iincy = y;
+		//iincz = z;
+		//iincaux = aux;
 		dev.send("SET,IINC," + x + "," + y + "," + z + "," + aux);
 		dev.receiveOK();
 	}
@@ -40,25 +42,25 @@ public final class PiezoController {
 	/** Set increment vector for scan2d, inner (fast) scan loop.
 	 * E.g.: 0, 0.1, 0, 0 quicly scans y, left-right.                     */
 	public void setIJnc(double x, double y, double z, double aux) throws IOException {
-		jincx = x;
-		jincy = y;
-		jincz = z;
-		jincaux = aux;
+		//jincx = x;
+		//jincy = y;
+		//jincz = z;
+		//jincaux = aux;
 		dev.send("SET,IINC," + x + "," + y + "," + z + "," + aux);
 		dev.receiveOK();
 	}
 
 	/** Set the number of pixels for the next scan2d. */
-	public void setpixels(int nI, int nJ) throws IOException {
-		pixi = nI;
-		pixj = nJ;
-		dev.send("SET,PIXELS," + (float)(nI) + "," + (float)(nJ));
+	public void setpixels(int nX, int nY) throws IOException {
+		this.nX = nX;
+		this.nY = nY;
+		dev.send("SET,PIXELS," + (float)(nX) + "," + (float)(nY));
 		dev.receiveOK();
 	}
 
 	/** Set the settle time for the next scan2d, in ms (presumably). */
 	public void setTSettle(double ms) throws IOException {
-		tsettle = ms;
+		//tsettle = ms;
 		dev.send("SET,TSETTLE," + ms);
 		dev.receiveOK();
 	}
@@ -66,19 +68,29 @@ public final class PiezoController {
 	/** Start 2D scan with previously set parameters (setStart, setIInc, setJInc, setPixels, setTSettle). */
 	public void scan2d() throws IOException {
 
-		Main.log(dev.name + ": start scan2d: " + pixi + " x " + pixj);
-		image = new float[N_CHAN][pixi][pixj];
+		Main.log(dev.name + ": start scan2d: " + nX + " x " + nY);
+		image = new float[N_CHAN][nY][nX];
+		for(int c = 0; c < N_CHAN; c++){
+			for(int y=0; y<nY; y++){
+				for(int x=0; x<nX; x++){
+					image[c][y][x] = (float)(0./0.);     // init with NaN for nice display
+				}
+			}	
+		}
 		
 		dev.send("SCAN_2D");
 
-		for (int i = 0; i<pixi; i++){
-			for (int j = 0; j<pixj; j++){
+		for (int y = 0; y<nY; y++){
+			for (int x = 0; x<nX; x++){
 				byte[] data = dev.receive();
 				if(data.length != 4 * N_CHAN){
 					throw new IOException("got bad scan data: " + data.length + " bytes");
 				}
 				for(int c = 0; c < N_CHAN; c++){
-					image[c][i][j] = Proto.toFloatOff(data, 4*c);
+					image[c][y][x] = Proto.toFloatOff(data, 4*c);
+				}
+				if(viewer != null){
+					viewer.display(image);
 				}
 			}
  		}
