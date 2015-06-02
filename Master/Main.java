@@ -17,10 +17,12 @@ public final class Main {
 		piezo.goTo();
 		piezo.setIInc(0.008, 0, 0, 0);
 		piezo.setIJnc(0, 0.008, 0, 0);
-		piezo.setpixels(25, 25);
+		piezo.setpixels(4, 3);
 		piezo.setTSettle(5);
 		piezo.goTo();
 		piezo.scan2d();
+
+		piezo.close();
 		//piezo.abort();
 		//piezo.scan2d();
 	}
@@ -28,6 +30,12 @@ public final class Main {
 	static void log(String msg) {
 		if (verbose) {
 			System.err.println(msg);
+		}
+	}
+
+	static void logn(String msg) {
+		if (verbose) {
+			System.err.print(msg);
 		}
 	}
 

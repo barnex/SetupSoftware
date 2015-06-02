@@ -5,6 +5,7 @@ import java.util.*;
  * Class Proto implements the Mathias-2015 protocol for communicating over the network
  * device interface programs like HPInterface, RigolInterface, etc.
  * See send() and receive() for protocol details.
+ * Mostly reverse-engineered from Mathia's C code.
  */
 public final class Proto {
 
@@ -45,13 +46,14 @@ public final class Proto {
 		Subsequent words, as many bytes as indicated by payload size:
 		payload data which can be a string, floats or ints.         */
 	public static byte[] receive(InputStream in) throws IOException {
+		Main.logn("receive: ");
 		// Parse the header
 		byte[] hdr = new byte[8];
 		readFull(in, hdr);
 		int status = toIntOff(hdr, 0);
 		int payload = toIntOff(hdr, 4);
 
-		Main.log("recv: status: " + status + ", payload size: " + payload);
+		Main.log("status: " + status + ", payload size: " + payload);
 
 		// Read the payload, even on error
 		byte []data = new byte[payload];
@@ -75,6 +77,11 @@ public final class Proto {
 	/** Convert a response to a float. */
 	static float toFloat(byte[] response) {
 		return Float.intBitsToFloat(toInt(response));
+	}
+
+	/** Convert a response to a float. */
+	static float toFloatOff(byte[] response, int off) {
+		return Float.intBitsToFloat(toIntOff(response, off));
 	}
 
 	/** Convert a response to int. */

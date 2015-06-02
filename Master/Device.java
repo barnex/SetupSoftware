@@ -22,6 +22,7 @@ class Device {
 
 	/** Send a request to the device, e.g. "MEAS". */
 	void send(String msg) throws IOException {
+		Main.log("to " + name + ": " + msg);
 		Proto.send(out, msg);
 	}
 
@@ -50,7 +51,9 @@ class Device {
 
 	/** Close the network connection. */
 	void close() throws IOException {
+		Main.logn(name + ": closing...");
 		socket.close();
+		Main.log("OK");
 	}
 
 	/** Request and return device ID.
