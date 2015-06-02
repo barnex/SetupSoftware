@@ -32,6 +32,9 @@ public final class GUI{
 		f.getContentPane().setLayout(new BorderLayout());
 		f.getContentPane().add(viewer, BorderLayout.CENTER);
 		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
+
+		f.getContentPane().add(new PiezoPanel(), BorderLayout.EAST);
+
 		f.setVisible(true);
 	}
 }

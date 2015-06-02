@@ -3,6 +3,10 @@ public final class Main {
 
 	static boolean verbose = true;
 
+
+	static PiezoController piezo;
+	
+
 	public static void main(String[] args) throws Exception {
 		//Rigol rigol = new Rigol("mona.ugent.be", 5005);
 		//System.out.println("rigol id     : " + rigol.id() );
@@ -14,7 +18,7 @@ public final class Main {
 
 		GUI.init();	
 
-		PiezoController piezo = new PiezoController("mona.ugent.be", 5000);
+		piezo = new PiezoController("mona.ugent.be", 5000);
 		piezo.viewer = GUI.viewer;
 
 		System.out.println("piezo id: " + piezo.id() );
