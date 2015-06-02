@@ -46,7 +46,9 @@ public final class PiezoController {
 	/** Start 2D scan with previously set parameters (setStart, setIInc, setJInc, setPixels, setTSettle). */
 	public void scan2d() throws IOException {
 		dev.send("SCAN_2D");
-		dev.receive();
+		for (;;){
+			dev.receive();
+ 		}
 	}
 
 	/** Move to position sent by setStart. */

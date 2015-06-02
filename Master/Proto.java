@@ -29,6 +29,8 @@ public final class Proto {
 		int status = toIntOff(hdr, 0);
 		int payload = toIntOff(hdr, 4);
 
+		Main.log("recv: status: " + status + ", payload size: " + payload);
+
 		// Read the payload, even on error
 		byte []data = new byte[payload];
 		readFull(in, data);
