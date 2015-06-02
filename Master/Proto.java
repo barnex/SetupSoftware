@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 /**
  * Class Proto implements the Mathias-2015 protocol for communicating over the network
@@ -7,7 +8,28 @@ import java.io.*;
  */
 public final class Proto {
 
-	private static int STATUS_OK = 1;
+	// Return statusses in response header. Taken form Libraries/errors.h
+	public static final int	FAILURE                 = -1;
+	public static final int SUCCESS                 =  1;
+	public static final int FINISHED                =  2;
+	public static final int UNKNOWN_COMMAND         = -1;
+	public static final int NOT_ENOUGH_PARAMETERS	= -2;
+	public static final int HARDWARE_COMM_ERR       = -3;
+	public static final int UNKNOWN_PARAMETER       = -4;
+
+	// maps status numbers to human-readible information
+	private static final HashMap<Integer, String> statusStr = new HashMap<Integer, String>();
+
+	static{
+		statusStr.put(FAILURE              , "FAILURE"              );
+		statusStr.put(SUCCESS              , "SUCCESS"              );     
+		statusStr.put(FINISHED             , "FINISHED"             );     
+		statusStr.put(UNKNOWN_COMMAND      , "UNKNOWN_COMMAND"      );     
+		statusStr.put(NOT_ENOUGH_PARAMETERS, "NOT_ENOUGH_PARAMETERS");
+		statusStr.put(HARDWARE_COMM_ERR    , "HARDWARE_COMM_ERR"    );     
+		statusStr.put(UNKNOWN_PARAMETER    , "UNKNOWN_PARAMETER"    );     
+	}
+
 
 	/** Send a request string to out, e.g.: "MEAS", "SET,FREQ,1e9".
 	    The request is sent as-is, in plaintext.
@@ -34,10 +56,14 @@ public final class Proto {
 		// Read the payload, even on error
 		byte []data = new byte[payload];
 		readFull(in, data);
-		if(status == STATUS_OK) {
+		if(status > 0) {
 			return data;
 		} else {
-			return null;
+			String info = statusStr.get(status);
+			if(info  == null){
+				info = "unknown error";
+			}
+			throw new IOException("received status " + status + ": " + info);
 		}
 	}
 
