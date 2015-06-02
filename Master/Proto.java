@@ -95,7 +95,7 @@ public final class Proto {
 		int N = data.length;
 		int off = in.read(data, 0, N);
 		while(off < N) {
-			Main.log("readfull: waiting for " + (N-off) + " more bytes");
+			//Main.log("readfull: waiting for " + (N-off) + " more bytes");
 			off += in.read(data, off, N-off);
 		}
 	}

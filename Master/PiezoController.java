@@ -6,10 +6,8 @@ public final class PiezoController {
 
 	Device dev;
 	
-	//private double iincx, iincy, iincz, iincaux;  // outer scan increments
-	//private double jincx, jincy, jincz, jincaux;  // inner scan increments
+	private double posX = 0.5, posY = 0.5, posZ = 0.5, posAux;
 	private int nX, nY;                       // # pixels to scan
-	//private double tsettle;                       // settle time per pixel (ms)
 	private float[][][] image = new float[N_CHAN][nY][nX];  // last recored image
 
 	public static final int N_CHAN = 8; // Number of recored channels.
@@ -24,6 +22,10 @@ public final class PiezoController {
 	/** Set start position for goto, scan2d.
 	 * x=focus, y=left-right, z=upd-down, aux=extra channel, e.g. external magnet. */
 	public void setStart(double x, double y, double z, double aux) throws IOException {
+		posX = x;
+		posY = y;
+		posZ = z;
+		posAux = aux;
 		dev.send("SET,START," + x + "," + y + "," + z + "," + aux);
 		dev.receiveOK();
 	}
@@ -63,6 +65,22 @@ public final class PiezoController {
 		//tsettle = ms;
 		dev.send("SET,TSETTLE," + ms);
 		dev.receiveOK();
+	}
+
+	/** Convenience method to make relative movment. */
+	public void jog(double dx, double dy,double  dz) throws IOException{
+		Main.log(dev.name + ": jog: " + dx + " " + dy + " " + dz);
+		posX += dx;
+		posY += dy;
+		posZ += dz;
+		if(posX > 1){posX = 1;}
+		if(posY > 1){posY = 1;}
+		if(posZ > 1){posZ = 1;}
+		if(posX < 0){posX = 0;}
+		if(posY < 0){posY = 0;}
+		if(posZ < 0){posZ = 0;}
+		setStart(posX, posY, posZ, posAux);	
+		goTo();
 	}
 
 	/** Start 2D scan with previously set parameters (setStart, setIInc, setJInc, setPixels, setTSettle). */
