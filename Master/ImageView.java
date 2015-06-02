@@ -6,7 +6,7 @@ import javax.swing.*;
 
 public final class ImageView extends JPanel{
 
-	int chan = 1;
+	int chan = 0;
 	ColorMap colormap = new ColorMap();
 	float[][][] image = new float[1][1][1];
 	

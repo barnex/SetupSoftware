@@ -46,7 +46,7 @@ public final class PiezoController {
 		//jincy = y;
 		//jincz = z;
 		//jincaux = aux;
-		dev.send("SET,IINC," + x + "," + y + "," + z + "," + aux);
+		dev.send("SET,JINC," + x + "," + y + "," + z + "," + aux);
 		dev.receiveOK();
 	}
 

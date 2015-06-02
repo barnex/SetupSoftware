@@ -14,15 +14,15 @@ public final class Main {
 
 		GUI.init();	
 
-		PiezoController piezo = new PiezoController("mona.ugent.be", 50000);
+		PiezoController piezo = new PiezoController("mona.ugent.be", 5000);
 		piezo.viewer = GUI.viewer;
 
 		System.out.println("piezo id: " + piezo.id() );
 		piezo.setStart(0.1, 0.2, 0.3, 0.4);
 		piezo.goTo();
-		piezo.setIInc(0.008, 0, 0, 0);
-		piezo.setIJnc(0, 0.008, 0, 0);
-		piezo.setpixels(40, 20);
+		piezo.setIInc(0, 0.01, 0.00, 0);
+		piezo.setIJnc(0, 0.00, 0.01, 0);
+		piezo.setpixels(50, 50);
 		piezo.setTSettle(5);
 		piezo.goTo();
 		piezo.scan2d();
