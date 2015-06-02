@@ -9,57 +9,103 @@ public final class PiezoPanel extends JPanel{
 	static final double JOG = 0.05;
 
 	public PiezoPanel(){
-		setLayout(new GridLayout(5, 7));
-		
-		add(padding());
-		add(padding());
-		add(new JogButton("↑↑", 0, 0, -JOG));
-		add(padding());
-		add(padding());
-		add(padding());
-		add(new JogButton("↑↑", JOG, 0, 0));
-
-		add(padding());
-		add(padding());
-		add(new JogButton("↑", 0, 0, -SMALL_JOG));
-		add(padding());
-		add(padding());
-		add(padding());
-		add(new JogButton("↑", SMALL_JOG, 0, 0));
-
-		add(new JogButton("←←", 0, -JOG, 0));
-		add(new JogButton("←", 0, -SMALL_JOG, 0));
-		add(padding());
-		add(new JogButton("→", 0, SMALL_JOG, 0));
-		add(new JogButton("→→", 0, JOG, 0));
-		add(padding());
-		add(padding());
-
-		add(padding());
-		add(padding());
-		add(new JogButton("↓", 0, 0, SMALL_JOG));
-		add(padding());
-		add(padding());
-		add(padding());
-		add(new JogButton("↓", -SMALL_JOG, 0, 0));
-
-		add(padding());
-		add(padding());
-		add(new JogButton("↓↓", 0, 0, JOG));
-		add(padding());
-		add(padding());
-		add(padding());
-		add(new JogButton("↓↓", -JOG, 0, 0));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(buttonPanel());
+		add(textPanel());
 
 		setBackground(GUI.background);
 		setOpaque(true);
-		setPreferredSize(new Dimension(350, 250));
+	}
+
+	JPanel buttonPanel(){
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(5, 7));
+		
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↑↑", 0, 0, -JOG));
+		p.add(padding());
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↑↑", JOG, 0, 0));
+
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↑", 0, 0, -SMALL_JOG));
+		p.add(padding());
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↑", SMALL_JOG, 0, 0));
+
+		p.add(new JogButton("←←", 0, -JOG, 0));
+		p.add(new JogButton("←", 0, -SMALL_JOG, 0));
+		p.add(padding());
+		p.add(new JogButton("→", 0, SMALL_JOG, 0));
+		p.add(new JogButton("→→", 0, JOG, 0));
+		p.add(padding());
+		p.add(padding());
+
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↓", 0, 0, SMALL_JOG));
+		p.add(padding());
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↓", -SMALL_JOG, 0, 0));
+
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↓↓", 0, 0, JOG));
+		p.add(padding());
+		p.add(padding());
+		p.add(padding());
+		p.add(new JogButton("↓↓", -JOG, 0, 0));
+
+		p.setBackground(GUI.background);
+		p.setOpaque(true);
+		p.setPreferredSize(new Dimension(350, 250));
+		return p;
+	}
+
+	JPanel textPanel(){
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(6, 2, 5, 5));
+
+		p.add(padding());
+		p.add(padding());
+
+		p.add(label("y (horiz):"));
+		p.add(new PiezoBox(0));
+		p.add(label("z (vert):"));
+		p.add(new PiezoBox(1));
+		p.add(padding());
+		p.add(padding());
+		p.add(label("x (focus):"));
+		p.add(new PiezoBox(2));
+
+		p.setBackground(GUI.background);
+		return p;
+	}
+
+	JLabel label(String text){
+		JLabel l = new JLabel(text);
+		l.setBackground(GUI.background);
+		l.setForeground(GUI.foreground);
+		return l;
 	}
 
 	JPanel padding(){
 		JPanel p = new JPanel();
 		p.setBackground(GUI.background);
 		return p;
+	}
+
+	class PiezoBox extends JTextField{
+		PiezoBox(int component){
+			setBackground(GUI.background);
+			setForeground(GUI.foreground);
+		}
+		private static final long serialVersionUID = 1; // sigh...
 	}
 
 
