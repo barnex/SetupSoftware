@@ -38,9 +38,6 @@ public final class ImageView extends JPanel{
 
 		// clear background
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, 10000, 10000);
-
-		g.setColor(GUI.background);
 		g.fillRect(0, 0, W, H);
 
 		

@@ -25,14 +25,14 @@ public final class Main {
 		piezo.viewer = GUI.viewer;
 
 		System.out.println("piezo id: " + piezo.id() );
-		//piezo.setStart(0.1, 0.2, 0.3, 0.4);
-		//piezo.goTo();
-		//piezo.setIInc(0, 0.01, 0.00, 0);
-		//piezo.setIJnc(0, 0.00, 0.01, 0);
-		//piezo.setpixels(50, 50);
-		//piezo.setTSettle(5);
-		//piezo.goTo();
-		//piezo.scan2d();
+		piezo.setStart(0.1, 0.2, 0.3, 0.4);
+		piezo.goTo();
+		piezo.setIInc(0, 0.01, 0.00, 0);
+		piezo.setIJnc(0, 0.00, 0.01, 0);
+		piezo.setpixels(50, 50);
+		piezo.setTSettle(5);
+		piezo.goTo();
+		piezo.scan2d();
 	}
 
 	static void log(String msg) {

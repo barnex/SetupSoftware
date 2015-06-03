@@ -9,9 +9,10 @@ public final class GUI{
 
 	static final int FRAME_W = 800, FRAME_H = 600; // initial window size
 
-	static Color background = Color.DARK_GRAY;
-	static Color middleground = Color.GRAY;
-	static Color foreground = Color.WHITE;
+	static final Color background = new Color(255, 255, 150); // "Tolek Yellow"
+	static final Color middleground = Color.LIGHT_GRAY;
+	static final Color foreground = Color.BLACK;
+	static final Color textBackground = Color.WHITE;
 
 	public static void init()  {
 		final JFrame f = new JFrame();
@@ -42,6 +43,32 @@ public final class GUI{
 		f.getContentPane().add(pp, BorderLayout.EAST);
 
 		f.setVisible(true);
+	}
+
+
+	static JLabel label(String text){
+		JLabel l = new JLabel(text);
+		colorize(l);
+		return l;
+	}
+
+	static JPanel panel(){
+		JPanel p = new JPanel();
+		colorize(p);
+		return p;
+	}
+
+	static JTextField textbox(){
+		JTextField f = new JTextField();
+		colorize(f);
+		f.setBackground(textBackground);	
+		return f;
+	}
+
+
+	static void colorize(JComponent c){
+		c.setBackground(background);
+		c.setForeground(foreground);
 	}
 
 	static void log(String msg){
