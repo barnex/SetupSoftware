@@ -6,9 +6,9 @@ public final class PiezoController {
 
 	Device dev;
 	
-	private double posX = 0.5, posY = 0.5, posZ = 0.5, posAux;
-	private int nX, nY;                       // # pixels to scan
-	private float[][][] image = new float[N_CHAN][nY][nX];  // last recored image
+	private double posX = 0.5, posY = 0.5, posZ = 0.5, posAux; // last position, dimensionless: 0..1
+	private int nX, nY;                                        // # pixels to scan
+	private float[][][] image = new float[N_CHAN][nY][nX];     // last recored image
 
 	public static final int N_CHAN = 8; // Number of recored channels.
 
@@ -19,7 +19,7 @@ public final class PiezoController {
 		dev = new Device("piezo", host, port);
 	}
 
-	/** Set start position for goto, scan2d.
+	/** Set start position for goto, scan2d. Dimensionless numbers between 0 and 1 for full scan range.
 	 * x=focus, y=left-right, z=upd-down, aux=extra channel, e.g. external magnet. */
 	public void setStart(double x, double y, double z, double aux) throws IOException {
 		posX = x;
@@ -87,17 +87,21 @@ public final class PiezoController {
 	public void scan2d() throws IOException {
 
 		Main.log(dev.name + ": start scan2d: " + nX + " x " + nY);
+
+   		// init new image buffer with NaN's 
 		image = new float[N_CHAN][nY][nX];
 		for(int c = 0; c < N_CHAN; c++){
 			for(int y=0; y<nY; y++){
 				for(int x=0; x<nX; x++){
-					image[c][y][x] = (float)(0./0.);     // init with NaN for nice display
+					image[c][y][x] = (float)(0./0.);  
 				}
 			}	
 		}
 		
+		// Start scan
 		dev.send("SCAN_2D");
 
+		// recieve data: for each pixel: one response packet with 8 floats payload (8 ADC channels).
 		for (int y = 0; y<nY; y++){
 			for (int x = 0; x<nX; x++){
 				byte[] data = dev.receive();
@@ -113,29 +117,18 @@ public final class PiezoController {
 			}
  		}
 		Main.log(dev.name + ": scan2d done");
-		//for(int c = 0; c < N_CHAN; c++){
-		//	for(int i=0; i<image[c].length; i++){
-		//		for(int j=0; j<image[c][i].length; j++){
-		//			System.out.print(image[c][i][j] + " ");
-		//		}
-		//		System.out.println();
-		//	}
-		//	System.out.println();
-		//	System.out.println();
-		//}
-		
 	}
 
 	/** Move to position sent by setStart. */
 	public void goTo() throws IOException {
 		dev.send("GOTO");
-		dev.receive();
+		dev.receiveOK();
 	}
 
 	/** Abort scan started by scan2d(). */
 	public void abort() throws IOException {
 		dev.send("ABORT");
-		dev.receive();
+		dev.receiveOK();
 	}
 
 	/** Request and return device ID. */
