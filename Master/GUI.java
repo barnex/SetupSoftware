@@ -1,20 +1,45 @@
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.*;
 
 public final class GUI{
-
-	static ImageView viewer = new ImageView();
-	static JLabel statusLabel = new JLabel();
-
-	static final int FRAME_W = 800, FRAME_H = 600; // initial window size
 
 	static final Color background = new Color(255, 255, 150); // "Tolek Yellow"
 	static final Color middleground = Color.LIGHT_GRAY;
 	static final Color foreground = Color.BLACK;
 	static final Color textBackground = Color.WHITE;
 
+	static ImageView viewer = new ImageView();
+	static JLabel statusLabel = label("MOKA controller");
+	static PiezoPanel piezo;
+
+	static final int FRAME_W = 800, FRAME_H = 600; // initial window size
+
+
 	public static void init()  {
+		JFrame f = makeFrame();
+
+		f.getContentPane().add(viewer, BorderLayout.CENTER);
+
+		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
+
+		JPanel pp = new JPanel();
+		pp.setBorder(new TitledBorder("piezo"));
+		pp.setBackground(background);
+		piezo = new PiezoPanel();
+		pp.add(piezo);
+		f.getContentPane().add(pp, BorderLayout.EAST);
+		update();
+
+		f.setVisible(true);
+	}
+
+	static void update(){
+		piezo.update();
+	}
+
+	static JFrame makeFrame(){
 		final JFrame f = new JFrame();
 		f.setFocusable(true);
 		f.setSize(FRAME_W, FRAME_H);
@@ -23,32 +48,15 @@ public final class GUI{
 				f.dispose();
 			}
 		});
-
 		f.setBackground(background);
-		f.setForeground(foreground);
-
-		viewer.setBackground(background);
-
-		statusLabel.setOpaque(true);
-		statusLabel.setBackground(background);
-		statusLabel.setForeground(foreground);
-		f.getContentPane().setBackground(background);
 		f.getContentPane().setLayout(new BorderLayout());
-		f.getContentPane().add(viewer, BorderLayout.CENTER);
-		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
-
-		JPanel pp = new JPanel();
-		pp.setBackground(background);
-		pp.add(new PiezoPanel());
-		f.getContentPane().add(pp, BorderLayout.EAST);
-
-		f.setVisible(true);
+		return f;
 	}
-
 
 	static JLabel label(String text){
 		JLabel l = new JLabel(text);
 		colorize(l);
+		l.setOpaque(true);
 		return l;
 	}
 
@@ -69,6 +77,7 @@ public final class GUI{
 	static void colorize(JComponent c){
 		c.setBackground(background);
 		c.setForeground(foreground);
+		c.setOpaque(true);
 	}
 
 	static void log(String msg){

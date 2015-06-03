@@ -6,7 +6,10 @@ public final class ImageView extends JPanel{
 	int chan = 0;
 	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, new Color(128, 0, 128), Color.YELLOW);
 	float[][][] image = new float[1][1][1];
-	
+
+	public ImageView(){
+		GUI.colorize(this);
+	}
 
 	public void display(float[][][] image){
 		this.image = image;

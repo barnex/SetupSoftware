@@ -5,7 +5,7 @@ import javax.swing.*;
 
 public final class PiezoPanel extends JPanel{
 
-	JTextField xbox, ybox, zbox;
+	JTextField[] posbox = new JTextField[4]; // x,y,z,aux
 
 	static final double SMALL_JOG = 1./1024.;
 	static final double JOG = 32./1024.;
@@ -13,8 +13,17 @@ public final class PiezoPanel extends JPanel{
 	public PiezoPanel(){
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		GUI.colorize(this);
+
 		add(buttonPanel());
 		add(textPanel());
+	}
+
+	// read values from piezo and update textboxes, labels
+	void update(){
+		posbox[0].setText("" + Main.piezo.posX);
+		posbox[1].setText("" + Main.piezo.posY);
+		posbox[2].setText("" + Main.piezo.posZ);
+		posbox[3].setText("" + Main.piezo.posAux);
 	}
 
 	JPanel buttonPanel(){
@@ -68,29 +77,56 @@ public final class PiezoPanel extends JPanel{
 	}
 
 	JPanel textPanel(){
+		for(int i=0; i<posbox.length; i++){
+			posbox[i] = GUI.textbox();
+		}	
 
-		xbox = GUI.textbox();
-		ybox = GUI.textbox();
-		zbox = GUI.textbox();
+		ActionListener a = new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				try{
+					double x = atof(posbox[0].getText());
+					double y = atof(posbox[1].getText());
+					double z = atof(posbox[2].getText());
+					double a = atof(posbox[3].getText());
+					Main.piezo.setStart(x,y,z,a);
+					Main.piezo.goTo();
+					update();	
+				}catch(Exception err){
+					Main.log(err.toString()); // TODO;
+				}
+			}
+		};
+
+		for(int i=0; i<posbox.length; i++){
+			posbox[i].addActionListener(a);
+		}	
+
 
 
 		JPanel p = new JPanel();
-		p.setLayout(new GridLayout(6, 2, 5, 5));
+		p.setLayout(new GridLayout(7, 2, 5, 5));
 
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 
 		p.add(GUI.label("y (horiz):"));
-		p.add(ybox);
+		p.add(posbox[1]);
 		p.add(GUI.label("z (vert):"));
-		p.add(zbox);
+		p.add(posbox[2]);
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(GUI.label("x (focus):"));
-		p.add(xbox);
+		p.add(posbox[0]);
+		p.add(GUI.label("aux:"));
+		p.add(posbox[3]);
 
 		p.setBackground(GUI.background);
 		return p;
+	}
+
+	static double atof(String a){
+		double f = Double.parseDouble(a);
+		return f;
 	}
 
 
@@ -111,6 +147,7 @@ public final class PiezoPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			try{
 				Main.piezo.jog(dx, dy, dz);
+				GUI.update();
 			}catch(IOException err){
 				GUI.log(err.toString());
 			}

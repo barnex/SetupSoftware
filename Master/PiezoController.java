@@ -6,8 +6,8 @@ public final class PiezoController {
 
 	Device dev;
 	
-	private double posX = 0.5, posY = 0.5, posZ = 0.5, posAux; // last position, dimensionless: 0..1
-	private int nX, nY;                                        // # pixels to scan
+	double posX = 0.5, posY = 0.5, posZ = 0.5, posAux; // last position, dimensionless: 0..1
+	int nX, nY;                                        // # pixels to scan
 	private float[][][] image = new float[N_CHAN][nY][nX];     // last recored image
 
 	public static final int N_CHAN = 8; // Number of recored channels.
@@ -69,7 +69,6 @@ public final class PiezoController {
 
 	/** Convenience method to make relative movment. */
 	public void jog(double dx, double dy,double  dz) throws IOException{
-		Main.log(dev.name + ": jog: " + dx + " " + dy + " " + dz);
 		posX += dx;
 		posY += dy;
 		posZ += dz;
