@@ -5,13 +5,16 @@ import javax.swing.border.*;
 
 public final class PiezoPanel extends JPanel{
 
+	final double UNIT = 20.0; // piezo full range in micron
+
 	JTextField[] posbox = new JTextField[4]; // x,y,z,aux
 	JTextField pixX = new JTextField("20");
 	JTextField pixY = new JTextField("20");
-	JTextField strideX = new JTextField("0.01");
-	JTextField strideY = new JTextField("0.01");
+	JTextField strideX = new JTextField("5");
+	JTextField strideY = new JTextField("5");
 	JTextField settle = new JTextField("5");
 	JComboBox typeSel = new JComboBox(new String[]{"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
+	JLabel pitch = GUI.label("-");
 
 	static final double SMALL_JOG = 1./1024.;
 	static final double JOG = 32./1024.;
@@ -28,15 +31,15 @@ public final class PiezoPanel extends JPanel{
 
 	// read values from piezo and update textboxes, labels
 	void update(){
-		posbox[0].setText("" + Main.piezo.posX);
-		posbox[1].setText("" + Main.piezo.posY);
-		posbox[2].setText("" + Main.piezo.posZ);
+		posbox[0].setText("" + Main.piezo.posX*UNIT);
+		posbox[1].setText("" + Main.piezo.posY*UNIT);
+		posbox[2].setText("" + Main.piezo.posZ*UNIT);
 		posbox[3].setText("" + Main.piezo.posAux);
 	}
 
 	JPanel scanPanel(){
 		JPanel p = GUI.panel();
-		p.setLayout(new GridLayout(6, 2));
+		p.setLayout(new GridLayout(7, 2));
 
 		GUI.colorize(typeSel);
 		typeSel.setBackground(GUI.textBackground);
@@ -49,13 +52,16 @@ public final class PiezoPanel extends JPanel{
 		p.add(GUI.label("height (pix):"));
 		p.add(pixY);
 
-		p.add(GUI.label("stride w:"));
+		p.add(GUI.label("width (µm):"));
 		p.add(strideX);
-		p.add(GUI.label("stride h:"));
+		p.add(GUI.label("height (µm):"));
 		p.add(strideY);
 
 		p.add(GUI.label("settle time"));
 		p.add(settle);
+
+		p.add(GUI.label("pixel pitch (µm):"));
+		p.add(pitch);
 
 
 		JPanel q = GUI.panel();
@@ -90,20 +96,29 @@ public final class PiezoPanel extends JPanel{
 
 	class doScan implements Task{
 		int w, h;
+		double x, y, z, a;
 		double xiinc, yiinc, ziinc, auxiinc;
 		double xjinc, yjinc, zjinc, auxjinc;
 		double tsettle;
 
 		doScan(){
+
+			
+			x = atof(posbox[0].getText())/UNIT;
+			y = atof(posbox[1].getText())/UNIT;
+			z = atof(posbox[2].getText())/UNIT;
+			a = atof(posbox[3].getText())/UNIT;
+
 			w = (int)(atof(pixX.getText()));
 			h = (int)(atof(pixY.getText()));
 			pixX.setText(""+w);
 			pixY.setText(""+h);
 
-			double iinc = atof(strideX.getText());
-			double jinc = atof(strideY.getText());
-			strideX.setText(""+iinc);
-			strideY.setText(""+jinc);
+			double iinc = atof(strideX.getText())/(w*UNIT);
+			double jinc = atof(strideY.getText())/(h*UNIT);
+			pitch.setText( (iinc*UNIT) + " x " + (jinc*UNIT) );
+			strideX.setText(""+(iinc*w*UNIT));
+			strideY.setText(""+(jinc*h*UNIT));
 			int type = typeSel.getSelectedIndex();
 			switch (type){
 				default: throw new IllegalArgumentException("scan type " + type);
@@ -125,11 +140,12 @@ public final class PiezoPanel extends JPanel{
 			settle.setText(""+tsettle);
 		}
 		public void run() throws Exception{
+			Main.piezo.setStart(x, y, z, a);
+			Main.piezo.goTo();
 			Main.piezo.setpixels(w, h);
 			Main.piezo.setIInc(xiinc, yiinc, ziinc, auxiinc);
 			Main.piezo.setJInc(xjinc, yjinc, zjinc, auxjinc);
 			Main.piezo.setTSettle(tsettle);
-			Main.piezo.goTo();
 			Main.piezo.scan2d();
 		}
 	}
@@ -206,10 +222,10 @@ public final class PiezoPanel extends JPanel{
 
 		ActionListener a = new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				double x = atof(posbox[0].getText());
-				double y = atof(posbox[1].getText());
-				double z = atof(posbox[2].getText());
-				double a = atof(posbox[3].getText());
+				double x = atof(posbox[0].getText())/UNIT;
+				double y = atof(posbox[1].getText())/UNIT;
+				double z = atof(posbox[2].getText())/UNIT;
+				double a = atof(posbox[3].getText())/UNIT;
 				Main.run(new doGoto(x, y, z, a));
 			}
 		};
@@ -226,13 +242,13 @@ public final class PiezoPanel extends JPanel{
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 
-		p.add(GUI.label("y (horiz):"));
+		p.add(GUI.label("y (horiz, µm):"));
 		p.add(posbox[1]);
-		p.add(GUI.label("z (vert):"));
+		p.add(GUI.label("z (vert, µm):"));
 		p.add(posbox[2]);
 		p.add(GUI.panel());
 		p.add(GUI.panel());
-		p.add(GUI.label("x (focus):"));
+		p.add(GUI.label("x (focus, µm):"));
 		p.add(posbox[0]);
 		p.add(GUI.label("aux:"));
 		p.add(posbox[3]);
