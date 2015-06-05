@@ -1,5 +1,4 @@
 import java.io.*;
-import java.net.*;
 
 /** Connects to Mathias' Controller program. */
 public final class PiezoController {
@@ -15,7 +14,7 @@ public final class PiezoController {
 	ImageView viewer = null;
 
 
-	public PiezoController(String host, int port) throws UnknownHostException, IOException {
+	public PiezoController(String host, int port){
 		dev = new Device("piezo", host, port);
 	}
 
@@ -43,7 +42,7 @@ public final class PiezoController {
 
 	/** Set increment vector for scan2d, inner (fast) scan loop.
 	 * E.g.: 0, 0.1, 0, 0 quicly scans y, left-right.                     */
-	public void setIJnc(double x, double y, double z, double aux) throws IOException {
+	public void setJInc(double x, double y, double z, double aux) throws IOException {
 		//jincx = x;
 		//jincy = y;
 		//jincz = z;
@@ -85,7 +84,7 @@ public final class PiezoController {
 	/** Start 2D scan with previously set parameters (setStart, setIInc, setJInc, setPixels, setTSettle). */
 	public void scan2d() throws IOException {
 
-		Main.log(dev.name + ": start scan2d: " + nX + " x " + nY);
+		Main.debug(dev.name + ": start scan2d: " + nX + " x " + nY);
 
    		// init new image buffer with NaN's 
 		image = new float[N_CHAN][nY][nX];
@@ -115,7 +114,7 @@ public final class PiezoController {
 				}
 			}
  		}
-		Main.log(dev.name + ": scan2d done");
+		Main.debug(dev.name + ": scan2d done");
 	}
 
 	/** Move to position sent by setStart. */

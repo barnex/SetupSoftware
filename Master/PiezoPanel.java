@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -70,12 +69,12 @@ public final class PiezoPanel extends JPanel{
 
 		scan.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				Main.requests.offer(new doScan());
+				Main.run(new doScan());
 			}
 		});
 		abort.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				doAbort();
+				Main.piezo.dev.tryClose();
 			}
 		});
 
@@ -88,33 +87,24 @@ public final class PiezoPanel extends JPanel{
 		return root;
 	}
 
-	void doAbort(){
-		try{	
-			Main.piezo.abort();
-		}catch(Exception err){ // TODO
-			Main.log(err.toString());
-		}
-		
-	}
 
-	class doScan implements Runnable{
-		public void run(){
-		try{
-			int w = (int)(atof(pixX.getText()));
-			int h = (int)(atof(pixY.getText()));
+	class doScan implements Task{
+		int w, h;
+		double xiinc, yiinc, ziinc, auxiinc;
+		double xjinc, yjinc, zjinc, auxjinc;
+		double tsettle;
+
+		doScan(){
+			w = (int)(atof(pixX.getText()));
+			h = (int)(atof(pixY.getText()));
 			pixX.setText(""+w);
 			pixY.setText(""+h);
-			Main.piezo.setpixels(w, h);
 
 			double iinc = atof(strideX.getText());
 			double jinc = atof(strideY.getText());
 			strideX.setText(""+iinc);
 			strideY.setText(""+jinc);
 			int type = typeSel.getSelectedIndex();
-
-			double xiinc = 0., yiinc = 0., ziinc = 0.;
-			double xjinc = 0., yjinc = 0., zjinc = 0.;
-
 			switch (type){
 				default: throw new IllegalArgumentException("scan type " + type);
 				case 0:  // image, YZ
@@ -130,20 +120,17 @@ public final class PiezoPanel extends JPanel{
 				xjinc = jinc;
 				break;
 			}
-			double auxinc = 0.;
-			Main.piezo.setIInc(xiinc, yiinc, ziinc, auxinc);
-			Main.piezo.setIInc(xjinc, yjinc, zjinc, auxinc);
 
-	
-			double tsettle = atof(settle.getText());
+			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);
+		}
+		public void run() throws Exception{
+			Main.piezo.setpixels(w, h);
+			Main.piezo.setIInc(xiinc, yiinc, ziinc, auxiinc);
+			Main.piezo.setJInc(xjinc, yjinc, zjinc, auxjinc);
 			Main.piezo.setTSettle(tsettle);
-
 			Main.piezo.goTo();
 			Main.piezo.scan2d();
-		}catch(Exception err){ // TODO
-			Main.log(err.toString());
-		}
 		}
 	}
 
@@ -197,6 +184,21 @@ public final class PiezoPanel extends JPanel{
 		return p;
 	}
 
+	class doGoto implements Task{
+		double x, y, z, a;
+		doGoto(double x, double y, double z, double a){
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.a = a;
+		}
+		public void run() throws Exception{
+			Main.piezo.setStart(x,y,z,a);
+			Main.piezo.goTo();
+			GUI.update();	
+		}
+	}
+
 	JPanel textPanel(){
 		for(int i=0; i<posbox.length; i++){
 			posbox[i] = GUI.textbox();
@@ -204,17 +206,11 @@ public final class PiezoPanel extends JPanel{
 
 		ActionListener a = new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				try{
-					double x = atof(posbox[0].getText());
-					double y = atof(posbox[1].getText());
-					double z = atof(posbox[2].getText());
-					double a = atof(posbox[3].getText());
-					Main.piezo.setStart(x,y,z,a);
-					Main.piezo.goTo();
-					update();	
-				}catch(Exception err){
-					Main.log(err.toString()); // TODO;
-				}
+				double x = atof(posbox[0].getText());
+				double y = atof(posbox[1].getText());
+				double z = atof(posbox[2].getText());
+				double a = atof(posbox[3].getText());
+				Main.run(new doGoto(x, y, z, a));
 			}
 		};
 
@@ -266,15 +262,23 @@ public final class PiezoPanel extends JPanel{
 			setMargin(new Insets(0,0,0,0));
 		}
 		public void actionPerformed(ActionEvent e){
-			try{
-				Main.piezo.jog(dx, dy, dz);
-				GUI.update();
-			}catch(IOException err){
-				GUI.log(err.toString());
-			}
+			Main.run(new doJog(dx, dy, dz));
 		}
 		private static final long serialVersionUID = 1; // sigh...
 	}	
+
+	class doJog implements Task{
+		double dx, dy, dz;
+		doJog(double dx, double dy, double dz){
+			this.dx = dx;
+			this.dy = dy;
+			this.dz = dz;
+		}
+		public void run() throws Exception{
+			Main.piezo.jog(dx, dy, dz);
+			GUI.update();
+		}
+	}
 
 	private static final long serialVersionUID = 1; // sigh...
 }

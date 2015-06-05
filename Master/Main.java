@@ -6,11 +6,50 @@ public final class Main {
 
 	static PiezoController piezo;
 
-	static final int N_THREADS = 1;
-	static ArrayBlockingQueue<Runnable> requests = new ArrayBlockingQueue<Runnable>(N_THREADS);	
+	private static int QUEUE_LEN = 10;
+	static private ArrayBlockingQueue<Task> requests = new ArrayBlockingQueue<Task>(QUEUE_LEN);	
 	
 
 	public static void main(String[] args) throws Exception {
+		init();
+		reconnect(); // if the initial connection fails, let's exit and troubleshoot.
+
+		// main loop: receive requests from gui.
+		for( ;; ){
+
+			// run tasks untill error
+			for(;;){
+				Task t = null;
+				try{
+					t = Main.requests.take();
+					Main.err("running: " + t.toString());
+					t.run();
+					Main.err("ready");
+				}catch(Exception e){
+					Main.err(t.toString() + ": " + e.toString());
+					piezo.dev.tryClose();
+					break;
+				}
+			}
+
+			// re-connect
+			boolean ok = false;
+			while(!ok){
+				try{
+					reconnect();
+					ok = true;
+				}catch(Exception e){
+					Main.err(e.toString() + ", retrying connection...");
+					Thread.sleep(3000);
+					ok = false;
+				}
+			}
+
+		}
+
+	}
+
+	static void init(){
 		//Rigol rigol = new Rigol("mona.ugent.be", 5005);
 		//System.out.println("rigol id     : " + rigol.id() );
 		//System.out.println("rigol measure: " + rigol.measure() + "V");
@@ -20,36 +59,42 @@ public final class Main {
 		
 
 		piezo = new PiezoController("mona.ugent.be", 5000);
-		piezo.setStart(0.5, 0.5, 0.5, 0);
-		piezo.goTo();
 
 		GUI.init();	
 		piezo.viewer = GUI.viewer;
 
-		for( ;; ){
-			try{
-			Runnable task = Main.requests.take();
-			Main.log("running task: " + task.toString());
-			task.run();
-			Main.log("done: " + task.toString());
-			}catch(Exception e){ // TODO
-				Main.log(e.toString());
-			}
-		}
+	}
 
+	static void reconnect() throws Exception{
+		piezo.dev.connect();
+	}
+
+	static void run(Task t){
+		//log("queue task " + t.toString());
+		try{
+		requests.put(t);
+		}catch(InterruptedException e){
+			debug(e.toString());
+			System.exit(1);
+		}
 	}
 
 
-	static void log(String msg) {
+	static void debug(String msg) {
 		if (verbose) {
 			System.err.println(msg);
 		}
 	}
 
-	static void logn(String msg) {
+	static void debugn(String msg) {
 		if (verbose) {
 			System.err.print(msg);
 		}
+	}
+
+	static void err(String msg){
+		debug(msg);
+		GUI.log(msg);
 	}
 
 	static void check(boolean test) {

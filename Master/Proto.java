@@ -49,7 +49,7 @@ public final class Proto {
 		Subsequent words, as many bytes as indicated by payload size:
 		payload data which can be a string, floats or ints.         */
 	public static byte[] receive(InputStream in) throws IOException {
-		Main.logn("receive: ");
+		//Main.debugn("receive: ");
 		// Parse the header
 		byte[] hdr = new byte[8];
 		readFull(in, hdr);
@@ -65,7 +65,7 @@ public final class Proto {
 		byte []data = new byte[payload];
 		readFull(in, data);
 		if(status > 0) {
-			Main.log("OK");
+			//Main.debug("OK");
 			return data;
 		} else {
 			String info = statusStr.get(status);

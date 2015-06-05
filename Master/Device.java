@@ -5,24 +5,31 @@ import java.net.*;
 class Device {
 
 	String name;
+	String host;
+	int port;
 	Socket socket;
 	OutputStream out;
 	InputStream in;
 
 	// Make a device connection with given name (e.g.: "Rigol"),
 	// connected to host:port.
-	Device(String name, String host, int port) throws UnknownHostException , IOException {
+	Device(String name, String host, int port) {
 		this.name = name;
-		Main.log(name + ": connecting to " + host + ":" + port);
+		this.host = host;
+		this.port = port;
+	}
+	
+	void connect() throws UnknownHostException , IOException {
+		Main.debug(name + ": connecting to " + host + ":" + port);
 		this.socket = new Socket(host, port);
 		this.out = new PrintStream(socket.getOutputStream());
 		this.in = socket.getInputStream();
-		Main.log(name + ": connected");
+		Main.debug(name + ": connected");
 	}
 
 	/** Send a request to the device, e.g. "MEAS". */
 	void send(String msg) throws IOException {
-		Main.log("to " + name + ": " + msg);
+		Main.debug("to " + name + ": " + msg);
 		Proto.send(out, msg);
 	}
 
@@ -51,9 +58,18 @@ class Device {
 
 	/** Close the network connection. */
 	void close() throws IOException {
-		Main.logn(name + ": closing...");
+		Main.debugn(name + ": closing...");
 		socket.close();
-		Main.log("OK");
+		Main.debug("OK");
+	}
+
+	/** Try to close network connection but do not panic on error. */
+	void tryClose(){
+		try{
+			close();
+		}catch(IOException err){
+			Main.debug(name + ": ignored error while closing connection: " + err.toString());
+		}
 	}
 
 	/** Request and return device ID.

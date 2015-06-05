@@ -91,7 +91,7 @@ public final class GUI{
 	}
 
 	static void log(String msg){
-		Main.log(msg);
+		Main.debug(msg);
 		statusLabel.setText(msg);
 	}
 }
