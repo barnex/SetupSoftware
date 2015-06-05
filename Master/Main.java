@@ -19,7 +19,6 @@ public final class Main {
 		//System.out.println("hp1 id: " + hp1.id() );
 		
 
-
 		piezo = new PiezoController("mona.ugent.be", 5000);
 		piezo.setStart(0.5, 0.5, 0.5, 0);
 		piezo.goTo();
@@ -27,9 +26,17 @@ public final class Main {
 		GUI.init();	
 		piezo.viewer = GUI.viewer;
 
-		for(int i=0; i<N_THREADS; i++){
-			new Thread(new Worker()).start();
+		for( ;; ){
+			try{
+			Runnable task = Main.requests.take();
+			Main.log("running task: " + task.toString());
+			task.run();
+			Main.log("done: " + task.toString());
+			}catch(Exception e){ // TODO
+				Main.log(e.toString());
+			}
 		}
+
 	}
 
 

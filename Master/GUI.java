@@ -46,7 +46,7 @@ public final class GUI{
 		f.setSize(FRAME_W, FRAME_H);
 		f.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				f.dispose();
+				System.exit(0);
 			}
 		});
 		f.setBackground(background);
