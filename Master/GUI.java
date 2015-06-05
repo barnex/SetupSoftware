@@ -1,7 +1,6 @@
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 public final class GUI{
 
@@ -9,9 +8,10 @@ public final class GUI{
 	static final Color middleground = Color.LIGHT_GRAY;
 	static final Color foreground = Color.BLACK;
 	static final Color textBackground = Color.WHITE;
+	static final String progname = "MOKA controller";
 
 	static ImageView viewer = new ImageView();
-	static JLabel statusLabel = label("MOKA controller");
+	static JLabel statusLabel = label(progname);
 	static PiezoPanel piezo;
 
 	static final int FRAME_W = 800, FRAME_H = 600; // initial window size
@@ -25,13 +25,13 @@ public final class GUI{
 		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
 
 		JPanel pp = new JPanel();
-		pp.setBorder(new TitledBorder("piezo"));
 		pp.setBackground(background);
 		piezo = new PiezoPanel();
 		pp.add(piezo);
 		f.getContentPane().add(pp, BorderLayout.EAST);
 		update();
 
+		f.pack();
 		f.setVisible(true);
 	}
 
@@ -41,6 +41,7 @@ public final class GUI{
 
 	static JFrame makeFrame(){
 		final JFrame f = new JFrame();
+		f.setTitle(progname);
 		f.setFocusable(true);
 		f.setSize(FRAME_W, FRAME_H);
 		f.addWindowListener(new WindowAdapter() {
@@ -58,6 +59,15 @@ public final class GUI{
 		colorize(l);
 		l.setOpaque(true);
 		return l;
+	}
+
+	static JButton button(String text){
+		JButton b = new JButton(text);
+		colorize(b);
+		b.setBackground(middleground);
+		b.setContentAreaFilled(false);
+		b.setOpaque(true);
+		return b;
 	}
 
 	static JPanel panel(){

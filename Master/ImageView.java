@@ -9,6 +9,7 @@ public final class ImageView extends JPanel{
 
 	public ImageView(){
 		GUI.colorize(this);
+		setPreferredSize(new Dimension(512, 512));
 	}
 
 	public void display(float[][][] image){
