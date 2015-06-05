@@ -1,10 +1,13 @@
+import java.util.concurrent.*;
 
 public final class Main {
 
 	static boolean verbose = true;
 
-
 	static PiezoController piezo;
+
+	static final int N_THREADS = 1;
+	static ArrayBlockingQueue<Runnable> requests = new ArrayBlockingQueue<Runnable>(N_THREADS);	
 	
 
 	public static void main(String[] args) throws Exception {
@@ -24,16 +27,11 @@ public final class Main {
 		GUI.init();	
 		piezo.viewer = GUI.viewer;
 
-		//System.out.println("piezo id: " + piezo.id() );
-		//piezo.setStart(0.1, 0.2, 0.3, 0.4);
-		//piezo.goTo();
-		//piezo.setIInc(0, 0.01, 0.00, 0);
-		//piezo.setIJnc(0, 0.00, 0.01, 0);
-		//piezo.setpixels(50, 50);
-		//piezo.setTSettle(5);
-		//piezo.goTo();
-		//piezo.scan2d();
+		for(int i=0; i<N_THREADS; i++){
+			new Thread(new Worker()).start();
+		}
 	}
+
 
 	static void log(String msg) {
 		if (verbose) {

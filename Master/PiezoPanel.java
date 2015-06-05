@@ -70,7 +70,7 @@ public final class PiezoPanel extends JPanel{
 
 		scan.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				doScan();
+				Main.requests.offer(new doScan());
 			}
 		});
 		abort.addActionListener(new ActionListener(){
@@ -97,7 +97,8 @@ public final class PiezoPanel extends JPanel{
 		
 	}
 
-	void doScan(){
+	class doScan implements Runnable{
+		public void run(){
 		try{
 			int w = (int)(atof(pixX.getText()));
 			int h = (int)(atof(pixY.getText()));
@@ -142,6 +143,7 @@ public final class PiezoPanel extends JPanel{
 			Main.piezo.scan2d();
 		}catch(Exception err){ // TODO
 			Main.log(err.toString());
+		}
 		}
 	}
 
