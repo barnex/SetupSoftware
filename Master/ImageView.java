@@ -4,7 +4,7 @@ import javax.swing.*;
 public final class ImageView extends JPanel{
 
 	int chan = 0;
-	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, new Color(128, 0, 128), Color.YELLOW);
+	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, Color.GRAY, Color.WHITE);
 	float[][][] image = new float[1][1][1];
 
 	public ImageView(){
@@ -54,7 +54,7 @@ public final class ImageView extends JPanel{
 		for(int i=0; i<nI; i++){
 			for(int j=0; j<nJ; j++){
 				int x = (W*j)/nJ;
-				int y = (H*i)/nI;
+				int y = H-(H*i)/nI-sy;
 
 				double v = (double)(img[i][j]);
 				if(Double.isNaN(v)){continue;}

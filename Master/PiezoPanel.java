@@ -12,7 +12,7 @@ public final class PiezoPanel extends JPanel{
 	JTextField pixY = new JTextField("20");
 	JTextField strideX = new JTextField("5");
 	JTextField strideY = new JTextField("5");
-	JTextField settle = new JTextField("5");
+	JTextField settle = new JTextField("2");
 	JComboBox typeSel = new JComboBox(new String[]{"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
 	JLabel pitch = GUI.label("-");
 
@@ -97,6 +97,7 @@ public final class PiezoPanel extends JPanel{
 	class doScan implements Task{
 		int w, h;
 		double x, y, z, a;
+		double startX, startY, startZ, startA;
 		double xiinc, yiinc, ziinc, auxiinc;
 		double xjinc, yjinc, zjinc, auxjinc;
 		double tsettle;
@@ -109,6 +110,11 @@ public final class PiezoPanel extends JPanel{
 			z = atof(posbox[2].getText())/UNIT;
 			a = atof(posbox[3].getText())/UNIT;
 
+			startX = x;
+			startY = y;
+			startZ = z;
+			startA = a;
+
 			w = (int)(atof(pixX.getText()));
 			h = (int)(atof(pixY.getText()));
 			pixX.setText(""+w);
@@ -116,7 +122,7 @@ public final class PiezoPanel extends JPanel{
 
 			double iinc = atof(strideX.getText())/(w*UNIT);
 			double jinc = atof(strideY.getText())/(h*UNIT);
-			pitch.setText( (iinc*UNIT) + " x " + (jinc*UNIT) );
+			pitch.setText( String.format("%.2f", (iinc*UNIT)) + " x " + String.format("%.2f", (jinc*UNIT)) );
 			strideX.setText(""+(iinc*w*UNIT));
 			strideY.setText(""+(jinc*h*UNIT));
 			int type = typeSel.getSelectedIndex();
@@ -125,16 +131,23 @@ public final class PiezoPanel extends JPanel{
 				case 0:  // image, YZ
 				yiinc = iinc;
 				zjinc = jinc;
+				y -= (yiinc*w)/2.;
+				z -= (zjinc*h)/2.;
 				break;
 				case 1: // focus, XY
 				xiinc = iinc;
 				yjinc = jinc;
+				x -= (xiinc*w)/2.;
+				y -= (yjinc*h)/2.;
 				break;
 				case 2: // focus, ZX
 				ziinc = iinc;
 				xjinc = jinc;
+				z -= (ziinc*w)/2.;
+				x -= (xjinc*h)/2.;
 				break;
 			}
+
 
 			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);
@@ -147,6 +160,9 @@ public final class PiezoPanel extends JPanel{
 			Main.piezo.setJInc(xjinc, yjinc, zjinc, auxjinc);
 			Main.piezo.setTSettle(tsettle);
 			Main.piezo.scan2d();
+			Main.piezo.dev.connect(); // TODO: make sure controller doesn't drop connection
+			Main.piezo.setStart(startX, startY, startZ, startA);
+			Main.piezo.goTo();
 		}
 	}
 
@@ -156,7 +172,7 @@ public final class PiezoPanel extends JPanel{
 		
 		p.add(GUI.panel());
 		p.add(GUI.panel());
-		p.add(new JogButton("↑↑", 0, 0, -JOG));
+		p.add(new JogButton("↑↑", 0, 0, JOG));
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(GUI.panel());
@@ -164,7 +180,7 @@ public final class PiezoPanel extends JPanel{
 
 		p.add(GUI.panel());
 		p.add(GUI.panel());
-		p.add(new JogButton("↑", 0, 0, -SMALL_JOG));
+		p.add(new JogButton("↑", 0, 0, SMALL_JOG));
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(GUI.panel());
@@ -180,7 +196,7 @@ public final class PiezoPanel extends JPanel{
 
 		p.add(GUI.panel());
 		p.add(GUI.panel());
-		p.add(new JogButton("↓", 0, 0, SMALL_JOG));
+		p.add(new JogButton("↓", 0, 0, -SMALL_JOG));
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(GUI.panel());
@@ -188,7 +204,7 @@ public final class PiezoPanel extends JPanel{
 
 		p.add(GUI.panel());
 		p.add(GUI.panel());
-		p.add(new JogButton("↓↓", 0, 0, JOG));
+		p.add(new JogButton("↓↓", 0, 0, -JOG));
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(GUI.panel());
