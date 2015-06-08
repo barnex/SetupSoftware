@@ -1,15 +1,47 @@
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
-public final class ImageView extends JPanel{
+public final class ImageView extends JPanel implements MouseListener, MouseMotionListener{
 
 	int chan = 0;
 	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, Color.GRAY, Color.WHITE);
 	float[][][] image = new float[1][1][1];
+	double x0, y0, dx, dy; // center position and pixel stride, in µm, to display cursor position
+	JLabel coords;
 
 	public ImageView(){
 		GUI.colorize(this);
 		setPreferredSize(new Dimension(512, 512));
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		setCursor (Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+	}
+
+	public void mouseEntered(MouseEvent e){}
+	public void mouseExited(MouseEvent e){}
+	public void mousePressed(MouseEvent e){}
+	public void mouseReleased(MouseEvent e){}
+	public void mouseClicked(MouseEvent e){}
+	public void mouseDragged(MouseEvent e){}
+	public void mouseMoved(MouseEvent e){
+		int W = getWidth();
+		int H = getHeight();
+		int i = e.getX();
+		int j = (H-e.getY());
+		int nJ = image[chan].length;
+		int nI = image[chan][0].length;
+		double I = (double)(i*nI)/W;
+		double J = (double)(j*nJ)/H;
+
+		double x = x0 + dx * I;
+		double y = y0 + dy * J;
+
+		if (coords != null){
+			coords.setText(String.format("%.2f", x) + ", " + String.format("%.2f", y) + " µm");
+ 
+		}
+		
 	}
 
 	public void display(float[][][] image){

@@ -122,6 +122,7 @@ public final class PiezoPanel extends JPanel{
 
 			double iinc = atof(strideX.getText())/(w*UNIT);
 			double jinc = atof(strideY.getText())/(h*UNIT);
+			double i0, j0;
 			pitch.setText( String.format("%.2f", (iinc*UNIT)) + " x " + String.format("%.2f", (jinc*UNIT)) );
 			strideX.setText(""+(iinc*w*UNIT));
 			strideY.setText(""+(jinc*h*UNIT));
@@ -133,21 +134,30 @@ public final class PiezoPanel extends JPanel{
 				zjinc = jinc;
 				y -= (yiinc*w)/2.;
 				z -= (zjinc*h)/2.;
+				i0 = y;
+				j0 = z;
 				break;
 				case 1: // focus, XY
 				xiinc = iinc;
 				yjinc = jinc;
 				x -= (xiinc*w)/2.;
 				y -= (yjinc*h)/2.;
+				i0 = x;
+				j0 = y;
 				break;
 				case 2: // focus, ZX
 				ziinc = iinc;
 				xjinc = jinc;
 				z -= (ziinc*w)/2.;
 				x -= (xjinc*h)/2.;
+				i0 = z;
+				j0 = x;
 				break;
 			}
-
+			GUI.viewer.dx = iinc*UNIT;
+			GUI.viewer.dy = jinc*UNIT;
+			GUI.viewer.x0 = i0*UNIT;
+			GUI.viewer.y0 = j0*UNIT;
 
 			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);

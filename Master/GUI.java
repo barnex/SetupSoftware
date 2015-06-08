@@ -23,6 +23,7 @@ public final class GUI{
 		f.getContentPane().add(viewer, BorderLayout.CENTER);
 
 		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
+		viewer.coords = statusLabel;
 
 		JPanel pp = new JPanel();
 		pp.setBackground(background);
