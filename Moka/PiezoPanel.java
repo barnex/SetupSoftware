@@ -15,9 +15,12 @@ public final class PiezoPanel extends JPanel{
 	JTextField settle = new JTextField("2");
 	JComboBox typeSel = new JComboBox(new String[]{"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
 	JLabel pitch = GUI.label("-");
+	int scanI, scanJ; // scan coordinates (0=X, 1=Y, ...)
 
+	static final String[]coordStr={"x", "y", "z", "aux"};
 	static final double SMALL_JOG = 1./1024.;
 	static final double JOG = 32./1024.;
+	static final int X = 0, Y=1, Z=2;
 
 	public PiezoPanel(){
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -136,6 +139,8 @@ public final class PiezoPanel extends JPanel{
 				z -= (zjinc*h)/2.;
 				i0 = y;
 				j0 = z;
+				scanI = Y;
+				scanJ = Z;
 				break;
 				case 1: // focus, XY
 				xiinc = iinc;
@@ -144,6 +149,8 @@ public final class PiezoPanel extends JPanel{
 				y -= (yjinc*h)/2.;
 				i0 = x;
 				j0 = y;
+				scanI = X;
+				scanJ = Y;
 				break;
 				case 2: // focus, ZX
 				ziinc = iinc;
@@ -152,6 +159,8 @@ public final class PiezoPanel extends JPanel{
 				x -= (xjinc*h)/2.;
 				i0 = z;
 				j0 = x;
+				scanI = Z;
+				scanJ = X;
 				break;
 			}
 			GUI.viewer.dx = iinc*UNIT;
@@ -278,7 +287,7 @@ public final class PiezoPanel extends JPanel{
 		p.add(posbox[0]);
 		p.add(GUI.label("aux:"));
 		p.add(posbox[3]);
-
+		
 		p.setBackground(GUI.background);
 		return p;
 	}

@@ -8,6 +8,7 @@ public final class ImageView extends JPanel implements MouseListener, MouseMotio
 	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, Color.GRAY, Color.WHITE);
 	float[][][] image = new float[1][1][1];
 	double x0, y0, dx, dy; // center position and pixel stride, in µm, to display cursor position
+	double mouseX, mouseY; // last mouse position, in µm
 	JLabel coords;
 
 	public ImageView(){
@@ -22,7 +23,12 @@ public final class ImageView extends JPanel implements MouseListener, MouseMotio
 	public void mouseExited(MouseEvent e){}
 	public void mousePressed(MouseEvent e){}
 	public void mouseReleased(MouseEvent e){}
-	public void mouseClicked(MouseEvent e){}
+	public void mouseClicked(MouseEvent e){
+ 		if (e.getClickCount() == 2) {
+ 			GUI.piezo.posbox[GUI.piezo.scanI].setText(fmt(mouseX));
+ 			GUI.piezo.posbox[GUI.piezo.scanJ].setText(fmt(mouseY));
+  		}
+	}
 	public void mouseDragged(MouseEvent e){}
 	public void mouseMoved(MouseEvent e){
 		int W = getWidth();
@@ -33,15 +39,18 @@ public final class ImageView extends JPanel implements MouseListener, MouseMotio
 		int nI = image[chan][0].length;
 		double I = (double)(i*nI)/W;
 		double J = (double)(j*nJ)/H;
-
-		double x = x0 + dx * I;
-		double y = y0 + dy * J;
+		mouseX = x0 + dx * I;
+		mouseY = y0 + dy * J;
 
 		if (coords != null){
-			coords.setText(String.format("%.2f", x) + ", " + String.format("%.2f", y) + " µm");
+			coords.setText(fmt(mouseX) + ", " + fmt(mouseY) + " µm");
  
 		}
 		
+	}
+
+	static String fmt(double x){
+		return String.format("%.2f", x);
 	}
 
 	public void display(float[][][] image){
