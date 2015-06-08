@@ -1,5 +1,5 @@
 all:
-	rm *.class
+	rm -f *.class
 	astyle --style=java --indent=tab *.java || echo ""
 	rm -f *.class
 	javac *.java

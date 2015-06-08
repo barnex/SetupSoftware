@@ -5,7 +5,7 @@ import javax.swing.*;
 public final class ImageView extends JPanel implements MouseListener, MouseMotionListener {
 
 	int chan = 0;
-	ColorMap colormap = new ColorMap(0, 0, Color.BLACK, Color.GRAY, Color.WHITE);
+	ColorMap colormap = new ColorMap();
 	float[][][] image = new float[1][1][1];
 	double x0, y0, dx, dy; // center position and pixel stride, in µm, to display cursor position
 	double mouseX, mouseY; // last mouse position, in µm
@@ -73,7 +73,7 @@ public final class ImageView extends JPanel implements MouseListener, MouseMotio
 			}
 		}
 
-		colormap.setValues(min, max);
+		colormap.setRange(min, max);
 
 		repaint();
 
