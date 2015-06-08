@@ -6,7 +6,7 @@ public final class Main {
 
 	static PiezoController piezo;
 
-	private static int QUEUE_LEN = 10;
+	private static int QUEUE_LEN = 3;
 	static private ArrayBlockingQueue<Task> requests = new ArrayBlockingQueue<Task>(QUEUE_LEN);	
 	
 
@@ -49,36 +49,26 @@ public final class Main {
 
 	}
 
-	static void init(){
-		//Rigol rigol = new Rigol("mona.ugent.be", 5005);
-		//System.out.println("rigol id     : " + rigol.id() );
-		//System.out.println("rigol measure: " + rigol.measure() + "V");
-
-		//HP hp1 = new HP("hp1", "mona.ugent.be", 5003);
-		//System.out.println("hp1 id: " + hp1.id() );
-		
-
-		piezo = new PiezoController("mona.ugent.be", 5000);
-
-		GUI.init();	
-		piezo.viewer = GUI.viewer;
-
-	}
-
-	static void reconnect() throws Exception{
-		piezo.dev.connect();
-	}
-
-	static void run(Task t){
-		//log("queue task " + t.toString());
+	// Queue a Task to be executed in the main loop as soon as possible.
+	// Called by the GUI to run scans without blocking the GUI responsiveness.
+	static void queue(Task t){
 		try{
-		requests.put(t);
+			requests.put(t);
 		}catch(InterruptedException e){
 			debug(e.toString());
 			System.exit(1);
 		}
 	}
 
+	static void reconnect() throws Exception{
+		piezo.dev.connect();
+	}
+
+	static void init(){
+		piezo = new PiezoController("mona.ugent.be", 5000);
+		GUI.init();	
+		piezo.viewer = GUI.viewer;
+	}
 
 	static void debug(String msg) {
 		if (verbose) {

@@ -4,7 +4,8 @@ import javax.swing.*;
 
 public final class GUI{
 
-	static final Color background = new Color(255, 255, 150); // "Tolek Yellow"
+	static final Color TOLEK_YELLOW = new Color(255, 255, 150); // typical STXM GUI color
+	static final Color background = TOLEK_YELLOW;
 	static final Color middleground = Color.LIGHT_GRAY;
 	static final Color foreground = Color.BLACK;
 	static final Color textBackground = Color.WHITE;

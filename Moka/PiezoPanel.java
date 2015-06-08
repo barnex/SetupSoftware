@@ -78,7 +78,7 @@ public final class PiezoPanel extends JPanel{
 
 		scan.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				Main.run(new doScan());
+				Main.queue(new doScan());
 			}
 		});
 		abort.addActionListener(new ActionListener(){
@@ -261,7 +261,7 @@ public final class PiezoPanel extends JPanel{
 				double y = atof(posbox[1].getText())/UNIT;
 				double z = atof(posbox[2].getText())/UNIT;
 				double a = atof(posbox[3].getText())/UNIT;
-				Main.run(new doGoto(x, y, z, a));
+				Main.queue(new doGoto(x, y, z, a));
 			}
 		};
 
@@ -313,7 +313,7 @@ public final class PiezoPanel extends JPanel{
 			setMargin(new Insets(0,0,0,0));
 		}
 		public void actionPerformed(ActionEvent e){
-			Main.run(new doJog(dx, dy, dz));
+			Main.queue(new doJog(dx, dy, dz));
 		}
 		private static final long serialVersionUID = 1; // sigh...
 	}	
