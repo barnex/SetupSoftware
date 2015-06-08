@@ -3,7 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public final class PiezoPanel extends JPanel{
+public final class PiezoPanel extends JPanel {
 
 	final double UNIT = 20.0; // piezo full range in micron
 
@@ -13,16 +13,16 @@ public final class PiezoPanel extends JPanel{
 	JTextField strideX = new JTextField("5");
 	JTextField strideY = new JTextField("5");
 	JTextField settle = new JTextField("2");
-	JComboBox typeSel = new JComboBox(new String[]{"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
+	JComboBox typeSel = new JComboBox(new String[] {"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
 	JLabel pitch = GUI.label("-");
 	int scanI, scanJ; // scan coordinates (0=X, 1=Y, ...)
 
-	static final String[]coordStr={"x", "y", "z", "aux"};
+	static final String[]coordStr= {"x", "y", "z", "aux"};
 	static final double SMALL_JOG = 1./1024.;
 	static final double JOG = 32./1024.;
 	static final int X = 0, Y=1, Z=2;
 
-	public PiezoPanel(){
+	public PiezoPanel() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		GUI.colorize(this);
 		setBorder(new TitledBorder("piezo"));
@@ -33,14 +33,14 @@ public final class PiezoPanel extends JPanel{
 	}
 
 	// read values from piezo and update textboxes, labels
-	void update(){
+	void update() {
 		posbox[0].setText("" + Main.piezo.posX*UNIT);
 		posbox[1].setText("" + Main.piezo.posY*UNIT);
 		posbox[2].setText("" + Main.piezo.posZ*UNIT);
 		posbox[3].setText("" + Main.piezo.posAux);
 	}
 
-	JPanel scanPanel(){
+	JPanel scanPanel() {
 		JPanel p = GUI.panel();
 		p.setLayout(new GridLayout(7, 2));
 
@@ -76,13 +76,13 @@ public final class PiezoPanel extends JPanel{
 		q.add(scan);
 		q.add(abort);
 
-		scan.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		scan.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				Main.queue(new doScan());
 			}
 		});
-		abort.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		abort.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				Main.piezo.dev.tryClose();
 			}
 		});
@@ -97,7 +97,7 @@ public final class PiezoPanel extends JPanel{
 	}
 
 
-	class doScan implements Task{
+	class doScan implements Task {
 		int w, h;
 		double x, y, z, a;
 		double startX, startY, startZ, startA;
@@ -105,9 +105,9 @@ public final class PiezoPanel extends JPanel{
 		double xjinc, yjinc, zjinc, auxjinc;
 		double tsettle;
 
-		doScan(){
+		doScan() {
 
-			
+
 			x = atof(posbox[0].getText())/UNIT;
 			y = atof(posbox[1].getText())/UNIT;
 			z = atof(posbox[2].getText())/UNIT;
@@ -130,9 +130,10 @@ public final class PiezoPanel extends JPanel{
 			strideX.setText(""+(iinc*w*UNIT));
 			strideY.setText(""+(jinc*h*UNIT));
 			int type = typeSel.getSelectedIndex();
-			switch (type){
-				default: throw new IllegalArgumentException("scan type " + type);
-				case 0:  // image, YZ
+			switch (type) {
+			default:
+				throw new IllegalArgumentException("scan type " + type);
+			case 0:  // image, YZ
 				yiinc = iinc;
 				zjinc = jinc;
 				y -= (yiinc*w)/2.;
@@ -142,7 +143,7 @@ public final class PiezoPanel extends JPanel{
 				scanI = Y;
 				scanJ = Z;
 				break;
-				case 1: // focus, XY
+			case 1: // focus, XY
 				xiinc = iinc;
 				yjinc = jinc;
 				x -= (xiinc*w)/2.;
@@ -152,7 +153,7 @@ public final class PiezoPanel extends JPanel{
 				scanI = X;
 				scanJ = Y;
 				break;
-				case 2: // focus, ZX
+			case 2: // focus, ZX
 				ziinc = iinc;
 				xjinc = jinc;
 				z -= (ziinc*w)/2.;
@@ -171,7 +172,7 @@ public final class PiezoPanel extends JPanel{
 			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);
 		}
-		public void run() throws Exception{
+		public void run() throws Exception {
 			Main.piezo.setStart(x, y, z, a);
 			Main.piezo.goTo();
 			Main.piezo.setpixels(w, h);
@@ -185,10 +186,10 @@ public final class PiezoPanel extends JPanel{
 		}
 	}
 
-	JPanel buttonPanel(){
+	JPanel buttonPanel() {
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(5, 7, 5, 5));
-		
+
 		p.add(GUI.panel());
 		p.add(GUI.panel());
 		p.add(new JogButton("↑↑", 0, 0, JOG));
@@ -235,28 +236,28 @@ public final class PiezoPanel extends JPanel{
 		return p;
 	}
 
-	class doGoto implements Task{
+	class doGoto implements Task {
 		double x, y, z, a;
-		doGoto(double x, double y, double z, double a){
+		doGoto(double x, double y, double z, double a) {
 			this.x = x;
 			this.y = y;
 			this.z = z;
 			this.a = a;
 		}
-		public void run() throws Exception{
+		public void run() throws Exception {
 			Main.piezo.setStart(x,y,z,a);
 			Main.piezo.goTo();
-			GUI.update();	
+			GUI.update();
 		}
 	}
 
-	JPanel textPanel(){
-		for(int i=0; i<posbox.length; i++){
+	JPanel textPanel() {
+		for(int i=0; i<posbox.length; i++) {
 			posbox[i] = GUI.textbox();
-		}	
+		}
 
-		ActionListener a = new ActionListener(){
-			public void actionPerformed(ActionEvent e){
+		ActionListener a = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				double x = atof(posbox[0].getText())/UNIT;
 				double y = atof(posbox[1].getText())/UNIT;
 				double z = atof(posbox[2].getText())/UNIT;
@@ -265,9 +266,9 @@ public final class PiezoPanel extends JPanel{
 			}
 		};
 
-		for(int i=0; i<posbox.length; i++){
+		for(int i=0; i<posbox.length; i++) {
 			posbox[i].addActionListener(a);
-		}	
+		}
 
 
 
@@ -287,20 +288,20 @@ public final class PiezoPanel extends JPanel{
 		p.add(posbox[0]);
 		p.add(GUI.label("aux:"));
 		p.add(posbox[3]);
-		
+
 		p.setBackground(GUI.background);
 		return p;
 	}
 
-	static double atof(String a){
+	static double atof(String a) {
 		double f = Double.parseDouble(a);
 		return f;
 	}
 
 
-	class JogButton extends JButton implements ActionListener{
+	class JogButton extends JButton implements ActionListener {
 		double dx, dy, dz;
-		JogButton(String label, double dx, double dy, double dz){
+		JogButton(String label, double dx, double dy, double dz) {
 			super(label);
 			this.dx=dx;
 			this.dy=dy;
@@ -312,20 +313,20 @@ public final class PiezoPanel extends JPanel{
 			setOpaque(true);
 			setMargin(new Insets(0,0,0,0));
 		}
-		public void actionPerformed(ActionEvent e){
+		public void actionPerformed(ActionEvent e) {
 			Main.queue(new doJog(dx, dy, dz));
 		}
 		private static final long serialVersionUID = 1; // sigh...
-	}	
+	}
 
-	class doJog implements Task{
+	class doJog implements Task {
 		double dx, dy, dz;
-		doJog(double dx, double dy, double dz){
+		doJog(double dx, double dy, double dz) {
 			this.dx = dx;
 			this.dy = dy;
 			this.dz = dz;
 		}
-		public void run() throws Exception{
+		public void run() throws Exception {
 			Main.piezo.jog(dx, dy, dz);
 			GUI.update();
 		}

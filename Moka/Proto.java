@@ -24,14 +24,14 @@ public final class Proto {
 	// maps status numbers to human-readible information
 	private static final HashMap<Integer, String> statusStr = new HashMap<Integer, String>();
 
-	static{
+	static {
 		statusStr.put(FAILURE              , "FAILURE"              );
-		statusStr.put(SUCCESS              , "SUCCESS"              );     
-		statusStr.put(FINISHED             , "FINISHED"             );     
-		statusStr.put(UNKNOWN_COMMAND      , "UNKNOWN_COMMAND"      );     
+		statusStr.put(SUCCESS              , "SUCCESS"              );
+		statusStr.put(FINISHED             , "FINISHED"             );
+		statusStr.put(UNKNOWN_COMMAND      , "UNKNOWN_COMMAND"      );
 		statusStr.put(NOT_ENOUGH_PARAMETERS, "NOT_ENOUGH_PARAMETERS");
-		statusStr.put(HARDWARE_COMM_ERR    , "HARDWARE_COMM_ERR"    );     
-		statusStr.put(UNKNOWN_PARAMETER    , "UNKNOWN_PARAMETER"    );     
+		statusStr.put(HARDWARE_COMM_ERR    , "HARDWARE_COMM_ERR"    );
+		statusStr.put(UNKNOWN_PARAMETER    , "UNKNOWN_PARAMETER"    );
 	}
 
 
@@ -56,7 +56,7 @@ public final class Proto {
 		int status = toIntOff(hdr, 0);
 		int payload = toIntOff(hdr, 4);
 
-		if(payload > MAX_PAYLOAD){
+		if(payload > MAX_PAYLOAD) {
 			throw new IOException("too big payload: " + payload);
 		}
 
@@ -69,7 +69,7 @@ public final class Proto {
 			return data;
 		} else {
 			String info = statusStr.get(status);
-			if(info  == null){
+			if(info  == null) {
 				info = "unknown error";
 			}
 			throw new IOException("received status " + status + ": " + info);
@@ -103,7 +103,7 @@ public final class Proto {
 		int off = 0;
 		while(off < N) {
 			int read = in.read(data, off, N-off);
-			if(read <= 0){
+			if(read <= 0) {
 				throw new IOException("read error");
 			}
 			off += read;

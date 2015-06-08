@@ -31,35 +31,35 @@
 #include <stdio.h>
 
 typedef enum {
-	PING	= 0x00,
-	STATUS	= 0x01,
-	INIT	= 0x02,
-	LOCKREAD	= 0x03,
-	CONTROLLER	= 0x04,
-	REMOTE	= 0x05,
-	TALKER	= 0x06,
-	LISTENER	= 0x07,
-	UNLISTEN	= 0x08,
-	UNTALK	= 0x09,
-	LOCKOUT	= 0x0a,
-	CLEAR	= 0x0b,
-	UNLOCK	= 0x0c,
-	TRIGGER	= 0x0d,
-	READ	= 0x0e,
-	WRITE	= 0x0f,
-	CMD		= 0x10,
-	ENGAGE_REQ	= 0x11
+    PING	= 0x00,
+    STATUS	= 0x01,
+    INIT	= 0x02,
+    LOCKREAD	= 0x03,
+    CONTROLLER	= 0x04,
+    REMOTE	= 0x05,
+    TALKER	= 0x06,
+    LISTENER	= 0x07,
+    UNLISTEN	= 0x08,
+    UNTALK	= 0x09,
+    LOCKOUT	= 0x0a,
+    CLEAR	= 0x0b,
+    UNLOCK	= 0x0c,
+    TRIGGER	= 0x0d,
+    READ	= 0x0e,
+    WRITE	= 0x0f,
+    CMD		= 0x10,
+    ENGAGE_REQ	= 0x11
 } CMD_OUT;
 
 typedef enum {
-	PONG	= 0x00,
-	CHUNK	= 0x01,
-	STRING	= 0x02,
-	REQUEST	= 0x03
+    PONG	= 0x00,
+    CHUNK	= 0x01,
+    STRING	= 0x02,
+    REQUEST	= 0x03
 } CMD_IN;
 
 typedef enum {
-	BOOLEAN	= 0x01
+    BOOLEAN	= 0x01
 } FLAGS;
 
 typedef struct {

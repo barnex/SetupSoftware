@@ -2,7 +2,7 @@ import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
 
-public final class GUI{
+public final class GUI {
 
 	static final Color TOLEK_YELLOW = new Color(255, 255, 150); // typical STXM GUI color
 	static final Color background = TOLEK_YELLOW;
@@ -37,11 +37,11 @@ public final class GUI{
 		f.setVisible(true);
 	}
 
-	static void update(){
+	static void update() {
 		piezo.update();
 	}
 
-	static JFrame makeFrame(){
+	static JFrame makeFrame() {
 		final JFrame f = new JFrame();
 		f.setTitle(progname);
 		f.setFocusable(true);
@@ -56,14 +56,14 @@ public final class GUI{
 		return f;
 	}
 
-	static JLabel label(String text){
+	static JLabel label(String text) {
 		JLabel l = new JLabel(text);
 		colorize(l);
 		l.setOpaque(true);
 		return l;
 	}
 
-	static JButton button(String text){
+	static JButton button(String text) {
 		JButton b = new JButton(text);
 		colorize(b);
 		b.setBackground(middleground);
@@ -72,27 +72,27 @@ public final class GUI{
 		return b;
 	}
 
-	static JPanel panel(){
+	static JPanel panel() {
 		JPanel p = new JPanel();
 		colorize(p);
 		return p;
 	}
 
-	static JTextField textbox(){
+	static JTextField textbox() {
 		JTextField f = new JTextField();
 		colorize(f);
-		f.setBackground(textBackground);	
+		f.setBackground(textBackground);
 		return f;
 	}
 
 
-	static void colorize(JComponent c){
+	static void colorize(JComponent c) {
 		c.setBackground(background);
 		c.setForeground(foreground);
 		c.setOpaque(true);
 	}
 
-	static void log(String msg){
+	static void log(String msg) {
 		Main.debug(msg);
 		statusLabel.setText(msg);
 	}

@@ -7,7 +7,7 @@ all:
 	make -C FMRScanner
 	make -C HPInterface
 	make -C HittiteInterface
-	make -C Master
+	make -C Moka
 	make -C PiezoFMR
 	make -C PiezoScanner
 	make -C RigolInterface
@@ -20,7 +20,7 @@ clean:
 	make clean -C FMRScanner
 	make clean -C HPInterface
 	make clean -C HittiteInterface
-	make clean -C Master
+	make clean -C Moka
 	make clean -C PiezoFMR
 	make clean -C PiezoScanner
 	make clean -C RigolInterface

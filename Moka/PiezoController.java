@@ -4,7 +4,7 @@ import java.io.*;
 public final class PiezoController {
 
 	Device dev;
-	
+
 	double posX = 0.5, posY = 0.5, posZ = 0.5, posAux; // last position, dimensionless: 0..1
 	int nX, nY;                                        // # pixels to scan
 	private float[][][] image = new float[N_CHAN][nY][nX];     // last recored image
@@ -14,7 +14,7 @@ public final class PiezoController {
 	ImageView viewer = null;
 
 
-	public PiezoController(String host, int port){
+	public PiezoController(String host, int port) {
 		dev = new Device("piezo", host, port);
 	}
 
@@ -67,17 +67,29 @@ public final class PiezoController {
 	}
 
 	/** Convenience method to make relative movment. */
-	public void jog(double dx, double dy,double  dz) throws IOException{
+	public void jog(double dx, double dy,double  dz) throws IOException {
 		posX += dx;
 		posY += dy;
 		posZ += dz;
-		if(posX > 1){posX = 1;}
-		if(posY > 1){posY = 1;}
-		if(posZ > 1){posZ = 1;}
-		if(posX < 0){posX = 0;}
-		if(posY < 0){posY = 0;}
-		if(posZ < 0){posZ = 0;}
-		setStart(posX, posY, posZ, posAux);	
+		if(posX > 1) {
+			posX = 1;
+		}
+		if(posY > 1) {
+			posY = 1;
+		}
+		if(posZ > 1) {
+			posZ = 1;
+		}
+		if(posX < 0) {
+			posX = 0;
+		}
+		if(posY < 0) {
+			posY = 0;
+		}
+		if(posZ < 0) {
+			posZ = 0;
+		}
+		setStart(posX, posY, posZ, posAux);
 		goTo();
 	}
 
@@ -86,34 +98,34 @@ public final class PiezoController {
 
 		Main.debug(dev.name + ": start scan2d: " + nX + " x " + nY);
 
-   		// init new image buffer with NaN's 
+		// init new image buffer with NaN's
 		image = new float[N_CHAN][nY][nX];
-		for(int c = 0; c < N_CHAN; c++){
-			for(int y=0; y<nY; y++){
-				for(int x=0; x<nX; x++){
-					image[c][y][x] = (float)(0./0.);  
+		for(int c = 0; c < N_CHAN; c++) {
+			for(int y=0; y<nY; y++) {
+				for(int x=0; x<nX; x++) {
+					image[c][y][x] = (float)(0./0.);
 				}
-			}	
+			}
 		}
-		
+
 		// Start scan
 		dev.send("SCAN_2D");
 
 		// recieve data: for each pixel: one response packet with 8 floats payload (8 ADC channels).
-		for (int y = 0; y<nY; y++){
-			for (int x = 0; x<nX; x++){
+		for (int y = 0; y<nY; y++) {
+			for (int x = 0; x<nX; x++) {
 				byte[] data = dev.receive();
-				if(data.length != 4 * N_CHAN){
+				if(data.length != 4 * N_CHAN) {
 					throw new IOException("got bad scan data: " + data.length + " bytes");
 				}
-				for(int c = 0; c < N_CHAN; c++){
+				for(int c = 0; c < N_CHAN; c++) {
 					image[c][y][x] = Proto.toFloatOff(data, 4*c);
 				}
-				if(viewer != null){
+				if(viewer != null) {
 					viewer.display(image);
 				}
 			}
- 		}
+		}
 		Main.debug(dev.name + ": scan2d done");
 	}
 
@@ -134,7 +146,7 @@ public final class PiezoController {
 		return dev.id();
 	}
 
-	public void close() throws IOException{
+	public void close() throws IOException {
 		dev.close();
 	}
 }

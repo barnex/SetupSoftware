@@ -18,7 +18,7 @@ class Device {
 		this.host = host;
 		this.port = port;
 	}
-	
+
 	void connect() throws UnknownHostException , IOException {
 		Main.debug(name + ": connecting to " + host + ":" + port);
 		this.socket = new Socket(host, port);
@@ -35,11 +35,11 @@ class Device {
 
 	/** Receive the payload of the response, header stripped.
 	 *  return null in case of an error. */
-	byte[] receive() throws IOException{
+	byte[] receive() throws IOException {
 		return Proto.receive(in);
 	}
 
-	void receiveOK() throws IOException{
+	void receiveOK() throws IOException {
 		byte[] data = receive();
 		if(data.length > 0) {
 			throw new IOException("received unexpected data: " + data.length +  " bytes");
@@ -64,10 +64,10 @@ class Device {
 	}
 
 	/** Try to close network connection but do not panic on error. */
-	void tryClose(){
-		try{
+	void tryClose() {
+		try {
 			close();
-		}catch(IOException err){
+		} catch(IOException err) {
 			Main.debug(name + ": ignored error while closing connection: " + err.toString());
 		}
 	}
