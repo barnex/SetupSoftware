@@ -11,18 +11,18 @@ public final class PiezoPanel extends JPanel implements Updater {
 
 	ImageView viewer;                        // displays the image
 	JTextField[] posbox = new JTextField[4]; // enter positions for x, y, z,aux
-	JTextField pixX = new JTextField("20");  // number of pixels
-	JTextField pixY = new JTextField("20");  // number of pixels
-	JTextField strideX = new JTextField("5");// image size
-	JTextField strideY = new JTextField("5");// image size
-	JTextField settle = new JTextField("2"); // settle time
+	JTextField pixX = GUI.textbox("20");     // number of pixels
+	JTextField pixY = GUI.textbox("20");     // number of pixels
+	JTextField strideX = GUI.textbox("5");   // image size
+	JTextField strideY = GUI.textbox("5");   // image size
+	JTextField settle = GUI.textbox("2");    // settle time
 	JComboBox typeSel = new JComboBox(new String[] {"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
 	int scanI, scanJ;                        // scan directions (0=X, 1=Y, ...)
 	JLabel pitch = GUI.label("-");           // pixel pitch
 
 	static final String[]coordStr= {"x", "y", "z", "aux"};
-	static final double SMALL_JOG = 1./1024.;
-	static final double JOG = 32./1024.;
+	static final double SMALL_JOG = 1./200.;
+	static final double JOG = 1./20.;
 	static final int X = 0, Y=1, Z=2;
 
 	// read values from piezo and update textboxes, labels
@@ -294,7 +294,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 	// Panel for doing image scan
 	JPanel scanPanel() {
 		JPanel p = GUI.panel();
-		p.setLayout(new GridLayout(7, 2));
+		p.setLayout(new GridLayout(7, 2, 5, 5));
 
 		GUI.colorize(typeSel);
 		typeSel.setBackground(GUI.textBackground);
@@ -421,7 +421,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 	// Panel with position textboxes
 	JPanel textPanel() {
 		for(int i=0; i<posbox.length; i++) {
-			posbox[i] = GUI.textbox();
+			posbox[i] = GUI.textbox("");
 		}
 
 		ActionListener a = new ActionListener() {

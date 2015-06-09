@@ -72,8 +72,8 @@ public final class GUI {
 		return p;
 	}
 
-	static JTextField textbox() {
-		JTextField f = new JTextField();
+	static JTextField textbox(String text) {
+		JTextField f = new JTextField(text);
 		colorize(f);
 		f.setBackground(textBackground);
 		return f;
