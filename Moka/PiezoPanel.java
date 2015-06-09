@@ -3,21 +3,22 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+/** This is the GUI component for controlling the piezo stage and making images. */
 public final class PiezoPanel extends JPanel implements Updater {
 
-	PiezoController contr;
+	PiezoController contr;    // The piezo controller program we talk to
 	final double UNIT = 20.0; // piezo full range in micron
 
-	ImageView viewer;
-	JTextField[] posbox = new JTextField[4]; // x,y,z,aux
-	JTextField pixX = new JTextField("20");
-	JTextField pixY = new JTextField("20");
-	JTextField strideX = new JTextField("5");
-	JTextField strideY = new JTextField("5");
-	JTextField settle = new JTextField("2");
+	ImageView viewer;                        // displays the image
+	JTextField[] posbox = new JTextField[4]; // enter positions for x, y, z,aux
+	JTextField pixX = new JTextField("20");  // number of pixels
+	JTextField pixY = new JTextField("20");  // number of pixels
+	JTextField strideX = new JTextField("5");// image size
+	JTextField strideY = new JTextField("5");// image size
+	JTextField settle = new JTextField("2"); // settle time
 	JComboBox typeSel = new JComboBox(new String[] {"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
-	JLabel pitch = GUI.label("-");
-	int scanI, scanJ; // scan coordinates (0=X, 1=Y, ...)
+	int scanI, scanJ;                        // scan directions (0=X, 1=Y, ...)
+	JLabel pitch = GUI.label("-");           // pixel pitch
 
 	static final String[]coordStr= {"x", "y", "z", "aux"};
 	static final double SMALL_JOG = 1./1024.;
@@ -26,6 +27,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 
 	/// Build GUI
 
+	/** PiezoPanel for talking to specified controller. */
 	public PiezoPanel(PiezoController contr) {
 		this.contr = contr;
 
@@ -36,14 +38,12 @@ public final class PiezoPanel extends JPanel implements Updater {
 		JPanel side = GUI.panel();
 		side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
 		side.setBorder(new TitledBorder("piezo"));
-
 		side.add(buttonPanel());
 		side.add(textPanel());
 		side.add(scanPanel());
 
 		add(side, BorderLayout.EAST);
-
-		contr.viewer = this;
+		contr.viewer = this.viewer;
 	}
 
 	JPanel scanPanel() {
@@ -72,9 +72,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 		p.add(GUI.label("pixel pitch (µm):"));
 		p.add(pitch);
 
-
 		JPanel q = GUI.panel();
-		//q.setLayout(new BoxLayout(q, BoxLayout.Y_AXIS));
 		JButton scan = GUI.button("scan");
 		JButton abort = GUI.button("abort");
 		abort.setBackground(Color.RED);
@@ -100,6 +98,98 @@ public final class PiezoPanel extends JPanel implements Updater {
 		root.add(q);
 
 		return root;
+	}
+
+	JPanel buttonPanel() {
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(5, 7, 5, 5));
+
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↑↑", 0, 0, JOG));
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↑↑", JOG, 0, 0));
+
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↑", 0, 0, SMALL_JOG));
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↑", SMALL_JOG, 0, 0));
+
+		p.add(new JogButton("←←", 0, -JOG, 0));
+		p.add(new JogButton("←", 0, -SMALL_JOG, 0));
+		p.add(GUI.panel());
+		p.add(new JogButton("→", 0, SMALL_JOG, 0));
+		p.add(new JogButton("→→", 0, JOG, 0));
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↓", 0, 0, -SMALL_JOG));
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↓", -SMALL_JOG, 0, 0));
+
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↓↓", 0, 0, -JOG));
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(new JogButton("↓↓", -JOG, 0, 0));
+
+		p.setBackground(GUI.background);
+		p.setOpaque(true);
+		p.setPreferredSize(new Dimension(350, 250));
+		return p;
+	}
+
+	JPanel textPanel() {
+		for(int i=0; i<posbox.length; i++) {
+			posbox[i] = GUI.textbox();
+		}
+
+		ActionListener a = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double x = atof(posbox[0].getText())/UNIT;
+				double y = atof(posbox[1].getText())/UNIT;
+				double z = atof(posbox[2].getText())/UNIT;
+				double a = atof(posbox[3].getText())/UNIT;
+				Main.queue(new doGoto(x, y, z, a));
+			}
+		};
+
+		for(int i=0; i<posbox.length; i++) {
+			posbox[i].addActionListener(a);
+		}
+
+
+
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(7, 2, 5, 5));
+
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+
+		p.add(GUI.label("y (horiz, µm):"));
+		p.add(posbox[1]);
+		p.add(GUI.label("z (vert, µm):"));
+		p.add(posbox[2]);
+		p.add(GUI.panel());
+		p.add(GUI.panel());
+		p.add(GUI.label("x (focus, µm):"));
+		p.add(posbox[0]);
+		p.add(GUI.label("aux:"));
+		p.add(posbox[3]);
+
+		p.setBackground(GUI.background);
+		return p;
 	}
 
 
@@ -203,55 +293,6 @@ public final class PiezoPanel extends JPanel implements Updater {
 		}
 	}
 
-	JPanel buttonPanel() {
-		JPanel p = new JPanel();
-		p.setLayout(new GridLayout(5, 7, 5, 5));
-
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↑↑", 0, 0, JOG));
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↑↑", JOG, 0, 0));
-
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↑", 0, 0, SMALL_JOG));
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↑", SMALL_JOG, 0, 0));
-
-		p.add(new JogButton("←←", 0, -JOG, 0));
-		p.add(new JogButton("←", 0, -SMALL_JOG, 0));
-		p.add(GUI.panel());
-		p.add(new JogButton("→", 0, SMALL_JOG, 0));
-		p.add(new JogButton("→→", 0, JOG, 0));
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↓", 0, 0, -SMALL_JOG));
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↓", -SMALL_JOG, 0, 0));
-
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↓↓", 0, 0, -JOG));
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(new JogButton("↓↓", -JOG, 0, 0));
-
-		p.setBackground(GUI.background);
-		p.setOpaque(true);
-		p.setPreferredSize(new Dimension(350, 250));
-		return p;
-	}
 
 	class doGoto implements Task {
 		double x, y, z, a;
@@ -268,47 +309,6 @@ public final class PiezoPanel extends JPanel implements Updater {
 		}
 	}
 
-	JPanel textPanel() {
-		for(int i=0; i<posbox.length; i++) {
-			posbox[i] = GUI.textbox();
-		}
-
-		ActionListener a = new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				double x = atof(posbox[0].getText())/UNIT;
-				double y = atof(posbox[1].getText())/UNIT;
-				double z = atof(posbox[2].getText())/UNIT;
-				double a = atof(posbox[3].getText())/UNIT;
-				Main.queue(new doGoto(x, y, z, a));
-			}
-		};
-
-		for(int i=0; i<posbox.length; i++) {
-			posbox[i].addActionListener(a);
-		}
-
-
-
-		JPanel p = new JPanel();
-		p.setLayout(new GridLayout(7, 2, 5, 5));
-
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-
-		p.add(GUI.label("y (horiz, µm):"));
-		p.add(posbox[1]);
-		p.add(GUI.label("z (vert, µm):"));
-		p.add(posbox[2]);
-		p.add(GUI.panel());
-		p.add(GUI.panel());
-		p.add(GUI.label("x (focus, µm):"));
-		p.add(posbox[0]);
-		p.add(GUI.label("aux:"));
-		p.add(posbox[3]);
-
-		p.setBackground(GUI.background);
-		return p;
-	}
 
 	static double atof(String a) {
 		double f = Double.parseDouble(a);
