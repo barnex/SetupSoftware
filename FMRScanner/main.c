@@ -89,11 +89,22 @@ int main(int argc, char **argv) {
 	FILE * dest = fopen(filename, "w");
 
 	// Init the sockets
+	printf("%s: connecting to FFTGrabber:%d \n", progname, FFT_PORT);
 	int audioSocket = initClient(FFT_PORT);
+
+	printf("%s: connecting to HP Tx:%d \n",progname, TX_PORT);
 	int HPTxSocket  = initClient(TX_PORT);
+
+	printf("%s: connecting to HP Rx:%d \n",progname, RX_PORT);
 	int HPRxSocket  = initClient(RX_PORT);
+
+	printf("%s: connecting to CurrentSense:%d \n",progname, IPD_PORT);
 	int IPDSocket = initClient(IPD_PORT);
+
+	printf("%s: connecting to Controller:%d \n", progname,CTRLR_PORT);
 	int fieldSocket = initClient(CTRLR_PORT);
+
+	printf("%s: connecting to Rigol:%d \n", progname,RIGOL_PORT);
 	int RigolSocket = initClient(RIGOL_PORT);
 
 

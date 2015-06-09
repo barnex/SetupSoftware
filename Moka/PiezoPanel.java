@@ -11,10 +11,10 @@ public final class PiezoPanel extends JPanel implements Updater {
 
 	ImageView viewer;                        // displays the image
 	JTextField[] posbox = new JTextField[4]; // enter positions for x, y, z,aux
-	JTextField pixX = GUI.textbox("20");     // number of pixels
-	JTextField pixY = GUI.textbox("20");     // number of pixels
-	JTextField strideX = GUI.textbox("5");   // image size
-	JTextField strideY = GUI.textbox("5");   // image size
+	JTextField pixX = GUI.textbox("32");     // number of pixels
+	JTextField pixY = GUI.textbox("32");     // number of pixels
+	JTextField strideX = GUI.textbox("8");   // image size
+	JTextField strideY = GUI.textbox("8");   // image size
 	JTextField settle = GUI.textbox("2");    // settle time
 	JComboBox typeSel = new JComboBox(new String[] {"image (YZ)", "focus horiz. (YX)", "focus vert. (ZX)"});
 	int scanI, scanJ;                        // scan directions (0=X, 1=Y, ...)

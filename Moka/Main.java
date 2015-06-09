@@ -12,39 +12,24 @@ public final class Main {
 
 	public static void main(String[] args) throws Exception {
 		init();
-		reconnect(); // if the initial connection fails, let's exit and troubleshoot.
+		connect(); // if the initial connection fails, let's exit and troubleshoot.
+		disconnect();
 
 		// main loop: receive requests from gui.
-		for( ;; ) {
-
-			// run tasks untill error
-			for(;;) {
-				Task t = null;
-				try {
-					t = Main.requests.take();
-					Main.err("running: " + t.toString());
-					t.run();
-					Main.err("ready");
-				} catch(Exception e) {
-					Main.err(t.toString() + ": " + e.toString());
-					piezo.dev.tryClose();
-					break;
-				}
+		for(;;) {
+			Task t = null;
+			try {
+				t = Main.requests.take();
+				Main.err("running: " + t.toString());
+				connect();
+				t.run();
+				Main.err("ready");
+			} catch(Exception e) {
+				Main.err(t.toString() + ": " + e.toString());
+				piezo.dev.tryClose();
+				break;
 			}
-
-			// re-connect
-			boolean ok = false;
-			while(!ok) {
-				try {
-					reconnect();
-					ok = true;
-				} catch(Exception e) {
-					Main.err(e.toString() + ", retrying connection...");
-					Thread.sleep(3000);
-					ok = false;
-				}
-			}
-
+			disconnect();
 		}
 
 	}
@@ -60,8 +45,12 @@ public final class Main {
 		}
 	}
 
-	static void reconnect() throws Exception {
+	static void connect() throws Exception {
 		piezo.dev.connect();
+	}
+
+	static void disconnect() throws Exception {
+		piezo.dev.tryClose();
 	}
 
 	static void init() {
