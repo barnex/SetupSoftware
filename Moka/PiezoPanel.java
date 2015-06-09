@@ -34,8 +34,6 @@ public final class PiezoPanel extends JPanel implements Updater {
 		viewer.update();
 	}
 
-
-
 	class doScan implements Task {
 		int w, h;
 		double x, y, z, a;
@@ -45,8 +43,6 @@ public final class PiezoPanel extends JPanel implements Updater {
 		double tsettle;
 
 		doScan() {
-
-
 			x = atof(posbox[0].getText())/UNIT;
 			y = atof(posbox[1].getText())/UNIT;
 			z = atof(posbox[2].getText())/UNIT;
@@ -107,10 +103,10 @@ public final class PiezoPanel extends JPanel implements Updater {
 			viewer.dy = jinc*UNIT;
 			viewer.x0 = i0*UNIT;
 			viewer.y0 = j0*UNIT;
-
 			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);
 		}
+
 		public void run() throws Exception {
 			Main.piezo.setStart(x, y, z, a);
 			Main.piezo.goTo();
@@ -119,12 +115,15 @@ public final class PiezoPanel extends JPanel implements Updater {
 			Main.piezo.setJInc(xjinc, yjinc, zjinc, auxjinc);
 			Main.piezo.setTSettle(tsettle);
 			Main.piezo.scan2d();
-			Main.piezo.dev.connect(); // TODO: make sure controller doesn't drop connection
+			Main.piezo.dev.connect(); // For some reason the controller drops connection here
 			Main.piezo.setStart(startX, startY, startZ, startA);
 			Main.piezo.goTo();
 		}
-	}
 
+		public String toString() {
+			return "Scan";
+		}
+	}
 
 	class doGoto implements Task {
 		double x, y, z, a;
@@ -139,15 +138,10 @@ public final class PiezoPanel extends JPanel implements Updater {
 			Main.piezo.goTo();
 			GUI.update();
 		}
+		public String toString() {
+			return "GoTo";
+		}
 	}
-
-
-	static double atof(String a) {
-		double f = Double.parseDouble(a);
-		return f;
-	}
-
-
 
 	class doJog implements Task {
 		double dx, dy, dz;
@@ -160,11 +154,13 @@ public final class PiezoPanel extends JPanel implements Updater {
 			Main.piezo.jog(dx, dy, dz);
 			GUI.update();
 		}
+		public String toString() {
+			return "Jog";
+		}
 	}
 
-	private static final long serialVersionUID = 1; // sigh...
 
-
+	/** ImageView draws the scanned image */
 	class ImageView extends JPanel implements MouseListener, MouseMotionListener, Updater {
 
 		int chan = 0;
@@ -186,6 +182,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 		public void mousePressed(MouseEvent e) {}
 		public void mouseReleased(MouseEvent e) {}
 		public void mouseClicked(MouseEvent e) {
+			// Put mouse position in text boxes.
 			if (e.getClickCount() == 2) {
 				GUI.piezo.posbox[GUI.piezo.scanI].setText(fmt(mouseX));
 				GUI.piezo.posbox[GUI.piezo.scanJ].setText(fmt(mouseY));
@@ -193,6 +190,7 @@ public final class PiezoPanel extends JPanel implements Updater {
 		}
 		public void mouseDragged(MouseEvent e) {}
 		public void mouseMoved(MouseEvent e) {
+			// Display coordinates in GUI
 			float[][][] image = contr.image;
 			int W = getWidth();
 			int H = getHeight();
@@ -204,21 +202,15 @@ public final class PiezoPanel extends JPanel implements Updater {
 			double J = (double)(j*nJ)/H;
 			mouseX = x0 + dx * I;
 			mouseY = y0 + dy * J;
-
-			if (coords != null) {
-				coords.setText(fmt(mouseX) + ", " + fmt(mouseY) + " µm");
-
-			}
-
+			GUI.statusLabel.setText(fmt(mouseX) + ", " + fmt(mouseY) + " µm");
 		}
 
 		public void update() {
+			// determine new min/max pixel values and repaint
 			float[][][] image = contr.image;
 			float[][] img = image[chan];
-
 			float min = Float.MAX_VALUE;
 			float max = Float.MIN_VALUE;
-
 			for(int i=0; i<img.length; i++) {
 				for(int j=0; j<img[i].length; j++) {
 					float v = img[i][j];
@@ -230,11 +222,8 @@ public final class PiezoPanel extends JPanel implements Updater {
 					}
 				}
 			}
-
 			colormap.setRange(min, max);
-
 			repaint();
-
 		}
 
 		public void paintComponent(Graphics g_) {
@@ -244,9 +233,8 @@ public final class PiezoPanel extends JPanel implements Updater {
 			int H = getHeight();
 
 			// clear background
-			g.setColor(Color.WHITE);
+			g.setColor(Color.BLUE);
 			g.fillRect(0, 0, W, H);
-
 
 			float[][] img = contr.image[chan];
 			int nI = img.length;
@@ -273,9 +261,13 @@ public final class PiezoPanel extends JPanel implements Updater {
 		private static final long serialVersionUID = 1; // sigh...
 	}
 
-
 	static String fmt(double x) {
 		return String.format("%.2f", x);
+	}
+
+	static double atof(String a) {
+		double f = Double.parseDouble(a);
+		return f;
 	}
 
 	/// Build GUI /////////////////////////////////////////////////////////////////////////
@@ -464,4 +456,6 @@ public final class PiezoPanel extends JPanel implements Updater {
 
 		return p;
 	}
+
+	private static final long serialVersionUID = 1; // sigh...
 }
