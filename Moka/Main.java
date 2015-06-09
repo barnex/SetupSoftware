@@ -26,12 +26,10 @@ public final class Main {
 				Main.err("ready");
 			} catch(Exception e) {
 				Main.err(t.toString() + ": " + e.toString());
-				piezo.dev.tryClose();
-				break;
+				disconnect();
 			}
 			disconnect();
 		}
-
 	}
 
 	// Queue a Task to be executed in the main loop as soon as possible.
