@@ -7,12 +7,11 @@ public final class PiezoController {
 
 	double posX = 0.5, posY = 0.5, posZ = 0.5, posAux; // last position, dimensionless: 0..1
 	int nX, nY;                                        // # pixels to scan
-	private float[][][] image = new float[N_CHAN][nY][nX];     // last recored image
+	float[][][] image = new float[N_CHAN][1][1];       // last recored image (start with non-empty not to crash viewer)
 
 	public static final int N_CHAN = 8; // Number of recored channels.
 
-	ImageView viewer = null;
-
+	Updater viewer; // call it's update() on new pixel
 
 	public PiezoController(String host, int port) {
 		dev = new Device("piezo", host, port);
@@ -122,7 +121,7 @@ public final class PiezoController {
 					image[c][y][x] = Proto.toFloatOff(data, 4*c);
 				}
 				if(viewer != null) {
-					viewer.display(image);
+					viewer.update();
 				}
 			}
 		}

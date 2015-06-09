@@ -3,10 +3,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public final class PiezoPanel extends JPanel {
+public final class PiezoPanel extends JPanel implements Updater {
 
+	PiezoController contr;
 	final double UNIT = 20.0; // piezo full range in micron
 
+	ImageView viewer;
 	JTextField[] posbox = new JTextField[4]; // x,y,z,aux
 	JTextField pixX = new JTextField("20");
 	JTextField pixY = new JTextField("20");
@@ -22,22 +24,26 @@ public final class PiezoPanel extends JPanel {
 	static final double JOG = 32./1024.;
 	static final int X = 0, Y=1, Z=2;
 
-	public PiezoPanel() {
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		GUI.colorize(this);
-		setBorder(new TitledBorder("piezo"));
+	/// Build GUI
 
-		add(buttonPanel());
-		add(textPanel());
-		add(scanPanel());
-	}
+	public PiezoPanel(PiezoController contr) {
+		this.contr = contr;
 
-	// read values from piezo and update textboxes, labels
-	void update() {
-		posbox[0].setText("" + Main.piezo.posX*UNIT);
-		posbox[1].setText("" + Main.piezo.posY*UNIT);
-		posbox[2].setText("" + Main.piezo.posZ*UNIT);
-		posbox[3].setText("" + Main.piezo.posAux);
+		setLayout(new BorderLayout());
+		viewer = new ImageView();
+		add(viewer, BorderLayout.CENTER);
+
+		JPanel side = GUI.panel();
+		side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
+		side.setBorder(new TitledBorder("piezo"));
+
+		side.add(buttonPanel());
+		side.add(textPanel());
+		side.add(scanPanel());
+
+		add(side, BorderLayout.EAST);
+
+		contr.viewer = this;
 	}
 
 	JPanel scanPanel() {
@@ -95,6 +101,17 @@ public final class PiezoPanel extends JPanel {
 
 		return root;
 	}
+
+
+	// read values from piezo and update textboxes, labels
+	public void update() {
+		posbox[0].setText("" + Main.piezo.posX*UNIT);
+		posbox[1].setText("" + Main.piezo.posY*UNIT);
+		posbox[2].setText("" + Main.piezo.posZ*UNIT);
+		posbox[3].setText("" + Main.piezo.posAux);
+		viewer.update();
+	}
+
 
 
 	class doScan implements Task {
@@ -164,10 +181,10 @@ public final class PiezoPanel extends JPanel {
 				scanJ = X;
 				break;
 			}
-			GUI.viewer.dx = iinc*UNIT;
-			GUI.viewer.dy = jinc*UNIT;
-			GUI.viewer.x0 = i0*UNIT;
-			GUI.viewer.y0 = j0*UNIT;
+			viewer.dx = iinc*UNIT;
+			viewer.dy = jinc*UNIT;
+			viewer.x0 = i0*UNIT;
+			viewer.y0 = j0*UNIT;
 
 			tsettle = atof(settle.getText());
 			settle.setText(""+tsettle);
@@ -333,4 +350,118 @@ public final class PiezoPanel extends JPanel {
 	}
 
 	private static final long serialVersionUID = 1; // sigh...
+
+
+	class ImageView extends JPanel implements MouseListener, MouseMotionListener, Updater {
+
+		int chan = 0;
+		ColorMap colormap = new ColorMap();
+		double x0, y0, dx, dy; // center position and pixel stride, in µm, to display cursor position
+		double mouseX, mouseY; // last mouse position, in µm
+		JLabel coords;
+
+		public ImageView() {
+			GUI.colorize(this);
+			setPreferredSize(new Dimension(512, 512));
+			addMouseListener(this);
+			addMouseMotionListener(this);
+			setCursor (Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		}
+
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				GUI.piezo.posbox[GUI.piezo.scanI].setText(fmt(mouseX));
+				GUI.piezo.posbox[GUI.piezo.scanJ].setText(fmt(mouseY));
+			}
+		}
+		public void mouseDragged(MouseEvent e) {}
+		public void mouseMoved(MouseEvent e) {
+			float[][][] image = contr.image;
+			int W = getWidth();
+			int H = getHeight();
+			int i = e.getX();
+			int j = (H-e.getY());
+			int nJ = image[chan].length;
+			int nI = image[chan][0].length;
+			double I = (double)(i*nI)/W;
+			double J = (double)(j*nJ)/H;
+			mouseX = x0 + dx * I;
+			mouseY = y0 + dy * J;
+
+			if (coords != null) {
+				coords.setText(fmt(mouseX) + ", " + fmt(mouseY) + " µm");
+
+			}
+
+		}
+
+		public void update() {
+			float[][][] image = contr.image;
+			float[][] img = image[chan];
+
+			float min = Float.MAX_VALUE;
+			float max = Float.MIN_VALUE;
+
+			for(int i=0; i<img.length; i++) {
+				for(int j=0; j<img[i].length; j++) {
+					float v = img[i][j];
+					if(v<min) {
+						min=v;
+					}
+					if(v>max) {
+						max=v;
+					}
+				}
+			}
+
+			colormap.setRange(min, max);
+
+			repaint();
+
+		}
+
+		public void paintComponent(Graphics g_) {
+
+			Graphics2D g = (Graphics2D)(g_);
+			int W = getWidth();
+			int H = getHeight();
+
+			// clear background
+			g.setColor(Color.WHITE);
+			g.fillRect(0, 0, W, H);
+
+
+			float[][] img = contr.image[chan];
+			int nI = img.length;
+			int nJ = img[0].length;
+			int sx = W / nJ + 1;
+			int sy = H / nI + 1;
+
+			for(int i=0; i<nI; i++) {
+				for(int j=0; j<nJ; j++) {
+					int x = (W*j)/nJ;
+					int y = H-(H*i)/nI-sy;
+
+					double v = (double)(img[i][j]);
+					if(Double.isNaN(v)) {
+						continue;
+					}
+					Color c = colormap.get(v);
+					g.setColor(c);
+					g.fillRect(x, y, sx, sy);
+				}
+			}
+		}
+
+		private static final long serialVersionUID = 1; // sigh...
+	}
+
+
+	static String fmt(double x) {
+		return String.format("%.2f", x);
+	}
 }

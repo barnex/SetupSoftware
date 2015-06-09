@@ -11,7 +11,6 @@ public final class GUI {
 	static final Color textBackground = Color.WHITE;
 	static final String progname = "MOKA controller";
 
-	static ImageView viewer = new ImageView();
 	static JLabel statusLabel = label(progname);
 	static PiezoPanel piezo;
 
@@ -21,16 +20,11 @@ public final class GUI {
 	public static void init()  {
 		JFrame f = makeFrame();
 
-		f.getContentPane().add(viewer, BorderLayout.CENTER);
-
 		f.getContentPane().add(statusLabel, BorderLayout.SOUTH);
-		viewer.coords = statusLabel;
 
-		JPanel pp = new JPanel();
-		pp.setBackground(background);
-		piezo = new PiezoPanel();
-		pp.add(piezo);
-		f.getContentPane().add(pp, BorderLayout.EAST);
+		piezo = new PiezoPanel(Main.piezo);
+		f.getContentPane().add(piezo, BorderLayout.CENTER);
+
 		update();
 
 		f.pack();

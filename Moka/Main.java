@@ -67,7 +67,6 @@ public final class Main {
 	static void init() {
 		piezo = new PiezoController("mona.ugent.be", 5000);
 		GUI.init();
-		piezo.viewer = GUI.viewer;
 	}
 
 	static void debug(String msg) {
