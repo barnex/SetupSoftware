@@ -9,6 +9,8 @@ Expected port: 5000.
 An interface to a STM32 based current sensor (current through fast photodiode). 
 Expected port: 5002.
 
+## RigolInterface
+Interfaces with Rigol multimeter. Expected port: 5005.
 
 ## FFTGrabber
 Records samples from a soundcard and returns the Fourier transform. Expected port: 5004
