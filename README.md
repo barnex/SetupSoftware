@@ -11,11 +11,13 @@ Expected port: 5002.
 
 
 ## FFTGrabber
-Records samples from a soundcard and returns the Fourier transform.
+Records samples from a soundcard and returns the Fourier transform. Expected port: 5004
+
 Dependencies: 
   * portaudio (Ubuntu 15.04: ``sudo apt-get install portaudio19-dev``)
   * fftw (Ubuntu 15.04: ``sudo apt-get install fftw-dev``)
-Expected port: 5004
+
+
 
 ## HPInterface
 Interfaces both with a Prologix or Arduino based GPIB controller hooked up to the HP 8672A signal generator.
