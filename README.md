@@ -2,35 +2,46 @@
 
 ## Controller
 Presents an interface to the STM32 based piezo/magnet controller with 8-channel, 16-bit bipolar ADC input.
+Expected port: 5000.
+
 
 ## CurrentSense
-An interface to a STM32 based current sensor (current through fast photodiode)
+An interface to a STM32 based current sensor (current through fast photodiode). 
+Expected port: 5002.
 
-## Dumbscanner
-
-## FMRScanner
-TODO: warnings
-
-## Piezoscanner
-TODO: warnings
-
-## PiezoFMR
 
 ## FFTGrabber
 Records samples from a soundcard and returns the Fourier transform.
 Dependencies: 
   * portaudio (Ubuntu 15.04: ``sudo apt-get install portaudio19-dev``)
   * fftw (Ubuntu 15.04: ``sudo apt-get install fftw-dev``)
+Expected port: 5004
 
 ## HPInterface
-interfaces both with a Prologix or Arduino based GPIB controller hooked up to the HP 8672A signal generator
-TODO: warnings
+Interfaces both with a Prologix or Arduino based GPIB controller hooked up to the HP 8672A signal generator.
+Expected port: 5003 for the TX generator (excitation), 5001 for RX (detection).
+Arduino-based GPIB controller firmware image: https://github.com/tibal/agipibi.
 
 ## HittiteInterface
-TODO: warnings
+Presumably talks to Hittite signal generator.
+
+## Moka
+java GUI for imaging with the piezo stage.
+
+![fig](Moka/screenshot.png)
+
+## FMRScanner
+Reads ~/fmr_scanner.ini and performs FMR scan.
+
+## Piezoscanner
+Obsolete, replaced by Moka
+
+## PiezoFMR
+Obsolete.
 
 ## ScannerGUI
-TODO: makefiles
+Obsolete, replace by Moka
+
 
 
 ## Libraries
