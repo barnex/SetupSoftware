@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <string.h>
 
+void gpib_write(int gpib, int len, char *cmdString);
 int setWrapper( char *stringParam, double *value, int *sockfd, int gpib);
 int idWrapper( int *sockfd );
 

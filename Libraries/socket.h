@@ -22,6 +22,9 @@ int eaccept(int listener);
 // listen on portno and return socket FD.
 int initServer(int portno) __attribute__((warn_unused_result));
 
+// connect to hostname:port and return socket FD.
+int connect_to(char *hostname, int port) __attribute((warn_unused_result));
+
 // connect to portno and return socket FD.
 int initClient(int portno ) __attribute__((warn_unused_result));
 

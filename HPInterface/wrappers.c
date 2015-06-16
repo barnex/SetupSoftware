@@ -56,10 +56,9 @@ void getPowerString(double power, int enable, int internal, char *cmdString) {
 	}
 }
 
-void gpib_write_debug(int gpib, int len, char *cmdString) {
+void gpib_write(int gpib, int len, char *cmdString) {
 	printf("%s: GPIB write: %s \n", progname, cmdString);
-	//int ret = gpib_write( gpib, len, cmdString);
-	//printf("%s: GPIB returned %d\n", progname, ret);
+	ewrite(gpib, cmdString, len);
 }
 
 int setWrapper( char *stringParam, double *value, int *sockfd, int gpib) {
@@ -67,11 +66,11 @@ int setWrapper( char *stringParam, double *value, int *sockfd, int gpib) {
 		char cmdString[256];
 		getFrequencyString((double) value[0], (double) value[1], cmdString);
 		//printf("%d, %e, %s\n", (int) value[0], value[1], cmdString);
-		gpib_write_debug(gpib, strlen(cmdString), cmdString);
+		gpib_write(gpib, strlen(cmdString), cmdString);
 	} else if(strstr(stringParam, "POW") != NULL ) {
 		char cmdString[256];
 		getPowerString(value[0], (int)value[1], (int)value[2], cmdString);
-		gpib_write_debug( gpib, strlen(cmdString), cmdString);
+		gpib_write( gpib, strlen(cmdString), cmdString);
 	} else {
 		int32_t tmp = UNKNOWN_PARAMETER;
 		ewrite(*sockfd, &tmp, sizeof(int32_t));

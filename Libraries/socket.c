@@ -47,8 +47,8 @@ int initServer(int portno) {
 	return sockfd;
 }
 
-int initClient(int portno) {
-	fprintf(stderr, "%s: connecting to localhost:%d\n", progname, portno);
+int connect_to(char *hostname, int portno){
+	fprintf(stderr, "%s: connecting to %s:%d\n", progname, hostname, portno);
 	checkPort(portno);
 
 	int sockfd = esocket();
@@ -56,7 +56,7 @@ int initClient(int portno) {
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
-	server = gethostbyname("localhost");
+	server = gethostbyname(hostname);
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = portno;
@@ -71,5 +71,9 @@ int initClient(int portno) {
 		fatal("connect");
 	}
 	return sockfd;
+}
+
+int initClient(int portno) {
+	return connect_to("localhost", portno);
 }
 

@@ -12,27 +12,68 @@
 #define CMD_ID	    8
 
 #define MAX_PARAMS  3
+#define PROLOGIX_PORT 1234
 
 
 static int handleRequest( char *cmdbuffer, int *clientfd, int gpib);
 static void serverLoop();
-static int openPrologix();
+static int initPrologix();
 
 
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
-	checkArgs(argc, 2, "server port(5001/5003), prologix IP address(157.193.57.199) or USB device file (/dev/...)");
+	checkArgs(argc, 3, "server port(5001/5003), prologix IP address(157.193.57.199) or USB device file (/dev/...), GPIB device id (2/4)");
+	char *my_port = argv[1];
+	char *prologix = argv[2];
+	char *gpib_id = argv[3];
 
-	int gpib = openPrologix();
-
-	serverLoop(atoi(argv[1]), gpib);
+	int gpib = initPrologix(prologix, atoi(gpib_id));
+	serverLoop(atoi(my_port), gpib);
 
 	return 666; // never reached
 }
 
-static int openPrologix() {
-	return 0;
+static void gpib_writestr(int fd, char* msg){
+	gpib_write(fd, strlen(msg), msg);
 }
+
+#define BYTETOBINARYPATTERN "%d%d%d%d %d%d%d%d"
+#define BYTETOBINARY(byte)  \
+  (byte & 0x80 ? 1 : 0), \
+  (byte & 0x40 ? 1 : 0), \
+  (byte & 0x20 ? 1 : 0), \
+  (byte & 0x10 ? 1 : 0), \
+  (byte & 0x08 ? 1 : 0), \
+  (byte & 0x04 ? 1 : 0), \
+  (byte & 0x02 ? 1 : 0), \
+  (byte & 0x01 ? 1 : 0) 
+
+static int initPrologix(char *dev, int gpib_id) {
+	int fd = connect_to(dev, PROLOGIX_PORT);
+
+	char buf[100];
+	sprintf(buf, "++addr %d\n", gpib_id);
+	gpib_writestr(fd, buf);
+	gpib_writestr(fd, "++mode 1\n");
+	gpib_writestr(fd, "++eos 3\n");
+	gpib_writestr(fd, "++clr\n");
+
+	printf("%s: polling GPIB...\n", progname);
+	sprintf(buf, "++spoll %d\n", gpib_id);
+	gpib_writestr(fd, buf);
+	uint8_t status = 0;
+	int n = read(fd, &status, 1);
+	if(n != 1){
+		printf("%s: could not poll GPIB\n", progname);
+		abort();
+	}
+  	printf ("%s: serial poll status byte: "BYTETOBINARYPATTERN"\n", progname, BYTETOBINARY(status));
+	//printf("%s: serial poll status byte: %d\n", progname, status);
+	return fd;
+}
+
+
+
 
 static void serverLoop(int port, int gpib) {
 	char socketBuffer[1024];
