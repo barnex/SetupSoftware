@@ -11,9 +11,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "gpib.h"
-int setWrapper( char *stringParam, double *value, int *sockfd, gpibio *gpib);
-
-int	idWrapper( int *sockfd );
+int setWrapper( char *stringParam, double *value, int *sockfd, int gpib);
+int idWrapper( int *sockfd );
 
 #endif

@@ -56,13 +56,13 @@ void getPowerString(double power, int enable, int internal, char *cmdString) {
 	}
 }
 
-void gpib_write_debug(gpibio *gpib, int len, char *cmdString) {
+void gpib_write_debug(int gpib, int len, char *cmdString) {
 	printf("%s: GPIB write: %s \n", progname, cmdString);
-	int ret = gpib_write( gpib, len, cmdString);
-	printf("%s: GPIB returned %d\n", progname, ret);
+	//int ret = gpib_write( gpib, len, cmdString);
+	//printf("%s: GPIB returned %d\n", progname, ret);
 }
 
-int setWrapper( char *stringParam, double *value, int *sockfd, gpibio *gpib) {
+int setWrapper( char *stringParam, double *value, int *sockfd, int gpib) {
 	if( strstr(stringParam, "FREQ") != NULL ) {
 		char cmdString[256];
 		getFrequencyString((double) value[0], (double) value[1], cmdString);

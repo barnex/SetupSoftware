@@ -4,73 +4,57 @@
 
 #include "wrappers.h"
 
-#ifdef _USE_ARDUINO
-#include "gpib.h"
-#endif
-
 #include "../Libraries/errors.h"
 #include "../Libraries/io.h"
 #include "../Libraries/socket.h"
-
-#ifndef _GPIB_LISTENER
-#define _GPIB_LISTENER 4
-#endif
 
 #define CMD_SET	    1
 #define CMD_ID	    8
 
 #define MAX_PARAMS  3
 
-#define GPIB_DEV "/dev/ttyACM0"
 
-int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib);
+static int handleRequest( char *cmdbuffer, int *clientfd, int gpib);
+static void serverLoop();
+static int openPrologix();
 
 
 int main(int argc, char **argv) {
 	setProgName(argv[0]);
-	checkArgs(argc, 1, "port number");
+	checkArgs(argc, 2, "server port(5001/5003), prologix IP address(157.193.57.199) or USB device file (/dev/...)");
 
-	// Basic init
-	printf("%s: init GPIB: %s...\n", progname, GPIB_DEV);
-	gpibio *gpib = gpib_init(0x00, 0x01, GPIB_DEV);
-	if( gpib == NULL ) {
-		fatal("init GPIB");
-	}
+	int gpib = openPrologix();
 
-	printf("%s: pinging GPIB...\n", progname);
-	int ping = gpib_ping(gpib);
-	if(ping == 0) {
-		fatal("unable to ping GPIB");
-	}
+	serverLoop(atoi(argv[1]), gpib);
 
-	// Resetting GPIB bus
-	printf("%s: resetting GPIB bus...\n", progname);
-	gpib_remote(gpib, 1);
-	gpib_clear(gpib, 1);
-	gpib_untalk(gpib);
-	gpib_unlisten(gpib);
-	gpib_talker( gpib, 0x00 );
-	gpib_listener( gpib, _GPIB_LISTENER );
+	return 666; // never reached
+}
 
+static int openPrologix() {
+	return 0;
+}
+
+static void serverLoop(int port, int gpib) {
 	char socketBuffer[1024];
-	int sockfd = initServer(atoi(argv[1]) );
+	int sockfd = initServer(port);
 
 	while(1) {
 		int clientfd = eaccept(sockfd);
 		int ret = myRead( clientfd, socketBuffer, 1024 );
 		while( ret > 0 ) {
 			printf("Received: %s\n", socketBuffer);
+
 			handleRequest(socketBuffer, &clientfd, gpib);
+
 			ret = myRead(clientfd, socketBuffer, 1024);
 		}
 		close(clientfd);
 
 	}
-
-	return EXIT_SUCCESS;
 }
 
-int handleRequest( char *cmdbuffer, int *clientfd, gpibio *gpib) {
+
+static int handleRequest(char *cmdbuffer, int *clientfd, int gpib) {
 	char *localCopy = NULL, *request = NULL, *stringParam = NULL;
 	double parameters[MAX_PARAMS];
 	int command = 0;
