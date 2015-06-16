@@ -42,7 +42,7 @@ static void serverLoop(int port, int gpib) {
 		int clientfd = eaccept(sockfd);
 		int ret = myRead( clientfd, socketBuffer, 1024 );
 		while( ret > 0 ) {
-			printf("Received: %s\n", socketBuffer);
+			printf("%s: %s\n", progname, socketBuffer);
 
 			handleRequest(socketBuffer, &clientfd, gpib);
 
