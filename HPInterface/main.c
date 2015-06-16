@@ -18,6 +18,7 @@
 static int handleRequest( char *cmdbuffer, int *clientfd, int gpib);
 static void serverLoop();
 static int initPrologix();
+static void pollPrologix();
 
 
 int main(int argc, char **argv) {
@@ -25,16 +26,32 @@ int main(int argc, char **argv) {
 	checkArgs(argc, 3, "server port(5001/5003), prologix IP address(157.193.57.199) or USB device file (/dev/...), GPIB device id (2/4)");
 	char *my_port = argv[1];
 	char *prologix = argv[2];
-	char *gpib_id = argv[3];
+	int gpib_id = atoi(argv[3]);
 
-	int gpib = initPrologix(prologix, atoi(gpib_id));
+	int gpib = initPrologix(prologix, gpib_id);
+	pollPrologix(gpib, gpib_id);
+
 	serverLoop(atoi(my_port), gpib);
 
 	return 666; // never reached
 }
 
-static void gpib_writestr(int fd, char* msg){
+static void gpib_writestr(int fd, char* msg) {
 	gpib_write(fd, strlen(msg), msg);
+}
+
+// open and initialize prologix controller for talking to device at gpib ID (e.g. 4).
+static int initPrologix(char *dev, int gpib_id) {
+	int fd = connect_to(dev, PROLOGIX_PORT);
+
+	char buf[100];
+	sprintf(buf, "++addr %d\n", gpib_id);
+	gpib_writestr(fd, buf);
+	gpib_writestr(fd, "++mode 1\n");
+	gpib_writestr(fd, "++eos 3\n");
+	gpib_writestr(fd, "++clr\n");
+
+	return fd;
 }
 
 #define BYTETOBINARYPATTERN "%d%d%d%d %d%d%d%d"
@@ -46,35 +63,26 @@ static void gpib_writestr(int fd, char* msg){
   (byte & 0x08 ? 1 : 0), \
   (byte & 0x04 ? 1 : 0), \
   (byte & 0x02 ? 1 : 0), \
-  (byte & 0x01 ? 1 : 0) 
+  (byte & 0x01 ? 1 : 0)
 
-static int initPrologix(char *dev, int gpib_id) {
-	int fd = connect_to(dev, PROLOGIX_PORT);
-
+// serial poll the GPIB and print the status byte.
+static void pollPrologix(int fd, int gpib_id) {
 	char buf[100];
-	sprintf(buf, "++addr %d\n", gpib_id);
-	gpib_writestr(fd, buf);
-	gpib_writestr(fd, "++mode 1\n");
-	gpib_writestr(fd, "++eos 3\n");
-	gpib_writestr(fd, "++clr\n");
-
-	printf("%s: polling GPIB...\n", progname);
+	printf("%s: polling GPIB address %d...\n", progname, gpib_id);
 	sprintf(buf, "++spoll %d\n", gpib_id);
 	gpib_writestr(fd, buf);
 	uint8_t status = 0;
 	int n = read(fd, &status, 1);
-	if(n != 1){
+	if(n != 1) {
 		printf("%s: could not poll GPIB\n", progname);
 		abort();
 	}
-  	printf ("%s: serial poll status byte: "BYTETOBINARYPATTERN"\n", progname, BYTETOBINARY(status));
+	printf ("%s: serial poll status byte: "BYTETOBINARYPATTERN"\n", progname, BYTETOBINARY(status));
 	//printf("%s: serial poll status byte: %d\n", progname, status);
-	return fd;
 }
 
 
-
-
+// infinite server loop.
 static void serverLoop(int port, int gpib) {
 	char socketBuffer[1024];
 	int sockfd = initServer(port);

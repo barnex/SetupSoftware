@@ -47,7 +47,7 @@ int initServer(int portno) {
 	return sockfd;
 }
 
-int connect_to(char *hostname, int portno){
+int connect_to(char *hostname, int portno) {
 	fprintf(stderr, "%s: connecting to %s:%d\n", progname, hostname, portno);
 	checkPort(portno);
 
