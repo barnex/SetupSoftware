@@ -1,4 +1,6 @@
-#SetupSoftware
+# SetupSoftware
+
+Software for controlling Dynamat's Magneto-Optical Scanning Microscope.
 
 ## Controller
 Presents an interface to the STM32 based piezo/magnet controller with 8-channel, 16-bit bipolar ADC input.
